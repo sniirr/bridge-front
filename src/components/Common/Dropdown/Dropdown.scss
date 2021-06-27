@@ -1,0 +1,35 @@
+.dropdown {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+
+  .caret {
+    width: 20px;
+    text-align: center;
+  }
+
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% - 4px);
+    //right: -10px;
+    left: 0;
+    background-color: transparent;
+    z-index: 10;
+    text-align: left;
+
+    .dropdown-item {
+      padding: 12px 0;
+
+      &:not(:last-child) {
+        border-bottom: solid 1px white;
+      }
+    }
+  }
+
+  &.is-visible {
+    .dropdown-menu {
+      display: block;
+    }
+  }
+}

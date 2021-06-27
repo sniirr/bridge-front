@@ -1,25 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import 'rc-slider/assets/index.css';
+import 'css/main.scss'
+import Bridge from "components/Bridge";
+import {useDispatch} from "react-redux";
+import ConnectModal, {showConnectModal} from "components/ConnectModal";
+import CHAINS from 'config/chains.json'
+import ethConnect from 'components/ConnectModal/impl/eth'
+import eosConnect from 'components/ConnectModal/impl/eos'
+import eosBridge from 'components/Bridge/impl/eos'
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const dispatch = useDispatch()
+
+    return (
+        <div className="App">
+            <header>
+                <div className="button" onClick={() => dispatch(showConnectModal(['ETH', 'EOS']))}>Connect Wallets</div>
+            </header>
+            <div className="page bridge">
+                <Bridge controllers={{
+                    EOS: {...eosConnect, ...eosBridge},
+                    ETH: ethConnect,
+                }}/>
+            </div>
+            <ConnectModal config={CHAINS} handlers={{
+                ETH: ethConnect,
+                EOS: eosConnect,
+            }}/>
+        </div>
+    );
 }
 
 export default App;

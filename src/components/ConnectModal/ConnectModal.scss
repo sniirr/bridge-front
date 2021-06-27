@@ -1,0 +1,95 @@
+@import "css/vars";
+
+.center-aligned-row {
+  display: flex;
+  align-items: center;
+}
+
+.center-aligned-spaced-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.connect-modal {
+
+  .chain, .connector {
+    @extend .center-aligned-spaced-row;
+    height: 60px;
+    width: 360px;
+    font-size: 1.2em;
+
+    img {
+      width: 20px;
+      margin-right: 20px;
+    }
+
+    .name {
+      @extend .center-aligned-row;
+      flex-grow: 2;
+    }
+
+    svg path {
+      fill: #b4b4b4;
+    }
+
+    &:not(:last-child) {
+      border-bottom: solid 1px #ccc;
+    }
+  }
+
+  .chain {
+    height: 80px;
+    font-size: 1.4em;
+    padding: 15px 0;
+
+    .name {
+      height: 100%;
+    }
+
+    .info {
+      display: flex;
+      height: 100%;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .account-name {
+      font-size: .65em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 240px;
+    }
+
+    .logout {
+      align-self: flex-end;
+      cursor: pointer;
+
+      svg {
+        width: 20px;
+
+        path {
+          fill: red;
+        }
+      }
+    }
+
+    &.not-connected {
+      cursor: pointer;
+
+      .account-name {
+        color: red;
+        font-style: italic;
+      }
+    }
+  }
+
+  .connector {
+    cursor: pointer;
+
+    img {
+      width: 32px;
+    }
+  }
+}

@@ -1,0 +1,130 @@
+@import "css/vars";
+
+.page.bridge {
+  .info {
+    flex-grow: 2;
+    padding-right: 100px;
+    margin-top: 30px;
+
+    h1 {
+      margin: 15px 0 25px;
+      text-align: left;
+    }
+
+    h2 {
+      font-size: 1.1em;
+      line-height: 1.3em;
+      font-style: italic;
+      font-weight: normal;
+    }
+  }
+
+  .bridge-panel {
+    width: 610px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .chains-row {
+    display: flex;
+    align-items: center;
+    border-bottom: solid 1px white;
+    padding-bottom: 15px;
+
+    .chain-box {
+      width: 44%;
+
+      .MuiButton-root {
+        padding-left: 0;
+      }
+
+      .chain-connect {
+        height: 36px;
+
+        .address {
+          font-size: 0.875em;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+
+        svg {
+          width: 0.875em;
+          height: 0.875em;
+          margin-right: 6px;
+
+          path {
+            fill: green;
+          }
+        }
+      }
+    }
+
+    .arrow {
+      cursor: pointer;
+      flex-grow: 2;
+
+      svg {
+        width: 1.5em;
+        height: 1.5em;
+      }
+    }
+  }
+
+  .row:not(:first-child) {
+    margin-top: 40px;
+  }
+
+  .slider {
+    flex-grow: 2;
+    margin: -10px 15px 0 0;
+
+    .rc-slider-track {
+      background-color: #4090b5;
+    }
+
+    .rc-slider-handle, .rc-slider-dot-active {
+      border-color: #4090b5;
+    }
+
+    .rc-slider-disabled {
+      background-color: transparent;
+      opacity: .7;
+      cursor: not-allowed !important;
+    }
+  }
+
+  .row.text-row {
+    margin-bottom: 46px;
+  }
+  
+  .max-balance {
+    cursor: pointer;
+  }
+
+  .dropdown {
+    svg {
+      width: .5em;
+      margin-left: 5px;
+    }
+
+    .dropdown-menu {
+      background-color: $section-dark-bg;
+      font-size: .8em;
+
+      .dropdown-item {
+        padding: 12px 24px 12px 0;
+      }
+    }
+  }
+
+  .Mui-disabled {
+    background-color: #aaa;
+    color: #5b5b5b;
+    cursor: not-allowed;
+  }
+
+  input[type=text] {
+    width: 550px;
+  }
+}
