@@ -26,3 +26,17 @@ export const fetchOneByPk = async (rpc, opts, pkFieldName, pk) => {
 
     return _.get(processedData, ['rows', 0])
 }
+
+// txs
+export const createTransferAction = (from, quantity, {contract, symbol}, to, memo) => {
+    return {
+        account: contract,
+        name: 'transfer',
+        data: {
+            from,
+            to,
+            quantity,
+            memo: memo || from,
+        },
+    }
+}

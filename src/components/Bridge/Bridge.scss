@@ -1,6 +1,17 @@
 @import "css/vars";
 
 .page.bridge {
+  .toolbar {
+    position: absolute;
+    top: 15px;
+    right: 30px;
+
+    svg {
+      cursor: pointer;
+      margin-left: 10px;
+    }
+  }
+
   .info {
     flex-grow: 2;
     padding-right: 100px;

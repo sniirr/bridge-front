@@ -6,41 +6,16 @@ import './Bridge.scss'
 import {useDispatch, useSelector} from "react-redux"
 import Slider from 'rc-slider'
 import {showConnectModal} from "components/ConnectModal"
-import {accountSelector, accountsSelector, balanceSelector, fetchBalance} from "store/accounts"
+import {accountsSelector, balanceSelector, fetchBalance} from "store/accounts"
 import useOnLogin from "hooks/useOnLogin";
 import {fetchRegistry} from "components/Bridge"
 import TOKENS from 'config/tokens.json'
 import {amountToAsset} from "utils/utils"
 import Dropdown from 'components/Common/Dropdown'
 import {isRegisteredSelector} from "components/Bridge/impl/eos"
-import {BRIDGE_REGISTRY_ERROR} from "./Bridge.common"
-
-const RegisterBridge = ({mainText, secondaryText}) => {
-
-    const {address: connectedAddress} = useSelector(accountSelector('ETH'))
-    const [addressInput, setAddressInput] = useState('')
-
-    useEffect(() => {
-        setAddressInput(connectedAddress)
-    }, [connectedAddress])
-
-    return (
-        <>
-            <div className="row text-row">
-                <p>{mainText}</p>
-                <p className="small-text">{secondaryText}</p>
-            </div>
-            <div className="row input-container">
-                <input className="input" type="text" value={addressInput} placeholder="Enter your ETH address" onChange={e => setAddressInput(e.target.value)}/>
-            </div>
-            <div className="row" style={{textAlign: 'right'}}>
-                <Button variant="contained" color="default" onClick={() => console.log('REGISTER', addressInput)}>
-                    Register
-                </Button>
-            </div>
-        </>
-    )
-}
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faTimes, faAddressBook, faSync} from '@fortawesome/free-solid-svg-icons'
+import BridgeRegister from "./BridgeRegister"
 
 const Bridge = ({controllers = {}, supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
 
@@ -62,6 +37,8 @@ const Bridge = ({controllers = {}, supportedChains = ['EOS', 'ETH'], supportedTo
 
     // registry
     const {isRegistered, error: registryError} = useSelector(isRegisteredSelector)
+
+    const [showModify, setShowModify] = useState(false)
 
     useOnLogin(fromChain, () => {
         dispatch(fetchBalance(fromChain, controllers[fromChain], selectedSymbol))
@@ -96,27 +73,15 @@ const Bridge = ({controllers = {}, supportedChains = ['EOS', 'ETH'], supportedTo
                 <div className="center-aligned-row chain-connect">
                     {isConnected ? (
                         <>
-                            <CheckCircleOutlineTwoTone />
+                            <CheckCircleOutlineTwoTone/>
                             <span className="address" title={address}>{address}</span>
                         </>
                     ) : (
-                        <Button color="secondary" onClick={() => dispatch(showConnectModal([chainKey]))}>Connect Wallet</Button>
+                        <Button color="secondary" onClick={() => dispatch(showConnectModal([chainKey]))}>Connect
+                            Wallet</Button>
                     )}
                 </div>
             </div>
-        )
-    }
-
-    const renderRegister = () => {
-        const notRegistered = registryError === BRIDGE_REGISTRY_ERROR.NOT_REGISTERED
-        const mainText = notRegistered
-            ? 'Your Ethereum and EOS accounts are not linked yet and needs to be registered.'
-            : 'A different Ethereum account is registered'
-        const secondaryText = notRegistered
-            ? 'This a one-time process, once linked you can bridge any supported tokens between these chains.'
-            : 'please switch account or modify registry'
-        return (
-            <RegisterBridge mainText={mainText} secondaryText={secondaryText}/>
         )
     }
 
@@ -133,47 +98,62 @@ const Bridge = ({controllers = {}, supportedChains = ['EOS', 'ETH'], supportedTo
                 </div>
                 {renderChainBox(toChain, 'To')}
             </div>
-            {isRegistered || !isConnected ? (
-              <>
-                  <div className="row center-aligned-row">
-                      <div className="item item-group">
-                          <div className="item-title">Token</div>
-                          <div className="item-text">
-                              <Dropdown id="token-select" withCaret={true} items={_.map(supportedTokens, t => ({name: t}))}
-                                        onItemClick={onTokenChange}>
-                                  {selectedSymbol}
-                              </Dropdown>
-                          </div>
-                      </div>
-                      <div className="slider">
-                          <Slider disabled={disabled} marks={{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}}
-                                  value={Math.round(amount / balance * 100)}
-                                  onChange={onSliderChange}
-                          />
-                      </div>
-                  </div>
-                  <div className="row input-container">
-                      <div className="item">
-                          <div className="item-title">
-                              <span>Amount</span>
-                              <span>
-                                  Max: <span className="max-balance" onClick={() => !disabled && setAmount(balance.toFixed(token.precision))}>
+            {!showModify && (isRegistered || !isConnected) ? (
+                <>
+                    <div className="row center-aligned-row">
+                        <div className="item item-group">
+                            <div className="item-title">Token</div>
+                            <div className="item-text">
+                                <Dropdown id="token-select" withCaret={true}
+                                          items={_.map(supportedTokens, t => ({name: t}))}
+                                          onItemClick={onTokenChange}>
+                                    {selectedSymbol}
+                                </Dropdown>
+                            </div>
+                        </div>
+                        <div className="slider">
+                            <Slider disabled={disabled} marks={{0: '0%', 25: '25%', 50: '50%', 75: '75%', 100: '100%'}}
+                                    value={Math.round(amount / balance * 100)}
+                                    onChange={onSliderChange}
+                            />
+                        </div>
+                    </div>
+                    <div className="row input-container">
+                        <div className="item">
+                            <div className="item-title">
+                                <span>Amount</span>
+                                <span>
+                                  Max: <span className="max-balance"
+                                             onClick={() => !disabled && setAmount(balance.toFixed(token.precision))}>
                                       {amountToAsset(balance, selectedSymbol, false, true)}
                                   </span>
                               </span>
-                          </div>
-                          <div className="item-input">
-                              <input disabled={disabled} type="text" className="input" value={amount} onChange={e => setAmount(parseFloat(e.target.value).toFixed(6))}/>
-                          </div>
-                      </div>
-                  </div>
-                  <div className="row" style={{textAlign: 'right'}}>
-                      <Button disabled={disabled} variant="contained" color="default" onClick={() => console.log('SEND TOKENS')}>
-                          Send Tokens
-                      </Button>
-                  </div>
-              </>
-            ) : renderRegister()}
+                            </div>
+                            <div className="item-input">
+                                <input disabled={disabled} type="text" className="input" value={amount}
+                                       onChange={e => setAmount(parseFloat(e.target.value).toFixed(6))}/>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row" style={{textAlign: 'right'}}>
+                        <Button disabled={disabled} variant="contained" color="default"
+                                onClick={() => console.log('SEND TOKENS')}>
+                            Send Tokens
+                        </Button>
+                    </div>
+                </>
+            ) : (
+                <BridgeRegister registerOn={registerOn} controller={controllers[registerOn]} isModify={showModify}/>
+            )}
+            <div className="toolbar">
+                {showModify && (
+                    <FontAwesomeIcon icon={faTimes} onClick={() => setShowModify(false)}/>
+                )}
+                {!showModify && isConnected && isRegistered && (
+                    <FontAwesomeIcon icon={faAddressBook} title="Change registered Ethereum address" onClick={() => setShowModify(true)}/>
+                )}
+                <FontAwesomeIcon icon={faSync} title="Refresh fees" onClick={() => console.log('sync prices')}/>
+            </div>
         </div>
     )
 }

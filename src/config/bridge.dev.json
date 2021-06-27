@@ -1,0 +1,7 @@
+{
+  "contract": "etheosmultok",
+  "tables": {
+    "registry": "accountdet",
+    "fees": "configset2"
+  }
+}
