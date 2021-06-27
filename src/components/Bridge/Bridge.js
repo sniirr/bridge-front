@@ -107,10 +107,6 @@ const Bridge = ({controllers = {}, supportedChains = ['EOS', 'ETH'], supportedTo
         )
     }
 
-    const fromConnected = _.has(connectedAccounts, fromChain)
-    const isConnected = fromConnected && _.has(connectedAccounts, toChain)
-    const disabled = !isConnected
-
     const renderRegister = () => {
         const notRegistered = registryError === BRIDGE_REGISTRY_ERROR.NOT_REGISTERED
         const mainText = notRegistered
@@ -124,9 +120,12 @@ const Bridge = ({controllers = {}, supportedChains = ['EOS', 'ETH'], supportedTo
         )
     }
 
+    const fromConnected = _.has(connectedAccounts, fromChain)
+    const isConnected = fromConnected && _.has(connectedAccounts, toChain)
+    const disabled = !isConnected
+
     return (
         <div className="section bridge-panel">
-
             <div className="row chains-row">
                 {renderChainBox(fromChain, 'From')}
                 <div className="arrow" onClick={() => setChains([toChain, fromChain])}>
