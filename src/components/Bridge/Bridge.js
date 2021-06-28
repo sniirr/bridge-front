@@ -15,7 +15,7 @@ import {isRegisteredSelector} from "components/Bridge/impl/Bridge.eos"
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTimes, faAddressBook, faSync, faInfo} from '@fortawesome/free-solid-svg-icons'
 import BridgeRegister from "./BridgeRegister"
-import {txFeeSelector} from "components/Bridge/Bridge.module";
+import {bridgeSelector} from "components/Bridge/Bridge.module";
 
 const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
 
@@ -30,12 +30,19 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
     const fromChain = chains[0]
     const toChain = chains[1]
 
+    const {txFee, tokens} = useSelector(bridgeSelector)
     // token
     const [selectedSymbol, setSelectedSymbol] = useState(supportedTokens[0])
-    const token = TOKENS[selectedSymbol]
-    const balance = useSelector(balanceSelector(fromChain, selectedSymbol))
+    const token = {
+        ...TOKENS[selectedSymbol],
+        ..._.get(tokens[selectedSymbol], fromChain === registerOn ? 'outToken' : 'inToken', {symbol: selectedSymbol, precision: 0})
+    }
+    //
+    const balance = useSelector(balanceSelector(fromChain, token.symbol))
 
-    const txFee = useSelector(txFeeSelector)
+    const fromConnected = _.has(connectedAccounts, fromChain)
+    const isConnected = fromConnected && _.has(connectedAccounts, toChain)
+    const disabled = !isConnected
 
     // registry
     const {isRegistered} = useSelector(isRegisteredSelector)
@@ -43,27 +50,25 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
     const [showModify, setShowModify] = useState(false)
 
     useOnLogin(fromChain, () => {
-        dispatch(fetchBalance(fromChain, connectControllers[fromChain], selectedSymbol))
+        dispatch(controller.fetchTransferFee(fromChain, token))
+        dispatch(fetchBalance(fromChain, connectControllers[fromChain], token.symbol))
         if (registerOn === fromChain) {
             dispatch(controller.fetchRegistry())
+            // TODO - move to "onLoad"
+            dispatch(controller.fetchSupportedTokens())
         }
     })
 
     useEffect(() => {
         setAmount('0')
-    }, [fromChain])
-
-    useEffect(() => {
-        dispatch(controller.fetchTransferFee(fromChain, selectedSymbol))
+        dispatch(controller.fetchTransferFee(fromChain, token))
+        if (fromConnected) {
+            dispatch(fetchBalance(fromChain, connectControllers[fromChain], token.symbol))
+        }
     }, [fromChain, selectedSymbol])
 
     const onSliderChange = value => {
         setAmount((balance * value / 100).toFixed(6))
-    }
-
-    const onTokenChange = ({name: symbol}) => {
-        setSelectedSymbol(symbol)
-        dispatch(fetchBalance(fromChain, connectControllers[fromChain], symbol))
     }
 
     const renderChainBox = (chainKey, direction) => {
@@ -91,10 +96,6 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
         )
     }
 
-    const fromConnected = _.has(connectedAccounts, fromChain)
-    const isConnected = fromConnected && _.has(connectedAccounts, toChain)
-    const disabled = !isConnected
-
     return (
         <div className="section bridge-panel">
             <div className="row chains-row">
@@ -112,7 +113,7 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
                             <div className="item-text">
                                 <Dropdown id="token-select" withCaret={true}
                                           items={_.map(supportedTokens, t => ({name: t}))}
-                                          onItemClick={onTokenChange}>
+                                          onItemClick={({name: symbol}) => {setSelectedSymbol(symbol)}}>
                                     {selectedSymbol}
                                 </Dropdown>
                             </div>
@@ -131,7 +132,7 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
                                 <span>
                                   Max: <span className="max-balance"
                                              onClick={() => !disabled && setAmount(balance.toFixed(token.precision))}>
-                                      {amountToAsset(balance, selectedSymbol, false, true)}
+                                      {amountToAsset(balance, token, false, true)}
                                   </span>
                               </span>
                             </div>
@@ -146,7 +147,7 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
                             {!_.isEmpty(txFee) && `Transaction Fee ${txFee}`}
                         </span>
                         <Button disabled={disabled} variant="contained" color="default"
-                                onClick={() => dispatch(controller.transfer(fromChain, amount, TOKENS[selectedSymbol]))}>
+                                onClick={() => dispatch(controller.transfer(fromChain, amount, token))}>
                             Send Tokens
                         </Button>
                     </div>

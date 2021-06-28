@@ -1,6 +1,7 @@
 import {makeReducer, reduceSetKey} from "utils/reduxUtils";
 import _ from "lodash";
 import {accountSelector} from "store/accounts";
+import config from 'config/bridge.dev.json'
 
 export const makeBridgeController = (controllers, {registerOn}) => {
 
@@ -11,6 +12,33 @@ export const makeBridgeController = (controllers, {registerOn}) => {
         }
         const account = accountSelector(chainKey)(state)
         return [ctrl[method], account]
+    }
+
+    // CONFIG
+    // const init = () => async (dispatch, getState) => {
+    //     const [handler, account] = getHandler(registerOn, 'init', getState())
+    //     dispatch({
+    //         type: 'BRIDGE.INIT',
+    //         payload: {}
+    //     })
+    // }
+
+    const fetchSupportedTokens = () => async (dispatch, getState) => {
+        const {contract, supportedContracts = []} = config
+
+        const tokenSets = await Promise.all(
+            _.map([contract, ...supportedContracts], async c => {
+                const [handler, account] = getHandler(registerOn, 'fetchSupportedTokens', getState())
+                return await handler(account, c)
+            })
+        )
+
+        const tokens = _.keyBy(_.flatten(tokenSets), 'symbol')
+
+        dispatch({
+            type: 'BRIDGE.SET_TOKENS',
+            payload: tokens,
+        })
     }
 
     // REGISTER
@@ -45,10 +73,10 @@ export const makeBridgeController = (controllers, {registerOn}) => {
     }
 
     // TRANSFER
-    const fetchTransferFee = (fromChain, symbol) => async (dispatch, getState) => {
+    const fetchTransferFee = (fromChain, token) => async (dispatch, getState) => {
         const [handler, account] = getHandler(fromChain, 'fetchTransferFee', getState())
 
-        const fee = await handler(account, symbol)
+        const fee = await handler(account, token)
         dispatch({
             type: 'BRIDGE.SET_TX_FEE',
             payload: fee
@@ -76,6 +104,7 @@ export const makeBridgeController = (controllers, {registerOn}) => {
     }
 
     return {
+        fetchSupportedTokens,
         fetchRegistry,
         fetchRegFee,
         register,
@@ -87,11 +116,13 @@ export const makeBridgeController = (controllers, {registerOn}) => {
 }
 
 // selectors
+export const bridgeSelector = state => _.get(state, 'bridge')
 export const registrySelector = state => _.get(state, 'bridge.registry')
 export const regFeeSelector = state => _.get(state, 'bridge.regFee')
 export const txFeeSelector = state => _.get(state, 'bridge.txFee')
 
 const INITIAL_STATE = {
+    tokens: {},
     registry: null,
     regFee: [-1, 'EOS'],
     txFee: null,
@@ -102,6 +133,7 @@ const INITIAL_STATE = {
 }
 
 export const bridgeReducer = makeReducer({
+    'BRIDGE.SET_TOKENS': reduceSetKey('tokens'),
     'BRIDGE.SET_REGISTRY': reduceSetKey('registry'),
     'BRIDGE.SET_REG_FEE': reduceSetKey('regFee'),
     'BRIDGE.SET_TX_FEE': reduceSetKey('txFee'),

@@ -6,15 +6,12 @@ import { composeWithDevTools } from 'redux-devtools-extension'
 import rootReducer from './rootReducer';
 
 const logger = createLogger({
-    predicate: (store, {type}) => {
-        // console.log(action)
-        return type !== 'SET_API_STATUS'
-    }
+    // predicate: (store, {type}) => {
+    //     // console.log(action)
+    //     return type !== 'SET_API_STATUS'
+    // }
 })
 
-export default () => {
+const makeStore = () => createStore(rootReducer, composeWithDevTools(applyMiddleware(thunk, logger)))
 
-    const store = createStore(rootReducer, composeWithDevTools(applyMiddleware(thunk, logger)))
-
-    return store
-}
+export default makeStore

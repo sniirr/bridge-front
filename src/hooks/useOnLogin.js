@@ -13,6 +13,8 @@ function useOnLogin(chainKey, onLogin) {
             onLogin()
         }
     }, [address])
+
+    return !_.isEmpty(address)
 }
 
 export default useOnLogin

@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import numeral from 'numeral'
-import TOKENS from 'config/tokens.dev.json'
 
-const precisions = _.uniq([2, ..._.map(TOKENS, t => t.precision)])
+const precisions = _.uniq([2, 4, 6, 18])
+// const precisions = _.uniq([2, ..._.map(TOKENS, t => t.precision)])
 
 const PRECISION_FORMAT = _.zipObject(
     precisions,
@@ -16,8 +16,7 @@ const PRECISION_FORMAT = _.zipObject(
     })
 )
 
-export const amountToAsset = (amount, symbol, withSymbol = true, prettify = false, overridePrecision = -1) => {
-    const precision = overridePrecision > -1 ? overridePrecision : _.get(TOKENS, [symbol, 'precision'], 6)
+export const amountToAsset = (amount, {symbol, precision}, withSymbol = true, prettify = false) => {
     const format = prettify ? '0,' + PRECISION_FORMAT[precision] : PRECISION_FORMAT[precision]
     return `${numeral(_.isString(amount) ? parseFloat(amount) : amount).format(format)}${withSymbol ? (' ' + symbol) : ''}`
 }

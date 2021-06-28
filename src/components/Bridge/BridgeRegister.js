@@ -4,7 +4,6 @@ import {Button} from '@material-ui/core'
 import {useDispatch, useSelector} from "react-redux"
 import {accountSelector} from "store/accounts"
 import {regFeeSelector} from "components/Bridge"
-// import {fetchRegFee, register, regFeeSelector} from "components/Bridge"
 import {amountToAsset} from "utils/utils"
 import {isRegisteredSelector} from "components/Bridge/impl/Bridge.eos"
 import {BRIDGE_REGISTRY_ERROR} from "./Bridge.common"
@@ -57,7 +56,7 @@ const BridgeRegister = ({controller, isModify}) => {
             </div>
             <div className="row center-aligned-spaced-row" style={{textAlign: 'right'}}>
                     <span className="info-message">
-                        {regFee > 0 && `Registration Fee ${amountToAsset(regFee, feeSymbol, true, true, 4)}`}
+                        {regFee > 0 && `Registration Fee ${amountToAsset(regFee, {symbol: feeSymbol, precision: 4}, true, true)}`}
                     </span>
                 <Button variant="contained" color="default" onClick={onRegisterClick}>Register</Button>
             </div>

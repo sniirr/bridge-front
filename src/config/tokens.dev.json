@@ -1,8 +1,6 @@
 {
   "DAPP": {
     "symbol": "DAPP",
-    "precision": 4,
-    "issuedOn": "EOS",
     "addresses": {
       "EOS": "dappservices",
       "ETH": "0x2c90e72766607c45D2113D0BbE911cd48102fCb5"
@@ -13,13 +11,15 @@
   },
   "USDC": {
     "symbol": "USDC",
-    "precision": 6,
-    "issuesOn": "ETH",
     "addresses": {
       "ETH": "0x0D9C8723B343A8368BebE0B5E89273fF8D712e3C",
       "EOS": "curvetoken11"
     },
-    "ethTokenId": 0,
-    "dToken": "EUSDC"
+    "ethTokenId": 0
+  },
+  "EUSDC": {
+    "addresses": {
+      "EOS": "ddadlptoken1"
+    }
   }
 }

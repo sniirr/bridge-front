@@ -1,11 +1,37 @@
 import _ from "lodash";
-import {fetchOneByPk, fetchOne, createTransferAction} from 'utils/api/eosApi'
+import {fetchOneByPk, fetchOne, fetchTableData, createTransferAction} from 'utils/api/eosApi'
 import {BRIDGE_REGISTRY_ERROR} from '../Bridge.common'
 import config from 'config/bridge.dev.json'
-import TOKENS from 'config/tokens.dev.json'
 import {amountToAsset} from "utils/utils";
 
 // actions
+const fetchSupportedTokens = async (account, contract) => {
+    const rpc = _.get(account, 'wallet.eosApi.rpc')
+
+    if (_.isEmpty(rpc)) return
+
+    const {tables: {acceptedSym}} = config
+
+    // TODO - remove this:
+    const table = contract === 'etheosmultok' ? 'acceptedsym1' : acceptedSym
+
+    const data = await fetchTableData(rpc, {
+        code: contract,
+        scope: contract,
+        table,
+    })
+
+    return _.map(data.rows, ({dtoken, insymbol}) => {
+        const [inPrecision, inSymbol] = _.split(insymbol, ',')
+        const [outPrecision, outSymbol] = _.split(dtoken, ',')
+        return {
+            symbol: inSymbol,
+            inToken: {symbol: inSymbol, precision: parseInt(inPrecision)},
+            outToken: {symbol: outSymbol, precision: parseInt(outPrecision)},
+        }
+    })
+}
+
 const fetchRegistry = async account => {
     const rpc = _.get(account, 'wallet.eosApi.rpc')
 
@@ -48,7 +74,7 @@ const register = async (account, newAddress, [regFee, feeSymbol], isModify) => {
     const ethAccountField = isModify ? 'newethaddress' : 'ethaddress'
     const actions = [
         {
-            ...createTransferAction(account.address, amountToAsset(regFee, feeSymbol, true, false, 4), {contract: 'eosio.token', symbol: 'EOS'}, contract, "register/modify fee"),
+            ...createTransferAction(account.address, amountToAsset(regFee, {symbol: feeSymbol, precision: 4}, true, false), {contract: 'eosio.token', symbol: 'EOS'}, contract, "register/modify fee"),
             authorization: [
                 {
                     actor: auth.accountName,
@@ -91,7 +117,7 @@ const register = async (account, newAddress, [regFee, feeSymbol], isModify) => {
     return {success: !!response, response}
 }
 
-const fetchTransferFee = async (account, symbol) => {
+const fetchTransferFee = async (account, {symbol, depositContracts}) => {
     const rpc = _.get(account, 'wallet.eosApi.rpc')
 
     if (_.isEmpty(rpc)) return
@@ -99,8 +125,8 @@ const fetchTransferFee = async (account, symbol) => {
     const {contract, tables: {feeSettings}} = config
 
     const row = await fetchOne(rpc, {
-        code: contract,
-        scope: TOKENS[symbol].dToken,
+        code: _.get(depositContracts, 'EOS', contract),
+        scope: symbol,
         table: feeSettings,
     })
 
@@ -117,7 +143,7 @@ const transfer = async (account, amount, token) => {
 
     const actions = [
         {
-            ...createTransferAction(account.address, amountToAsset(amount, symbol, true), {contract: addresses.EOS, symbol}, depositContracts?.EOS || contract, `Transfer ${symbol}`),
+            ...createTransferAction(account.address, amountToAsset(amount, token, true), {contract: addresses.EOS, symbol}, depositContracts?.EOS || contract, `Transfer ${symbol}`),
             authorization: [
                 {
                     actor: auth.accountName,
@@ -223,6 +249,7 @@ export const isRegisteredSelector = state => {
 }
 
 export default {
+    fetchSupportedTokens,
     fetchRegistry,
     fetchRegFee,
     register,
