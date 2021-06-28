@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import numeral from 'numeral'
-import TOKENS from 'config/tokens.json'
+import TOKENS from 'config/tokens.dev.json'
 
 const precisions = _.uniq([2, ..._.map(TOKENS, t => t.precision)])
 

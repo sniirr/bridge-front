@@ -8,16 +8,16 @@ import Slider from 'rc-slider'
 import {showConnectModal} from "components/ConnectModal"
 import {accountsSelector, balanceSelector, fetchBalance} from "store/accounts"
 import useOnLogin from "hooks/useOnLogin";
-import {fetchRegistry} from "components/Bridge"
-import TOKENS from 'config/tokens.json'
+import TOKENS from 'config/tokens.dev.json'
 import {amountToAsset} from "utils/utils"
 import Dropdown from 'components/Common/Dropdown'
-import {isRegisteredSelector} from "components/Bridge/impl/eos"
+import {isRegisteredSelector} from "components/Bridge/impl/Bridge.eos"
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faTimes, faAddressBook, faSync} from '@fortawesome/free-solid-svg-icons'
+import {faTimes, faAddressBook, faSync, faInfo} from '@fortawesome/free-solid-svg-icons'
 import BridgeRegister from "./BridgeRegister"
+import {txFeeSelector} from "components/Bridge/Bridge.module";
 
-const Bridge = ({controllers = {}, supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
+const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
 
     const dispatch = useDispatch()
 
@@ -35,15 +35,17 @@ const Bridge = ({controllers = {}, supportedChains = ['EOS', 'ETH'], supportedTo
     const token = TOKENS[selectedSymbol]
     const balance = useSelector(balanceSelector(fromChain, selectedSymbol))
 
+    const txFee = useSelector(txFeeSelector)
+
     // registry
-    const {isRegistered, error: registryError} = useSelector(isRegisteredSelector)
+    const {isRegistered} = useSelector(isRegisteredSelector)
 
     const [showModify, setShowModify] = useState(false)
 
     useOnLogin(fromChain, () => {
-        dispatch(fetchBalance(fromChain, controllers[fromChain], selectedSymbol))
+        dispatch(fetchBalance(fromChain, connectControllers[fromChain], selectedSymbol))
         if (registerOn === fromChain) {
-            dispatch(fetchRegistry(fromChain, controllers[fromChain]))
+            dispatch(controller.fetchRegistry())
         }
     })
 
@@ -51,13 +53,17 @@ const Bridge = ({controllers = {}, supportedChains = ['EOS', 'ETH'], supportedTo
         setAmount('0')
     }, [fromChain])
 
+    useEffect(() => {
+        dispatch(controller.fetchTransferFee(fromChain, selectedSymbol))
+    }, [fromChain, selectedSymbol])
+
     const onSliderChange = value => {
         setAmount((balance * value / 100).toFixed(6))
     }
 
     const onTokenChange = ({name: symbol}) => {
         setSelectedSymbol(symbol)
-        dispatch(fetchBalance(fromChain, controllers[fromChain], symbol))
+        dispatch(fetchBalance(fromChain, connectControllers[fromChain], symbol))
     }
 
     const renderChainBox = (chainKey, direction) => {
@@ -135,24 +141,29 @@ const Bridge = ({controllers = {}, supportedChains = ['EOS', 'ETH'], supportedTo
                             </div>
                         </div>
                     </div>
-                    <div className="row" style={{textAlign: 'right'}}>
+                    <div className="row center-aligned-spaced-row" style={{textAlign: 'right'}}>
+                        <span className="info-message">
+                            {!_.isEmpty(txFee) && `Transaction Fee ${txFee}`}
+                        </span>
                         <Button disabled={disabled} variant="contained" color="default"
-                                onClick={() => console.log('SEND TOKENS')}>
+                                onClick={() => dispatch(controller.transfer(fromChain, amount, TOKENS[selectedSymbol]))}>
                             Send Tokens
                         </Button>
                     </div>
                 </>
             ) : (
-                <BridgeRegister registerOn={registerOn} controller={controllers[registerOn]} isModify={showModify}/>
+                <BridgeRegister controller={controller} isModify={showModify}/>
             )}
             <div className="toolbar">
                 {showModify && (
                     <FontAwesomeIcon icon={faTimes} onClick={() => setShowModify(false)}/>
                 )}
                 {!showModify && isConnected && isRegistered && (
-                    <FontAwesomeIcon icon={faAddressBook} title="Change registered Ethereum address" onClick={() => setShowModify(true)}/>
+                    <FontAwesomeIcon icon={faAddressBook} title="Change registered Ethereum address"
+                                     onClick={() => setShowModify(true)}/>
                 )}
-                <FontAwesomeIcon icon={faSync} title="Refresh fees" onClick={() => console.log('sync prices')}/>
+                <FontAwesomeIcon icon={faSync} title="Refresh fees" onClick={() => dispatch(controller.updatePrices())}/>
+                <FontAwesomeIcon icon={faInfo} title="DAPP Bridge guide" onClick={() => console.log('guide')}/>
             </div>
         </div>
     )

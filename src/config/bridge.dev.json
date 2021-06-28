@@ -1,7 +1,9 @@
 {
   "contract": "etheosmultok",
+  "ethAddress": "0xb151141C40146362356d65B3C7a587551f81c5B6",
   "tables": {
     "registry": "accountdet",
-    "fees": "configset2"
+    "fees": "configset2",
+    "feeSettings": "feesettings4"
   }
 }

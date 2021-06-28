@@ -1,5 +1,5 @@
 import _ from "lodash";
-import TOKENS from "config/tokens.json";
+import TOKENS from "config/tokens.dev.json";
 import tokenAbi from 'config/abi/tokenAbi'
 import Web3 from 'web3'
 

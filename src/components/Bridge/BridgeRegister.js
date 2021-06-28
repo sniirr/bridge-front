@@ -3,12 +3,13 @@ import React, {useEffect, useState} from 'react'
 import {Button} from '@material-ui/core'
 import {useDispatch, useSelector} from "react-redux"
 import {accountSelector} from "store/accounts"
-import {fetchRegFee, register, regFeeSelector} from "components/Bridge"
+import {regFeeSelector} from "components/Bridge"
+// import {fetchRegFee, register, regFeeSelector} from "components/Bridge"
 import {amountToAsset} from "utils/utils"
-import {isRegisteredSelector} from "components/Bridge/impl/eos"
+import {isRegisteredSelector} from "components/Bridge/impl/Bridge.eos"
 import {BRIDGE_REGISTRY_ERROR} from "./Bridge.common"
 
-const BridgeRegister = ({registerOn, controller, isModify}) => {
+const BridgeRegister = ({controller, isModify}) => {
 
     const dispatch = useDispatch()
 
@@ -18,15 +19,15 @@ const BridgeRegister = ({registerOn, controller, isModify}) => {
     const {error: registryError} = useSelector(isRegisteredSelector)
 
     useEffect(() => {
-        dispatch(fetchRegFee(registerOn, controller))
+        dispatch(controller.fetchRegFee())
     }, [])
 
     useEffect(() => {
-        setAddressInput(connectedAddress)
+        setAddressInput(isModify ? '' : connectedAddress)
     }, [connectedAddress])
 
     const onRegisterClick = () => {
-        dispatch(register(registerOn, controller, addressInput, [regFee, feeSymbol]))
+        dispatch(controller.register(addressInput, [regFee, feeSymbol], isModify || registryError === BRIDGE_REGISTRY_ERROR.ACCOUNT_MISMATCH))
     }
 
     let mainText = ''

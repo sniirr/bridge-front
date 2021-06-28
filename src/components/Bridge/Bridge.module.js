@@ -2,62 +2,110 @@ import {makeReducer, reduceSetKey} from "utils/reduxUtils";
 import _ from "lodash";
 import {accountSelector} from "store/accounts";
 
-export const fetchRegistry = (chainKey, ctrl) => async (dispatch, getState) => {
-    if (!_.isFunction(ctrl.fetchRegistry)) {
-        console.error(`NotImplementedError: fetchRegistry is not implemented for ${chainKey}`)
-        return
-    }
-    const state = getState()
-    const account = accountSelector(chainKey)(state)
+export const makeBridgeController = (controllers, {registerOn}) => {
 
-    const registry = await ctrl.fetchRegistry(account)
-    dispatch({
-        type: 'BRIDGE.SET_REGISTRY',
-        payload: registry || {}
-    })
+    const getHandler = (chainKey, method, state) => {
+        const ctrl = controllers[chainKey]
+        if (!_.isFunction(ctrl[method])) {
+            throw `NotImplementedError: ${method} is not implemented for ${chainKey}`
+        }
+        const account = accountSelector(chainKey)(state)
+        return [ctrl[method], account]
+    }
+
+    // REGISTER
+    const fetchRegistry = () => async (dispatch, getState) => {
+        const [handler, account] = getHandler(registerOn, 'fetchRegistry', getState())
+
+        const registry = await handler(account)
+        dispatch({
+            type: 'BRIDGE.SET_REGISTRY',
+            payload: registry || {}
+        })
+    }
+
+    const fetchRegFee = () => async (dispatch, getState) => {
+        const [handler, account] = getHandler(registerOn, 'fetchRegFee', getState())
+
+        const fee = await handler(account)
+        dispatch({
+            type: 'BRIDGE.SET_REG_FEE',
+            payload: fee
+        })
+    }
+
+    const register = (newAddress, regFee, isModify) => async (dispatch, getState) => {
+        const [handler, account] = getHandler(registerOn, 'register', getState())
+
+        const result = await handler(account, newAddress, regFee, isModify)
+        dispatch({
+            type: 'BRIDGE.REGISTER_SUCCESS',
+            payload: result
+        })
+    }
+
+    // TRANSFER
+    const fetchTransferFee = (fromChain, symbol) => async (dispatch, getState) => {
+        const [handler, account] = getHandler(fromChain, 'fetchTransferFee', getState())
+
+        const fee = await handler(account, symbol)
+        dispatch({
+            type: 'BRIDGE.SET_TX_FEE',
+            payload: fee
+        })
+    }
+
+    const transfer = (fromChain, amount, token) => async (dispatch, getState) => {
+        const [handler, account] = getHandler(fromChain, 'transfer', getState())
+
+        const result = await handler(account, amount, token)
+        dispatch({
+            type: 'BRIDGE.TRANSFER_SUCCESS',
+            payload: result
+        })
+    }
+
+    const updatePrices = () => async (dispatch, getState) => {
+        const [handler, account] = getHandler(registerOn, 'updatePrices', getState())
+
+        const result = await handler(account)
+        dispatch({
+            type: 'BRIDGE.UPDATE_PRICES_SUCCESS',
+            payload: result
+        })
+    }
+
+    return {
+        fetchRegistry,
+        fetchRegFee,
+        register,
+        updatePrices,
+
+        fetchTransferFee,
+        transfer,
+    }
 }
 
-export const fetchRegFee = (chainKey, ctrl) => async (dispatch, getState) => {
-    if (!_.isFunction(ctrl.fetchRegFee)) {
-        console.error(`NotImplementedError: fetchRegFee is not implemented for ${chainKey}`)
-        return
-    }
-    const state = getState()
-    const account = accountSelector(chainKey)(state)
-
-    const fee = await ctrl.fetchRegFee(account)
-    dispatch({
-        type: 'BRIDGE.SET_REG_FEE',
-        payload: fee
-    })
-}
-
-export const register = (chainKey, ctrl, newAddress, regFee) => async (dispatch, getState) => {
-    if (!_.isFunction(ctrl.register)) {
-        console.error(`NotImplementedError: register is not implemented for ${chainKey}`)
-        return
-    }
-    const state = getState()
-    const account = accountSelector(chainKey)(state)
-
-    const result = await ctrl.register(account, newAddress, regFee)
-    dispatch({
-        type: 'BRIDGE.REGISTER_SUCCESS',
-        payload: result
-    })
-}
-
+// selectors
 export const registrySelector = state => _.get(state, 'bridge.registry')
 export const regFeeSelector = state => _.get(state, 'bridge.regFee')
+export const txFeeSelector = state => _.get(state, 'bridge.txFee')
 
 const INITIAL_STATE = {
     registry: null,
     regFee: [-1, 'EOS'],
-    regResult: null
+    txFee: null,
+
+    regResult: null,
+    transferResult: null,
+    pricesResult: null,
 }
 
 export const bridgeReducer = makeReducer({
     'BRIDGE.SET_REGISTRY': reduceSetKey('registry'),
     'BRIDGE.SET_REG_FEE': reduceSetKey('regFee'),
+    'BRIDGE.SET_TX_FEE': reduceSetKey('txFee'),
     'BRIDGE.REGISTER_SUCCESS': reduceSetKey('regResult'),
+    'BRIDGE.TRANSFER_SUCCESS': reduceSetKey('transferResult'),
+    'BRIDGE.UPDATE_PRICES_SUCCESS': reduceSetKey('pricesResult'),
 }, INITIAL_STATE)
