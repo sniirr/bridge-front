@@ -18,6 +18,7 @@
     "ethTokenId": 0
   },
   "EUSDC": {
+    "symbol": "EUSDC",
     "addresses": {
       "EOS": "ddadlptoken1"
     }

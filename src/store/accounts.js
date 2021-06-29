@@ -39,7 +39,7 @@ export const connect = (chainKey, ctrl, opts={}) => async dispatch => {
     }
 }
 
-export const fetchBalance = (chainKey, ctrl, symbol) => async (dispatch, getState) => {
+export const fetchBalance = (chainKey, ctrl, token) => async (dispatch, getState) => {
     if (!_.isFunction(ctrl.fetchBalance)) {
         console.error(`NotImplementedError: fetchBalance is not implemented for ${chainKey}`)
         return
@@ -47,13 +47,13 @@ export const fetchBalance = (chainKey, ctrl, symbol) => async (dispatch, getStat
     const state = getState()
     const account = accountSelector(chainKey)(state)
 
-    const balance = await ctrl.fetchBalance(symbol, account)
+    const balance = await ctrl.fetchBalance(token, account)
     if (!_.isNil(balance)) {
         dispatch({
             type: 'ACCOUNTS.SET_BALANCE',
             payload: {
                 chainKey,
-                symbol,
+                symbol: token.symbol,
                 balance: parseFloat(balance),
             }
         })
@@ -64,6 +64,7 @@ export const fetchBalance = (chainKey, ctrl, symbol) => async (dispatch, getStat
 export const accountsSelector = state => _.get(state, 'accounts')
 export const accountSelector = chainKey => state => _.get(state, ['accounts', chainKey], {})
 export const balanceSelector = (chainKey, symbol) => state => _.get(state, ['accounts', chainKey, 'balances', symbol], 0)
+export const isConnectedSelector = chainKey => state => !_.isEmpty(_.get(state, ['accounts', chainKey, 'address']))
 
 // REDUCER
 const INITIAL_STATE = {}

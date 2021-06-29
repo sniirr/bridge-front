@@ -41,7 +41,7 @@ const connect = async ({providerIdx}) => {
     return null
 }
 
-const fetchBalance = async (symbol, account) => {
+const fetchBalance = async ({symbol}, account) => {
     const rpc = _.get(account, 'wallet.eosApi.rpc')
     const contract = _.get(TOKENS, [symbol, 'addresses', 'EOS'])
 

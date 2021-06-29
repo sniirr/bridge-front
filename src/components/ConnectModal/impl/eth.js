@@ -1,13 +1,18 @@
 import _ from "lodash";
 import TOKENS from "config/tokens.dev.json";
 import tokenAbi from 'config/abi/tokenAbi'
-import Web3 from 'web3'
+// import Web3 from 'web3'
+import { ethers } from "ethers"
 
-const web3 = new Web3(Web3.givenProvider);
+const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+
+const tokens = _.filter(TOKENS, ({addresses}) => _.has(addresses, 'ETH'))
 
 const tokenContracts = _.zipObject(
-    _.keys(TOKENS),
-    _.map(TOKENS, ({addresses}) => new web3.eth.Contract(tokenAbi, addresses.ETH))
+    _.map(tokens, 'symbol'),
+    _.map(tokens, ({addresses}) => {
+        return new ethers.Contract(addresses.ETH, tokenAbi, provider)
+    })
 )
 
 export const connect = async ({providerIdx}) => {
@@ -17,10 +22,15 @@ export const connect = async ({providerIdx}) => {
 
         if (chainId === "0x3") {
             if (!!ethereum) {
-                const accounts = await ethereum.request({
-                    method: "eth_requestAccounts",
-                });
-                return {address: accounts[0]}
+                await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+                const address = await signer.getAddress()
+
+                return {
+                    address,
+                    provider,
+                    signer,
+                }
             }
         } else {
             alert("Must connect to Ropsten testnet");
@@ -31,22 +41,14 @@ export const connect = async ({providerIdx}) => {
     return null
 }
 
-export const fetchBalance = async (symbol, account) => {
-    // const state = getState()
-    // const account = accountSelector('EOS')(state)
-
-    // const rpc = _.get(account, 'wallet.eosApi.rpc')
+export const fetchBalance = async ({symbol, precision}, account) => {
     const contract = _.get(tokenContracts, symbol)
 
     if (_.isNil(contract)) return
 
-    const balance = await contract.methods.balanceOf(account.address).call()
+    const balance = await contract.balanceOf(account.address)
 
-    const {precision} = TOKENS[symbol]
-
-    // console.log(`${symbol} balance = `, balance)
-
-    return balance / Math.pow(10, precision)
+    return ethers.utils.formatUnits(balance, precision)
 }
 
 export default {
