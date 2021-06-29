@@ -87,10 +87,10 @@ export const initBridge = (controllers, {registerOn}) => {
         })
     }
 
-    const transfer = (fromChain, amount, token) => async (dispatch, getState) => {
+    const transfer = (fromChain, amount, token, infiniteApproval) => async (dispatch, getState) => {
         const [handler, chain] = getHandler(fromChain, 'transfer', getState())
 
-        const result = await handler(chain, amount, token)
+        const result = await handler(chain, amount, token, infiniteApproval)
         dispatch({
             type: 'BRIDGE.TRANSFER_SUCCESS',
             payload: result

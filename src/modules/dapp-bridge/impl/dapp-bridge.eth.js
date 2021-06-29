@@ -83,8 +83,7 @@ const approveAndSendToken = async (contract, account, stakeAMount, {ethTokenId, 
     return tx2
 };
 
-
-const transfer = async (account, amount, token, infiniteApproval = true) => {
+const transfer = async (account, amount, token, infiniteApproval) => {
     // const contract = symbol === "USDC" ? usdcContract : daiContract
     // const stakeAMount =
     //     symbol === "USDC"

@@ -52,6 +52,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
     const balance = useSelector(balanceSelector(fromChainKey, token.symbol))
 
     const [showModify, setShowModify] = useState(false)
+    const [infiniteApproval, setInfiniteApproval] = useState(false)
 
     const {hasRpc} = useOnLogin(fromChainKey, () => {
         dispatch(coreController.fetchBalance(fromChainKey, token))
@@ -157,12 +158,20 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                             </div>
                         </div>
                     </div>
+                    <div className="row input-container checkbox-row">
+                        <div className="item">
+                            <div className="item-input">
+                                <input disabled={disabled} type="checkbox" className="input" checked={infiniteApproval}
+                                       onChange={() => setInfiniteApproval(!infiniteApproval)}/> Infinite Approval
+                            </div>
+                        </div>
+                    </div>
                     <div className="row center-aligned-spaced-row" style={{textAlign: 'right'}}>
                         <span className="info-message">
                             {!_.isEmpty(txFee) && `Transaction Fee ${txFee}`}
                         </span>
                         <Button disabled={disabled} variant="contained" color="default"
-                                onClick={() => dispatch(controller.transfer(fromChainKey, amount, token))}>
+                                onClick={() => dispatch(controller.transfer(fromChainKey, amount, token, infiniteApproval))}>
                             Send Tokens
                         </Button>
                     </div>
