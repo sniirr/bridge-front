@@ -33,9 +33,13 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
     const {txFee, tokens} = useSelector(bridgeSelector)
     // token
     const [selectedSymbol, setSelectedSymbol] = useState(supportedTokens[0])
-    const token = {
+    let token = {
         ...TOKENS[selectedSymbol],
         ..._.get(tokens[selectedSymbol], fromChain === registerOn ? 'outToken' : 'inToken', {symbol: selectedSymbol, precision: 0})
+    }
+    token = {
+        ...token,
+        ..._.get(TOKENS, token.symbol, {})
     }
     //
     const balance = useSelector(balanceSelector(fromChain, token.symbol))
@@ -49,18 +53,27 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
 
     const [showModify, setShowModify] = useState(false)
 
-    useOnLogin(fromChain, () => {
-        dispatch(controller.fetchTransferFee(fromChain, token))
+    const {hasRpc} = useOnLogin(fromChain, () => {
         dispatch(fetchBalance(fromChain, connectControllers[fromChain], token.symbol))
         if (registerOn === fromChain) {
             dispatch(controller.fetchRegistry())
-            // TODO - move to "onLoad"
-            dispatch(controller.fetchSupportedTokens())
         }
     })
 
     useEffect(() => {
-        setAmount('0')
+        if (hasRpc) {
+            dispatch(controller.fetchSupportedTokens())
+        }
+    }, [hasRpc])
+
+    useEffect(() => {
+        if (!_.isEmpty(tokens)) {
+            dispatch(controller.fetchTransferFee(fromChain, token))
+        }
+    }, [tokens])
+
+    useEffect(() => {
+        setAmount((0).toFixed(token.precision))
         dispatch(controller.fetchTransferFee(fromChain, token))
         if (fromConnected) {
             dispatch(fetchBalance(fromChain, connectControllers[fromChain], token.symbol))
@@ -72,7 +85,7 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
     }
 
     const renderChainBox = (chainKey, direction) => {
-        const isConnected = _.has(connectedAccounts, chainKey)
+        const isConnected = !_.isEmpty(_.get(connectedAccounts, [chainKey, 'address']))
 
         const address = _.get(connectedAccounts, [chainKey, 'address'], 'Connected')
         return (
@@ -138,7 +151,7 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
                             </div>
                             <div className="item-input">
                                 <input disabled={disabled} type="text" className="input" value={amount}
-                                       onChange={e => setAmount(parseFloat(e.target.value).toFixed(6))}/>
+                                       onChange={e => setAmount(parseFloat(e.target.value).toFixed(token.precision))}/>
                             </div>
                         </div>
                     </div>

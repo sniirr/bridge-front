@@ -6,16 +6,14 @@ import {amountToAsset} from "utils/utils";
 
 // actions
 const fetchSupportedTokens = async (account, contract) => {
-    const rpc = _.get(account, 'wallet.eosApi.rpc')
-
-    if (_.isEmpty(rpc)) return
+    if (_.isEmpty(account.rpc)) return
 
     const {tables: {acceptedSym}} = config
 
     // TODO - remove this:
     const table = contract === 'etheosmultok' ? 'acceptedsym1' : acceptedSym
 
-    const data = await fetchTableData(rpc, {
+    const data = await fetchTableData(account.rpc, {
         code: contract,
         scope: contract,
         table,
@@ -118,13 +116,11 @@ const register = async (account, newAddress, [regFee, feeSymbol], isModify) => {
 }
 
 const fetchTransferFee = async (account, {symbol, depositContracts}) => {
-    const rpc = _.get(account, 'wallet.eosApi.rpc')
-
-    if (_.isEmpty(rpc)) return
+    if (_.isEmpty(account.rpc)) return
 
     const {contract, tables: {feeSettings}} = config
 
-    const row = await fetchOne(rpc, {
+    const row = await fetchOne(account.rpc, {
         code: _.get(depositContracts, 'EOS', contract),
         scope: symbol,
         table: feeSettings,

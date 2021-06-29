@@ -5,8 +5,14 @@ import scatter from 'eos-transit-scatter-provider'
 import tokenpocket from 'eos-transit-tokenpocket-provider'
 import AnchorLinkProvider from 'eos-transit-anchorlink-provider'
 import TOKENS from 'config/tokens.dev.json'
+import { JsonRpc, RpcError } from 'eosjs'
 
-export const connect = async ({providerIdx}) => {
+const initRpc = () => {
+    const {host, port, protocol} = CHAINS.EOS.chain
+    return new JsonRpc(`${protocol}://${host}:${port}`)
+}
+
+const connect = async ({providerIdx}) => {
     try {
         const accessContext = initAccessContext({
             appName: 'DeFights',
@@ -35,7 +41,7 @@ export const connect = async ({providerIdx}) => {
     return null
 }
 
-export const fetchBalance = async (symbol, account) => {
+const fetchBalance = async (symbol, account) => {
     const rpc = _.get(account, 'wallet.eosApi.rpc')
     const contract = _.get(TOKENS, [symbol, 'addresses', 'EOS'])
 
@@ -46,6 +52,7 @@ export const fetchBalance = async (symbol, account) => {
 }
 
 export default {
+    initRpc,
     connect,
     fetchBalance,
 }

@@ -96,9 +96,9 @@ const ConnectModal = ({config, handlers}) => {
                         Back
                     </Button>
                 )}
-                <Button onClick={closeModal} color="primary">
-                    Cancel
-                </Button>
+                {/*<Button onClick={closeModal} color="primary">*/}
+                {/*    Cancel*/}
+                {/*</Button>*/}
             </DialogActions>
         </Dialog>
     )

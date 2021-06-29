@@ -14,7 +14,11 @@ function useOnLogin(chainKey, onLogin) {
         }
     }, [address])
 
-    return !_.isEmpty(address)
+    return {
+        isLoggedIn: !_.isEmpty(address),
+        hasRpc: !_.isEmpty(account?.rpc),
+        rpc: account?.rpc,
+    }
 }
 
 export default useOnLogin

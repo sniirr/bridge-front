@@ -13,9 +13,20 @@ export const logout = chainKey => ({
 })
 
 export const updateAccount = (chainKey, update) => ({
-    type: 'ACCOUNTS.UPDATE_ACCOUNT',
+    type: 'ACCOUNTS.UPDATE',
     payload: {chainKey, update},
 })
+
+export const initRpc = (chainKey, ctrl) => async dispatch => {
+    if (!_.isFunction(ctrl.initRpc)) {
+        console.error(`NotImplementedError: initRpc is not implemented for ${chainKey}`)
+        return
+    }
+    const rpc = await ctrl.initRpc()
+    if (!_.isNil(rpc)) {
+        dispatch(updateAccount(chainKey, {rpc}))
+    }
+}
 
 export const connect = (chainKey, ctrl, opts={}) => async dispatch => {
     if (!_.isFunction(ctrl.connect)) {
@@ -24,7 +35,7 @@ export const connect = (chainKey, ctrl, opts={}) => async dispatch => {
     }
     const account = await ctrl.connect(opts)
     if (!_.isNil(account)) {
-        dispatch(login(chainKey, account))
+        dispatch(updateAccount(chainKey, account))
     }
 }
 
@@ -63,6 +74,16 @@ export const accountsReducer = makeReducer({
         return {
             ...state,
             [chainKey]: account,
+        }
+    },
+    'ACCOUNTS.UPDATE': (state, action) => {
+        const {chainKey, update} = action.payload
+        return {
+            ...state,
+            [chainKey]: {
+                ...state[chainKey],
+                ...update,
+            },
         }
     },
     'ACCOUNTS.LOGOUT': (state, action) => {
