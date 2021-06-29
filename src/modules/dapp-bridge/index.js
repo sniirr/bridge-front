@@ -9,7 +9,7 @@ export const BRIDGE_REGISTRY_ERROR = {
     ACCOUNT_MISMATCH: 2,
 }
 
-export const makeBridgeController = (controllers, {registerOn}) => {
+export const initBridge = (controllers, {registerOn}) => {
 
     const getHandler = (chainKey, method, state) => {
         const ctrl = controllers[chainKey]

@@ -14,7 +14,7 @@ import Dropdown from 'components/Common/Dropdown'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTimes, faAddressBook, faSync, faInfo} from '@fortawesome/free-solid-svg-icons'
 import BridgeRegister from "./BridgeRegister"
-import {bridgeSelector} from "components/Bridge/Bridge.module";
+import {bridgeSelector} from "modules/dapp-bridge";
 
 const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
 

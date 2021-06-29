@@ -5,32 +5,25 @@ import Bridge from "components/Bridge";
 import {useDispatch} from "react-redux";
 import ConnectModal, {showConnectModal} from "components/ConnectModal";
 import CHAINS from 'config/chains.json'
-// import ethConnect from 'components/ConnectModal/impl/eth'
-// import eosConnect from 'components/ConnectModal/impl/eos'
-import {makeBridgeController} from "components/Bridge/Bridge.module";
-import eosBridge from 'components/Bridge/impl/Bridge.eos'
-import ethBridge from 'components/Bridge/impl/Bridge.eth'
 import {initDappCore} from "modules/dapp-core"
 import ethCore from 'modules/dapp-core/impl/dapp-core.eth'
 import eosCore from 'modules/dapp-core/impl/dapp-core.eos'
+import {initBridge} from "modules/dapp-bridge";
+import ethBridge from 'modules/dapp-bridge/impl/dapp-bridge.eth'
+import eosBridge from 'modules/dapp-bridge/impl/dapp-bridge.eos'
 
-// init accounts
-// const connectControllers = {
-//     ETH: ethConnect,
-//     EOS: eosConnect,
-// }
-
-// init bridge
-const registerOn = 'EOS'
-const bridgeController = makeBridgeController({
-    EOS: eosBridge,
-    ETH: ethBridge,
-}, {registerOn: 'EOS'})
-
+// init core
 const coreController = initDappCore({
     EOS: eosCore,
     ETH: ethCore,
 })
+
+// init bridge
+const registerOn = 'EOS'
+const bridgeController = initBridge({
+    EOS: eosBridge,
+    ETH: ethBridge,
+}, {registerOn: 'EOS'})
 
 function App() {
     const dispatch = useDispatch()

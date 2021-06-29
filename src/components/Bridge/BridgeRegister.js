@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react'
 import {Button} from '@material-ui/core'
 import {useDispatch, useSelector} from "react-redux"
 import {chainCoreSelector} from "modules/dapp-core"
-import {regFeeSelector, BRIDGE_REGISTRY_ERROR} from "components/Bridge"
+import {regFeeSelector, BRIDGE_REGISTRY_ERROR} from "modules/dapp-bridge"
 import {amountToAsset} from "utils/utils"
 
 const BridgeRegister = ({controller, isModify}) => {
