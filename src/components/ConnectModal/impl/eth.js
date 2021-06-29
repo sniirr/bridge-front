@@ -1,5 +1,6 @@
 import _ from "lodash";
-import TOKENS from "config/tokens.dev.json";
+import TOKENS from "config/tokens.json";
+import CHAINS from 'config/chains.json'
 import tokenAbi from 'config/abi/tokenAbi'
 // import Web3 from 'web3'
 import { ethers } from "ethers"
@@ -20,7 +21,7 @@ export const connect = async ({providerIdx}) => {
         const {ethereum} = window;
         const {chainId} = ethereum;
 
-        if (chainId === "0x3") {
+        if (chainId === CHAINS.ETH.chain.chainId) {
             if (!!ethereum) {
                 await provider.send("eth_requestAccounts", []);
                 const signer = provider.getSigner();
@@ -33,7 +34,7 @@ export const connect = async ({providerIdx}) => {
                 }
             }
         } else {
-            alert("Must connect to Ropsten testnet");
+            alert("Wrong network");
         }
     } catch (e) {
         console.error("MetaMask connection failed", e);

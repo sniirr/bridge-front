@@ -4,7 +4,7 @@ import {initAccessContext} from 'eos-transit'
 import scatter from 'eos-transit-scatter-provider'
 import tokenpocket from 'eos-transit-tokenpocket-provider'
 import AnchorLinkProvider from 'eos-transit-anchorlink-provider'
-import TOKENS from 'config/tokens.dev.json'
+import TOKENS from 'config/tokens.json'
 import { JsonRpc, RpcError } from 'eosjs'
 
 const initRpc = () => {

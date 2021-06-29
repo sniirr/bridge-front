@@ -1,7 +1,7 @@
 import _ from "lodash";
 import {fetchOneByPk, fetchOne, fetchTableData, createTransferAction} from 'utils/api/eosApi'
 import {BRIDGE_REGISTRY_ERROR} from '../Bridge.common'
-import config from 'config/bridge.dev.json'
+import config from 'config/bridge.json'
 import {amountToAsset} from "utils/utils";
 
 // actions
@@ -120,10 +120,14 @@ const fetchTransferFee = async (account, {symbol, depositContracts}) => {
 
     const {contract, tables: {feeSettings}} = config
 
+    // TODO - remove this:
+    const depositContract = _.get(depositContracts, 'EOS', contract)
+    const table = depositContract === 'dadethbridge' ? 'feesettings4' : feeSettings
+
     const row = await fetchOne(account.rpc, {
-        code: _.get(depositContracts, 'EOS', contract),
+        code: depositContract,
         scope: symbol,
-        table: feeSettings,
+        table,
     })
 
     return _.get(row, 'minfeewithdraw', '')

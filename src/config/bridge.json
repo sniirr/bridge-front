@@ -1,3 +1,11 @@
 {
-  "bridgeContract": ""
+  "contract": "dadusdbridge",
+  "supportedContracts": ["dadethbridge"],
+  "ethAddress": "0x151982ebf8fbbb8979167b64b729f5f5c43562db",
+  "tables": {
+    "registry": "accountdet",
+    "fees": "configset",
+    "feeSettings": "feesettings",
+    "acceptedSym": "acceptedsym"
+  }
 }

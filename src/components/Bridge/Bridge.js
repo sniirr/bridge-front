@@ -8,7 +8,7 @@ import Slider from 'rc-slider'
 import {showConnectModal} from "components/ConnectModal"
 import {balanceSelector, fetchBalance, accountSelector} from "store/accounts"
 import useOnLogin from "hooks/useOnLogin";
-import TOKENS from 'config/tokens.dev.json'
+import TOKENS from 'config/tokens.json'
 import {amountToAsset} from "utils/utils"
 import Dropdown from 'components/Common/Dropdown'
 import {isRegisteredSelector} from "components/Bridge/impl/Bridge.eos"
@@ -123,11 +123,13 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
                         <div className="item item-group">
                             <div className="item-title">Token</div>
                             <div className="item-text">
-                                <Dropdown id="token-select" withCaret={true}
-                                          items={_.map(supportedTokens, t => ({name: t}))}
-                                          onItemClick={({name: symbol}) => {setSelectedSymbol(symbol)}}>
-                                    {selectedSymbol}
-                                </Dropdown>
+                                {_.size(supportedTokens) === 1 ? selectedSymbol : (
+                                    <Dropdown id="token-select" withCaret={true}
+                                              items={_.map(supportedTokens, t => ({name: t}))}
+                                              onItemClick={({name: symbol}) => {setSelectedSymbol(symbol)}}>
+                                        {selectedSymbol}
+                                    </Dropdown>
+                                )}
                             </div>
                         </div>
                         <div className="slider">

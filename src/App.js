@@ -42,7 +42,7 @@ function App() {
                         connectControllers={connectControllers}
                         supportedChains={['EOS', 'ETH']}
                         registerOn={registerOn}
-                        supportedTokens={['USDC', 'DAPP']}/>
+                        supportedTokens={['USDC', 'DAI']}/>
             </div>
             <ConnectModal config={CHAINS} handlers={connectControllers}/>
         </div>

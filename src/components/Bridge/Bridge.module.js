@@ -1,7 +1,7 @@
 import {makeReducer, reduceSetKey} from "utils/reduxUtils";
 import _ from "lodash";
 import {accountSelector} from "store/accounts";
-import config from 'config/bridge.dev.json'
+import config from 'config/bridge.json'
 
 export const makeBridgeController = (controllers, {registerOn}) => {
 

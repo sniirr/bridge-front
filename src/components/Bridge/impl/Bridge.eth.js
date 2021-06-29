@@ -1,15 +1,14 @@
-import config from 'config/bridge.dev.json'
+import config from 'config/bridge.json'
 import bridgeAbi from "config/abi/bridgeAbi"
 import web3 from 'utils/api/ethApi'
 import tokenAbi from "config/abi/tokenAbi"
-import TOKENS from "config/tokens.dev.json"
+import TOKENS from "config/tokens.json"
 
-import { ethers } from "ethers"
+import {ethers} from "ethers"
 
 // const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 
 const {ethAddress: bridgeEthAddress} = config
-
 
 
 const sendToken = async (account, amount, {ethTokenId}) => {
@@ -25,25 +24,25 @@ const sendToken = async (account, amount, {ethTokenId}) => {
 };
 
 
-const approveAndSendToken = async (account, stakeAMount, {ethTokenId, symbol}) => {
+const approveAndSendToken = async (contract, account, stakeAMount, {ethTokenId, symbol}, infiniteApproval) => {
     console.log("inside approve and send token");
 
-    const usdcContract = new ethers.Contract(TOKENS.USDC.addresses.ETH, tokenAbi, account.provider)
-
-    const contract = await usdcContract.connect(account.signer)
+    // const usdcContract = new ethers.Contract(TOKENS.USDC.addresses.ETH, tokenAbi, account.provider)
+    //
+    // const contract = await usdcContract.connect(account.signer)
 
     // const contract = usdcContract;
     // const contract = token === "USDC" ? usdcContract : daiContract;
     // const approveAmount = stakeAMount
-    const approveAmount = web3.utils.toWei("10000000000000000", "mwei")
-    // if (checked) {
-    //     approvedAmount =
-    //         token === "USDC"
-    //             ? web3.utils.toWei("10000000000000000", "mwei")
-    //             : web3.utils.toWei("10000000000000000", "ether");
-    // } else {
-    //     approvedAmount = stakeAMount;
-    // }
+    // const approveAmount = web3.utils.toWei("10000000000000000", "mwei")
+    let approveAmount
+    if (infiniteApproval) {
+        approveAmount = symbol === "USDC"
+            ? web3.utils.toWei("10000000000000000", "mwei")
+            : web3.utils.toWei("10000000000000000", "ether");
+    } else {
+        approveAmount = stakeAMount;
+    }
     console.log("approved amount ", approveAmount);
 
     const tx = await contract.approve(bridgeEthAddress, approveAmount)
@@ -84,7 +83,8 @@ const approveAndSendToken = async (account, stakeAMount, {ethTokenId, symbol}) =
     return tx2
 };
 
-const transfer = async (account, amount, token) => {
+
+const transfer = async (account, amount, token, infiniteApproval = true) => {
     // const contract = symbol === "USDC" ? usdcContract : daiContract
     // const stakeAMount =
     //     symbol === "USDC"
@@ -92,10 +92,14 @@ const transfer = async (account, amount, token) => {
     //         : web3.utils.toWei(amount, "ether");
 
     // const contract = usdcContract
-    const usdcContract = new ethers.Contract(TOKENS.USDC.addresses.ETH, tokenAbi, account.provider)
-    const contract = await usdcContract.connect(account.signer)
+    const tokenContract = new ethers.Contract(token.addresses.ETH, tokenAbi, account.provider)
+    const contract = await tokenContract.connect(account.signer)
 
-    const stakeAmount = web3.utils.toWei(amount, "mwei")
+    // const stakeAmount = web3.utils.toWei(amount, "mwei")
+    const stakeAmount =
+        token.symbol === "USDC"
+            ? web3.utils.toWei(amount, "mwei")
+            : web3.utils.toWei(amount, "ether");
 
     console.log("stakeAMount ", stakeAmount);
 
@@ -106,7 +110,7 @@ const transfer = async (account, amount, token) => {
 
     console.log("approvedAmount in contract ", appAmount);
 
-    return appAmount > stakeAmount ? sendToken(account, stakeAmount, token) : approveAndSendToken(account, stakeAmount, token)
+    return appAmount > stakeAmount ? sendToken(account, stakeAmount, token) : approveAndSendToken(contract, account, stakeAmount, token, infiniteApproval)
     // return await appAmount > stakeAmount ? sendToken(account, stakeAmount, token) : approveAndSendToken(account, stakeAmount, token)
 }
 
