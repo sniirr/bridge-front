@@ -6,7 +6,7 @@ import './Bridge.scss'
 import {useDispatch, useSelector} from "react-redux"
 import Slider from 'rc-slider'
 import {showConnectModal} from "components/ConnectModal"
-import {balanceSelector, fetchBalance, accountSelector} from "store/accounts"
+import {balanceSelector, chainCoreSelector} from "modules/dapp-core"
 import useOnLogin from "hooks/useOnLogin";
 import TOKENS from 'config/tokens.json'
 import {amountToAsset} from "utils/utils"
@@ -17,20 +17,20 @@ import {faTimes, faAddressBook, faSync, faInfo} from '@fortawesome/free-solid-sv
 import BridgeRegister from "./BridgeRegister"
 import {bridgeSelector} from "components/Bridge/Bridge.module";
 
-const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
+const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
 
     const dispatch = useDispatch()
 
     // chain
     const [chains, setChains] = useState(supportedChains)
-    const fromChain = chains[0]
-    const toChain = chains[1]
+    const fromChainKey = chains[0]
+    const toChainKey = chains[1]
 
     // accounts
-    const fromAccount = useSelector(accountSelector(fromChain))
-    const toAccount = useSelector(accountSelector(toChain))
-    const fromConnected = !_.isEmpty(fromAccount?.address)
-    const toConnected = !_.isEmpty(toAccount?.address)
+    const fromChain = useSelector(chainCoreSelector(fromChainKey))
+    const toChain = useSelector(chainCoreSelector(toChainKey))
+    const fromConnected = !_.isEmpty(fromChain?.address)
+    const toConnected = !_.isEmpty(toChain?.address)
     const isConnected = fromConnected && toConnected
     const disabled = !isConnected
     const [amount, setAmount] = useState('0')
@@ -42,7 +42,7 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
     const [selectedSymbol, setSelectedSymbol] = useState(supportedTokens[0])
     let token = {
         ...TOKENS[selectedSymbol],
-        ..._.get(tokens[selectedSymbol], fromChain === registerOn ? 'outToken' : 'inToken', {symbol: selectedSymbol, precision: 0})
+        ..._.get(tokens[selectedSymbol], fromChainKey === registerOn ? 'outToken' : 'inToken', {symbol: selectedSymbol, precision: 0})
     }
     token = {
         ...token,
@@ -50,13 +50,14 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
     }
 
     const {isRegistered} = useSelector(isRegisteredSelector)
-    const balance = useSelector(balanceSelector(fromChain, token.symbol))
+    const balance = useSelector(balanceSelector(fromChainKey, token.symbol))
 
     const [showModify, setShowModify] = useState(false)
 
-    const {hasRpc} = useOnLogin(fromChain, () => {
-        dispatch(fetchBalance(fromChain, connectControllers[fromChain], token))
-        if (registerOn === fromChain) {
+    const {hasRpc} = useOnLogin(fromChainKey, () => {
+        dispatch(coreController.fetchBalance(fromChainKey, token))
+        // dispatch(fetchBalance(fromChainKey, connectControllers[fromChainKey], token))
+        if (registerOn === fromChainKey) {
             dispatch(controller.fetchRegistry())
         }
     })
@@ -69,24 +70,25 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
 
     useEffect(() => {
         if (!_.isEmpty(tokens)) {
-            dispatch(controller.fetchTransferFee(fromChain, token))
+            dispatch(controller.fetchTransferFee(fromChainKey, token))
         }
     }, [tokens])
 
     useEffect(() => {
         setAmount((0).toFixed(token.precision))
-        dispatch(controller.fetchTransferFee(fromChain, token))
+        dispatch(controller.fetchTransferFee(fromChainKey, token))
         if (fromConnected) {
-            dispatch(fetchBalance(fromChain, connectControllers[fromChain], token))
+            dispatch(coreController.fetchBalance(fromChainKey, token))
+            // dispatch(fetchBalance(fromChainKey, connectControllers[fromChainKey], token))
         }
-    }, [fromChain, selectedSymbol])
+    }, [fromChainKey, selectedSymbol])
 
     const onSliderChange = value => {
         setAmount((balance * value / 100).toFixed(6))
     }
 
     const renderChainBox = (chainKey, direction) => {
-        const address = direction === 'From' ? fromAccount.address : toAccount.address
+        const address = direction === 'From' ? fromChain.address : toChain.address
         return (
             <div key={`bridge-chain-${chainKey}`} className="chain-box">
                 <div className="item">
@@ -111,11 +113,11 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
     return (
         <div className="section bridge-panel">
             <div className="row chains-row">
-                {renderChainBox(fromChain, 'From')}
-                <div className="arrow" onClick={() => setChains([toChain, fromChain])}>
+                {renderChainBox(fromChainKey, 'From')}
+                <div className="arrow" onClick={() => setChains([toChainKey, fromChainKey])}>
                     <SwapHoriz/>
                 </div>
-                {renderChainBox(toChain, 'To')}
+                {renderChainBox(toChainKey, 'To')}
             </div>
             {!showModify && (isRegistered || !isConnected) ? (
                 <>
@@ -161,7 +163,7 @@ const Bridge = ({controller = {}, connectControllers = {}, supportedChains = ['E
                             {!_.isEmpty(txFee) && `Transaction Fee ${txFee}`}
                         </span>
                         <Button disabled={disabled} variant="contained" color="default"
-                                onClick={() => dispatch(controller.transfer(fromChain, amount, token))}>
+                                onClick={() => dispatch(controller.transfer(fromChainKey, amount, token))}>
                             Send Tokens
                         </Button>
                     </div>

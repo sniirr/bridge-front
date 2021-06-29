@@ -5,18 +5,20 @@ import Bridge from "components/Bridge";
 import {useDispatch} from "react-redux";
 import ConnectModal, {showConnectModal} from "components/ConnectModal";
 import CHAINS from 'config/chains.json'
-import ethConnect from 'components/ConnectModal/impl/eth'
-import eosConnect from 'components/ConnectModal/impl/eos'
+// import ethConnect from 'components/ConnectModal/impl/eth'
+// import eosConnect from 'components/ConnectModal/impl/eos'
+import {makeBridgeController} from "components/Bridge/Bridge.module";
 import eosBridge from 'components/Bridge/impl/Bridge.eos'
 import ethBridge from 'components/Bridge/impl/Bridge.eth'
-import {makeBridgeController} from "components/Bridge/Bridge.module";
-import {initRpc} from "store/accounts"
+import {initDappCore} from "modules/dapp-core"
+import ethCore from 'modules/dapp-core/impl/dapp-core.eth'
+import eosCore from 'modules/dapp-core/impl/dapp-core.eos'
 
 // init accounts
-const connectControllers = {
-    ETH: ethConnect,
-    EOS: eosConnect,
-}
+// const connectControllers = {
+//     ETH: ethConnect,
+//     EOS: eosConnect,
+// }
 
 // init bridge
 const registerOn = 'EOS'
@@ -25,11 +27,16 @@ const bridgeController = makeBridgeController({
     ETH: ethBridge,
 }, {registerOn: 'EOS'})
 
+const coreController = initDappCore({
+    EOS: eosCore,
+    ETH: ethCore,
+})
+
 function App() {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(initRpc('EOS', eosConnect))
+        dispatch(coreController.initRpc('EOS'))
     }, [])
 
     return (
@@ -39,12 +46,12 @@ function App() {
             </header>
             <div className="page bridge">
                 <Bridge controller={bridgeController}
-                        connectControllers={connectControllers}
+                        coreController={coreController}
                         supportedChains={['EOS', 'ETH']}
                         registerOn={registerOn}
                         supportedTokens={['USDC', 'DAI']}/>
             </div>
-            <ConnectModal config={CHAINS} handlers={connectControllers}/>
+            <ConnectModal config={CHAINS} controller={coreController}/>
         </div>
     );
 }

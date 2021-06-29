@@ -2,7 +2,6 @@ import _ from "lodash";
 import TOKENS from "config/tokens.json";
 import CHAINS from 'config/chains.json'
 import tokenAbi from 'config/abi/tokenAbi'
-// import Web3 from 'web3'
 import { ethers } from "ethers"
 
 const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
@@ -52,7 +51,10 @@ export const fetchBalance = async ({symbol, precision}, account) => {
     return ethers.utils.formatUnits(balance, precision)
 }
 
+const logout = async () => {}
+
 export default {
     connect,
+    logout,
     fetchBalance,
 }

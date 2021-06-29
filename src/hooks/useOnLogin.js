@@ -4,9 +4,9 @@ import _ from 'lodash'
 
 function useOnLogin(chainKey, onLogin) {
 
-    const account = useSelector(state => _.get(state, ['accounts', chainKey]))
+    const chain = useSelector(state => _.get(state, ['dappcore', chainKey]))
 
-    const address = account?.address
+    const address = chain?.address
 
     useEffect(() => {
         if (!_.isEmpty(address)) {
@@ -16,8 +16,8 @@ function useOnLogin(chainKey, onLogin) {
 
     return {
         isLoggedIn: !_.isEmpty(address),
-        hasRpc: !_.isEmpty(account?.rpc),
-        rpc: account?.rpc,
+        hasRpc: !_.isEmpty(chain?.rpc),
+        rpc: chain?.rpc,
     }
 }
 

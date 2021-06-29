@@ -2,7 +2,7 @@ import _ from 'lodash'
 import React, {useEffect, useState} from 'react'
 import {Button} from '@material-ui/core'
 import {useDispatch, useSelector} from "react-redux"
-import {accountSelector} from "store/accounts"
+import {chainCoreSelector} from "modules/dapp-core"
 import {regFeeSelector} from "components/Bridge"
 import {amountToAsset} from "utils/utils"
 import {isRegisteredSelector} from "components/Bridge/impl/Bridge.eos"
@@ -12,7 +12,7 @@ const BridgeRegister = ({controller, isModify}) => {
 
     const dispatch = useDispatch()
 
-    const {address: connectedAddress} = useSelector(accountSelector('ETH'))
+    const {address: connectedAddress} = useSelector(chainCoreSelector('ETH'))
     const [addressInput, setAddressInput] = useState('')
     const [regFee, feeSymbol] = useSelector(regFeeSelector)
     const {error: registryError} = useSelector(isRegisteredSelector)

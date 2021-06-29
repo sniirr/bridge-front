@@ -7,16 +7,16 @@ import {
 } from '@material-ui/core';
 import {NavigateNext, Close} from '@material-ui/icons'
 import {connectModalSelector, hideConnectModal} from './ConnectModal.module'
-import {accountsSelector, connect, logout} from "store/accounts"
+import {dappCoreSelector} from "modules/dapp-core"
 import './ConnectModal.scss'
 import useOnLogin from "hooks/useOnLogin"
 
-const ConnectModal = ({config, handlers}) => {
+const ConnectModal = ({config, controller}) => {
 
     const dispatch = useDispatch()
 
     const {visible, chains} = useSelector(connectModalSelector)
-    const accounts = useSelector(accountsSelector)
+    const dappcore = useSelector(dappCoreSelector)
 
     const [selectedChain, setSelectedChain] = useState('')
 
@@ -42,7 +42,8 @@ const ConnectModal = ({config, handlers}) => {
         if (!hasSelectedChain) {
             // multiple chains - render chain selection first
             return _.map(chains, chainKey => {
-                const isConnected = _.has(accounts, chainKey)
+                const address = _.get(dappcore, [chainKey, 'address'])
+                const isConnected = !_.isEmpty(address)
                 return (
                     <div key={`connect-chain-${chainKey}`} className={classNames("chain", {'not-connected': !isConnected})}
                          onClick={() => !isConnected && setSelectedChain(chainKey)}>
@@ -51,11 +52,11 @@ const ConnectModal = ({config, handlers}) => {
                             <div className="info">
                                 <div>{chainKey}</div>
                                 <div className="account-name">
-                                    {isConnected ? accounts[chainKey].address : "Not Connected"}
+                                    {isConnected ? address : "Not Connected"}
                                 </div>
                             </div>
                         </div>
-                        {isConnected ? (<span className="logout" onClick={() => dispatch(logout(chainKey))}><Close/></span>) : <NavigateNext/>}
+                        {isConnected ? (<span className="logout" onClick={() => dispatch(controller.logout(chainKey))}><Close/></span>) : <NavigateNext/>}
                     </div>
                 )
             })
@@ -67,7 +68,8 @@ const ConnectModal = ({config, handlers}) => {
                     return (
                         <div key={`connect-wallet-btn-${i}`} className="connector"
                              onClick={() => {
-                                 dispatch(connect(selectedChain, handlers[selectedChain], {providerIdx: i}))
+                                 dispatch(controller.connect(selectedChain, {providerIdx: i}))
+                                 // dispatch(connect(selectedChain, handlers[selectedChain], {providerIdx: i}))
                              }}>
                             <div className="name">
                                 <img className={`${_.toLower(text)}-icon`} src={`images/${_.toLower(text)}.svg`} alt={text}/>
@@ -96,9 +98,6 @@ const ConnectModal = ({config, handlers}) => {
                         Back
                     </Button>
                 )}
-                {/*<Button onClick={closeModal} color="primary">*/}
-                {/*    Cancel*/}
-                {/*</Button>*/}
             </DialogActions>
         </Dialog>
     )

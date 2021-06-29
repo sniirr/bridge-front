@@ -1,5 +1,5 @@
 import Bridge from './Bridge'
 
-export {bridgeReducer, makeBridgeController, registrySelector, regFeeSelector} from './Bridge.module'
+export {bridgeReducer, makeBridgeController, regFeeSelector} from './Bridge.module'
 
 export default Bridge

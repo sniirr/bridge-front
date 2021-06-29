@@ -51,8 +51,11 @@ const fetchBalance = async ({symbol}, account) => {
     return _.size(balances) === 1 ? balances[0] : 0
 }
 
+const logout = async () => {}
+
 export default {
     initRpc,
     connect,
+    logout,
     fetchBalance,
 }

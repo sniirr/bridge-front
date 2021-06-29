@@ -237,13 +237,13 @@ const updatePrices = async (account) => {
 
 // selectors
 export const isRegisteredSelector = state => {
-    const accounts = _.get(state, 'accounts')
+    const dappcore = _.get(state, 'dappcore')
     const registry = _.get(state, 'bridge.registry')
 
-    if (!_.has(accounts, 'EOS') || !_.has(accounts, 'ETH')) return {isRegistered: false, error: BRIDGE_REGISTRY_ERROR.NOT_READY}
+    if (!_.has(dappcore, 'EOS') || !_.has(dappcore, 'ETH')) return {isRegistered: false, error: BRIDGE_REGISTRY_ERROR.NOT_READY}
     if (_.isNil(registry)) return {isRegistered: false, error: BRIDGE_REGISTRY_ERROR.NOT_READY}
     if (_.isEmpty(registry)) return {isRegistered: false, error: BRIDGE_REGISTRY_ERROR.NOT_REGISTERED}
-    if (_.toLower(registry.ethaddress) !== _.toLower(accounts.ETH.address)) return {isRegistered: false, error: BRIDGE_REGISTRY_ERROR.ACCOUNT_MISMATCH}
+    if (_.toLower(registry.ethaddress) !== _.toLower(dappcore.ETH.address)) return {isRegistered: false, error: BRIDGE_REGISTRY_ERROR.ACCOUNT_MISMATCH}
 
     return {isRegistered: true}
 }
