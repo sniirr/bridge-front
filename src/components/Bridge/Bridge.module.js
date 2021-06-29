@@ -3,6 +3,12 @@ import _ from "lodash";
 import {chainCoreSelector} from "modules/dapp-core";
 import config from 'config/bridge.json'
 
+export const BRIDGE_REGISTRY_ERROR = {
+    NOT_READY: 0,
+    NOT_REGISTERED: 1,
+    ACCOUNT_MISMATCH: 2,
+}
+
 export const makeBridgeController = (controllers, {registerOn}) => {
 
     const getHandler = (chainKey, method, state) => {
@@ -64,6 +70,12 @@ export const makeBridgeController = (controllers, {registerOn}) => {
         })
     }
 
+    const isRegisteredSelector = state => {
+        const [selector, ] = getHandler(registerOn, 'isRegisteredSelector', state)
+
+        return selector(state)
+    }
+
     // TRANSFER
     const fetchTransferFee = (fromChain, token) => async (dispatch, getState) => {
         const [handler, chain] = getHandler(fromChain, 'fetchTransferFee', getState())
@@ -100,6 +112,8 @@ export const makeBridgeController = (controllers, {registerOn}) => {
         fetchRegistry,
         fetchRegFee,
         register,
+        isRegisteredSelector,
+
         updatePrices,
 
         fetchTransferFee,

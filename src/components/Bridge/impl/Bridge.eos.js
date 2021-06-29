@@ -1,6 +1,6 @@
 import _ from "lodash";
 import {fetchOneByPk, fetchOne, fetchTableData, createTransferAction} from 'utils/api/eosApi'
-import {BRIDGE_REGISTRY_ERROR} from '../Bridge.common'
+import {BRIDGE_REGISTRY_ERROR} from '../Bridge.module'
 import config from 'config/bridge.json'
 import {amountToAsset} from "utils/utils";
 
@@ -253,6 +253,8 @@ export default {
     fetchRegistry,
     fetchRegFee,
     register,
+    isRegisteredSelector,
+
     updatePrices,
 
     fetchTransferFee,

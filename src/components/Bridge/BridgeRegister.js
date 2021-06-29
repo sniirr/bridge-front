@@ -3,10 +3,8 @@ import React, {useEffect, useState} from 'react'
 import {Button} from '@material-ui/core'
 import {useDispatch, useSelector} from "react-redux"
 import {chainCoreSelector} from "modules/dapp-core"
-import {regFeeSelector} from "components/Bridge"
+import {regFeeSelector, BRIDGE_REGISTRY_ERROR} from "components/Bridge"
 import {amountToAsset} from "utils/utils"
-import {isRegisteredSelector} from "components/Bridge/impl/Bridge.eos"
-import {BRIDGE_REGISTRY_ERROR} from "./Bridge.common"
 
 const BridgeRegister = ({controller, isModify}) => {
 
@@ -15,7 +13,7 @@ const BridgeRegister = ({controller, isModify}) => {
     const {address: connectedAddress} = useSelector(chainCoreSelector('ETH'))
     const [addressInput, setAddressInput] = useState('')
     const [regFee, feeSymbol] = useSelector(regFeeSelector)
-    const {error: registryError} = useSelector(isRegisteredSelector)
+    const {error: registryError} = useSelector(controller.isRegisteredSelector)
 
     useEffect(() => {
         dispatch(controller.fetchRegFee())

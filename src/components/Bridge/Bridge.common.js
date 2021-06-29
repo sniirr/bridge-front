@@ -1,5 +1,0 @@
-export const BRIDGE_REGISTRY_ERROR = {
-    NOT_READY: 0,
-    NOT_REGISTERED: 1,
-    ACCOUNT_MISMATCH: 2,
-}

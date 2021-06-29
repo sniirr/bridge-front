@@ -11,7 +11,6 @@ import useOnLogin from "hooks/useOnLogin";
 import TOKENS from 'config/tokens.json'
 import {amountToAsset} from "utils/utils"
 import Dropdown from 'components/Common/Dropdown'
-import {isRegisteredSelector} from "components/Bridge/impl/Bridge.eos"
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTimes, faAddressBook, faSync, faInfo} from '@fortawesome/free-solid-svg-icons'
 import BridgeRegister from "./BridgeRegister"
@@ -49,7 +48,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
         ..._.get(TOKENS, token.symbol, {})
     }
 
-    const {isRegistered} = useSelector(isRegisteredSelector)
+    const {isRegistered} = useSelector(controller.isRegisteredSelector)
     const balance = useSelector(balanceSelector(fromChainKey, token.symbol))
 
     const [showModify, setShowModify] = useState(false)
