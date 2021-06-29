@@ -1,0 +1,28 @@
+@keyframes moveIn {
+  0% { transform: translateX(500px)}
+  100% { transform: translateX(0px)}
+}
+
+@keyframes moveOut {
+  0% { transform: translateY(0px)}
+  100% { transform: translateY(-300px)}
+}
+
+.notification {
+  color: white;
+  background-color: transparent;
+  padding: 10px 20px;
+  position: fixed;
+  top: 72px;
+  right: 20px;
+  animation: moveIn 250ms linear , moveUp 1s linear 2s forwards;
+  z-index: 2000;
+
+  &.success {
+    background-color: #74a274;
+  }
+
+  &.error {
+    background-color: #dc6868;
+  }
+}

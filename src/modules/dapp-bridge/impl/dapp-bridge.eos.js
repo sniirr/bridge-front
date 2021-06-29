@@ -96,23 +96,14 @@ const register = async (account, newAddress, [regFee, feeSymbol], isModify) => {
         },
     ]
 
-    let response
-
-    try {
-        response = await eosApi.transact(
-            {actions},
-            {
-                broadcast: true,
-                blocksBehind: 3,
-                expireSeconds: 60,
-            }
-        )
-    }
-    catch (e) {
-        debugger
-    }
-
-    return {success: !!response, response}
+    return await eosApi.transact(
+        {actions},
+        {
+            broadcast: true,
+            blocksBehind: 3,
+            expireSeconds: 60,
+        }
+    )
 }
 
 const fetchTransferFee = async (account, {symbol, depositContracts}) => {
@@ -153,23 +144,14 @@ const transfer = async (account, amount, token) => {
         },
     ]
 
-    let response
-
-    try {
-        response = await eosApi.transact(
-            {actions},
-            {
-                broadcast: true,
-                blocksBehind: 3,
-                expireSeconds: 60,
-            }
-        )
-    }
-    catch (e) {
-        debugger
-    }
-
-    return {success: !!response, response}
+    return await eosApi.transact(
+        {actions},
+        {
+            broadcast: true,
+            blocksBehind: 3,
+            expireSeconds: 60,
+        }
+    )
 }
 
 // prices
@@ -216,23 +198,14 @@ const updatePrices = async (account) => {
         },
     ]
 
-    let response
-
-    try {
-        response = await eosApi.transact(
-            {actions},
-            {
-                broadcast: true,
-                blocksBehind: 3,
-                expireSeconds: 60,
-            }
-        )
-    }
-    catch (e) {
-        debugger
-    }
-
-    return {success: !!response, response}
+    return await eosApi.transact(
+        {actions},
+        {
+            broadcast: true,
+            blocksBehind: 3,
+            expireSeconds: 60,
+        }
+    )
 }
 
 // selectors

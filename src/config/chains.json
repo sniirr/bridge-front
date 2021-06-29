@@ -1,5 +1,6 @@
 {
   "EOS": {
+    "name": "EOS",
     "chain": {
       "chainId": "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906",
       "host": "eos.greymass.com",
@@ -9,6 +10,7 @@
     "connectors": ["Scatter", "Anchor", "TokenPocket"]
   },
   "ETH": {
+    "name": "Ethereum",
     "chain": {
       "chainId": "0x1"
     },

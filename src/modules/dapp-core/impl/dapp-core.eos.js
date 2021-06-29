@@ -13,32 +13,33 @@ const initRpc = () => {
 }
 
 const connect = async ({providerIdx}) => {
-    try {
-        const accessContext = initAccessContext({
-            appName: 'DeFights',
-            network: CHAINS.EOS.chain,
-            walletProviders: [
-                scatter(),
-                AnchorLinkProvider(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)),
-                tokenpocket(),
-            ]
-        });
+    const accessContext = initAccessContext({
+        appName: 'DeFights',
+        network: CHAINS.EOS.chain,
+        walletProviders: [
+            scatter(),
+            AnchorLinkProvider(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)),
+            tokenpocket(),
+        ]
+    });
 
-        const walletProviders = accessContext.getWalletProviders()
-        const selectedProvider = walletProviders[providerIdx]
-        const wallet = accessContext.initWallet(selectedProvider)
+    const walletProviders = accessContext.getWalletProviders()
+    const selectedProvider = walletProviders[providerIdx]
+    const wallet = accessContext.initWallet(selectedProvider)
 
-        await wallet.connect()
-        await wallet.login()
+    await wallet.connect()
+    await wallet.login()
 
-        return {
-            address: _.get(wallet, 'auth.accountName'),
-            wallet,
-        }
-    } catch (e) {
-        console.error("EOS connection failed", e);
+    return {
+        address: _.get(wallet, 'auth.accountName'),
+        wallet,
     }
-    return null
+    // try {
+    //
+    // } catch (e) {
+    //     console.error("EOS connection failed", e);
+    // }
+    // return null
 }
 
 const fetchBalance = async ({symbol}, account) => {

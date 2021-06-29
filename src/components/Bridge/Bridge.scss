@@ -9,6 +9,11 @@
     svg {
       cursor: pointer;
       margin-left: 15px;
+
+      &.disabled {
+        color: #5b5b5b;
+        cursor: not-allowed;
+      }
     }
   }
 

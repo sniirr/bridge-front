@@ -2,6 +2,7 @@ import {makeReducer, reduceSetKey} from "utils/reduxUtils";
 import _ from "lodash";
 import {chainCoreSelector} from "modules/dapp-core";
 import config from 'config/bridge.json'
+import {showNotification} from "modules/utils";
 
 export const BRIDGE_REGISTRY_ERROR = {
     NOT_READY: 0,
@@ -24,50 +25,74 @@ export const initBridge = (controllers, {registerOn}) => {
     const fetchSupportedTokens = () => async (dispatch, getState) => {
         const {contract, supportedContracts = []} = config
 
-        const tokenSets = await Promise.all(
-            _.map([contract, ...supportedContracts], async c => {
-                const [handler, chain] = getHandler(registerOn, 'fetchSupportedTokens', getState())
-                return await handler(chain, c)
+        try {
+            const tokenSets = await Promise.all(
+                _.map([contract, ...supportedContracts], async c => {
+                    const [handler, chain] = getHandler(registerOn, 'fetchSupportedTokens', getState())
+                    return await handler(chain, c)
+                })
+            )
+
+            const tokens = _.keyBy(_.flatten(tokenSets), 'symbol')
+
+            dispatch({
+                type: 'BRIDGE.SET_TOKENS',
+                payload: tokens,
             })
-        )
-
-        const tokens = _.keyBy(_.flatten(tokenSets), 'symbol')
-
-        dispatch({
-            type: 'BRIDGE.SET_TOKENS',
-            payload: tokens,
-        })
+        }
+        catch (e) {
+            console.error(e)
+            dispatch(showNotification({type: 'error', text: 'Failed to fetch supported tokens'}))
+        }
     }
 
     // REGISTER
     const fetchRegistry = () => async (dispatch, getState) => {
         const [handler, chain] = getHandler(registerOn, 'fetchRegistry', getState())
 
-        const registry = await handler(chain)
-        dispatch({
-            type: 'BRIDGE.SET_REGISTRY',
-            payload: registry || {}
-        })
+        try {
+            const registry = await handler(chain)
+            dispatch({
+                type: 'BRIDGE.SET_REGISTRY',
+                payload: registry || {}
+            })
+        }
+        catch (e) {
+            console.error(e)
+            dispatch(showNotification({type: 'error', text: 'Failed to fetch registry info'}))
+        }
     }
 
     const fetchRegFee = () => async (dispatch, getState) => {
         const [handler, chain] = getHandler(registerOn, 'fetchRegFee', getState())
 
-        const fee = await handler(chain)
-        dispatch({
-            type: 'BRIDGE.SET_REG_FEE',
-            payload: fee
-        })
+        try {
+            const fee = await handler(chain)
+            dispatch({
+                type: 'BRIDGE.SET_REG_FEE',
+                payload: fee
+            })
+        }
+        catch (e) {
+            console.error(e)
+            dispatch(showNotification({type: 'error', text: 'Failed to fetch registration fee'}))
+        }
     }
 
     const register = (newAddress, regFee, isModify) => async (dispatch, getState) => {
         const [handler, chain] = getHandler(registerOn, 'register', getState())
 
-        const result = await handler(chain, newAddress, regFee, isModify)
-        dispatch({
-            type: 'BRIDGE.REGISTER_SUCCESS',
-            payload: result
-        })
+        try {
+            const result = await handler(chain, newAddress, regFee, isModify)
+            dispatch({
+                type: 'BRIDGE.REGISTER_SUCCESS',
+                payload: result
+            })
+        }
+        catch (e){
+            console.error(e)
+            dispatch(showNotification({type: 'error', text: e.message || e}))
+        }
     }
 
     const isRegisteredSelector = state => {
@@ -80,31 +105,49 @@ export const initBridge = (controllers, {registerOn}) => {
     const fetchTransferFee = (fromChain, token) => async (dispatch, getState) => {
         const [handler, chain] = getHandler(fromChain, 'fetchTransferFee', getState())
 
-        const fee = await handler(chain, token)
-        dispatch({
-            type: 'BRIDGE.SET_TX_FEE',
-            payload: fee
-        })
+        try {
+            const fee = await handler(chain, token)
+            dispatch({
+                type: 'BRIDGE.SET_TX_FEE',
+                payload: fee
+            })
+        }
+        catch (e) {
+            console.error(e)
+            dispatch(showNotification({type: 'error', text: 'Failed to fetch transaction fee'}))
+        }
     }
 
     const transfer = (fromChain, amount, token, infiniteApproval) => async (dispatch, getState) => {
         const [handler, chain] = getHandler(fromChain, 'transfer', getState())
 
-        const result = await handler(chain, amount, token, infiniteApproval)
-        dispatch({
-            type: 'BRIDGE.TRANSFER_SUCCESS',
-            payload: result
-        })
+        try {
+            const result = await handler(chain, amount, token, infiniteApproval)
+            dispatch({
+                type: 'BRIDGE.TRANSFER_SUCCESS',
+                payload: result
+            })
+        }
+        catch (e) {
+            console.error(e)
+            dispatch(showNotification({type: 'error', text: e.message}))
+        }
     }
 
     const updatePrices = () => async (dispatch, getState) => {
         const [handler, chain] = getHandler(registerOn, 'updatePrices', getState())
 
-        const result = await handler(chain)
-        dispatch({
-            type: 'BRIDGE.UPDATE_PRICES_SUCCESS',
-            payload: result
-        })
+        try {
+            const result = await handler(chain)
+            dispatch({
+                type: 'BRIDGE.UPDATE_PRICES_SUCCESS',
+                payload: result
+            })
+        }
+        catch (e) {
+            console.error(e)
+            dispatch(showNotification({type: 'error', text: e.message}))
+        }
     }
 
     return {

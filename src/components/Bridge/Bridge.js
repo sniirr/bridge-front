@@ -15,6 +15,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTimes, faAddressBook, faSync, faInfo} from '@fortawesome/free-solid-svg-icons'
 import BridgeRegister from "./BridgeRegister"
 import {bridgeSelector} from "modules/dapp-bridge";
+import classNames from "classnames";
 
 const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
 
@@ -56,10 +57,10 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
 
     const {hasRpc} = useOnLogin(fromChainKey, () => {
         dispatch(coreController.fetchBalance(fromChainKey, token))
-        // dispatch(fetchBalance(fromChainKey, connectControllers[fromChainKey], token))
-        if (registerOn === fromChainKey) {
-            dispatch(controller.fetchRegistry())
-        }
+    })
+
+    useOnLogin(registerOn, () => {
+        dispatch(controller.fetchRegistry())
     })
 
     useEffect(() => {
@@ -79,7 +80,6 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
         dispatch(controller.fetchTransferFee(fromChainKey, token))
         if (fromConnected) {
             dispatch(coreController.fetchBalance(fromChainKey, token))
-            // dispatch(fetchBalance(fromChainKey, connectControllers[fromChainKey], token))
         }
     }, [fromChainKey, selectedSymbol])
 
@@ -187,7 +187,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                     <FontAwesomeIcon icon={faAddressBook} title="Change registered Ethereum address"
                                      onClick={() => setShowModify(true)}/>
                 )}
-                <FontAwesomeIcon icon={faSync} title="Refresh fees" onClick={() => dispatch(controller.updatePrices())}/>
+                <FontAwesomeIcon icon={faSync} className={classNames({disabled})} title={`Refresh fees${disabled ? ' (requires login)' : ''}`} onClick={() => !disabled && dispatch(controller.updatePrices())}/>
                 <FontAwesomeIcon icon={faInfo} title="DAPP Bridge guide" onClick={() => console.log('guide')}/>
             </div>
         </div>

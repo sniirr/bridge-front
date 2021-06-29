@@ -16,27 +16,23 @@ const tokenContracts = _.zipObject(
 )
 
 export const connect = async ({providerIdx}) => {
-    try {
-        const {ethereum} = window;
-        const {chainId} = ethereum;
+    const {ethereum} = window;
+    const {chainId} = ethereum;
 
-        if (chainId === CHAINS.ETH.chain.chainId) {
-            if (!!ethereum) {
-                await provider.send("eth_requestAccounts", []);
-                const signer = provider.getSigner();
-                const address = await signer.getAddress()
+    if (chainId === CHAINS.ETH.chain.chainId) {
+        if (!!ethereum) {
+            await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const address = await signer.getAddress()
 
-                return {
-                    address,
-                    provider,
-                    signer,
-                }
+            return {
+                address,
+                provider,
+                signer,
             }
-        } else {
-            alert("Wrong network");
         }
-    } catch (e) {
-        console.error("MetaMask connection failed", e);
+    } else {
+        throw {message: "Wrong network"}
     }
     return null
 }

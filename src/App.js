@@ -4,6 +4,7 @@ import 'css/main.scss'
 import Bridge from "components/Bridge";
 import {useDispatch} from "react-redux";
 import ConnectModal, {showConnectModal} from "components/ConnectModal";
+import Notification from "components/Notification"
 import CHAINS from 'config/chains.json'
 import {initDappCore} from "modules/dapp-core"
 import ethCore from 'modules/dapp-core/impl/dapp-core.eth'
@@ -45,6 +46,7 @@ function App() {
                         supportedTokens={['USDC', 'DAI']}/>
             </div>
             <ConnectModal config={CHAINS} controller={coreController}/>
+            <Notification/>
         </div>
     );
 }
