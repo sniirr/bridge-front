@@ -8,7 +8,7 @@ import Slider from 'rc-slider'
 import {showConnectModal} from "components/ConnectModal"
 import {balanceSelector, chainCoreSelector} from "modules/dapp-core"
 import useOnLogin from "hooks/useOnLogin";
-import TOKENS from 'config/tokens.json'
+import TOKENS from 'config/tokens.dev.json'
 import {amountToAsset} from "utils/utils"
 import Dropdown from 'components/Common/Dropdown'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -49,6 +49,8 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
         ..._.get(TOKENS, token.symbol, {})
     }
 
+    const currentTxFee = fromChainKey === TOKENS[selectedSymbol].issuedOn ? txFee.deposit : txFee.withdraw
+
     const {isRegistered} = useSelector(controller.isRegisteredSelector)
     const balance = useSelector(balanceSelector(fromChainKey, token.symbol))
 
@@ -71,17 +73,20 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
 
     useEffect(() => {
         if (!_.isEmpty(tokens)) {
-            dispatch(controller.fetchTransferFee(fromChainKey, token))
+            dispatch(controller.fetchTransferFee(token))
         }
-    }, [tokens])
+    }, [tokens, selectedSymbol])
 
     useEffect(() => {
         setAmount((0).toFixed(token.precision))
-        dispatch(controller.fetchTransferFee(fromChainKey, token))
         if (fromConnected) {
             dispatch(coreController.fetchBalance(fromChainKey, token))
         }
     }, [fromChainKey, selectedSymbol])
+
+    // useEffect(() => {
+    //     dispatch(controller.fetchTransferFee(token))
+    // }, [selectedSymbol])
 
     const onSliderChange = value => {
         setAmount((balance * value / 100).toFixed(6))
@@ -168,7 +173,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                     </div>
                     <div className="row center-aligned-spaced-row" style={{textAlign: 'right'}}>
                         <span className="info-message">
-                            {!_.isEmpty(txFee) && `Transaction Fee ${txFee}`}
+                            {!_.isEmpty(currentTxFee) && `Transaction Fee ${currentTxFee}`}
                         </span>
                         <Button disabled={disabled} variant="contained" color="default"
                                 onClick={() => dispatch(controller.transfer(fromChainKey, amount, token, infiniteApproval))}>

@@ -1,11 +1,11 @@
 import _ from "lodash";
-import CHAINS from 'config/chains.json'
+import CHAINS from 'config/chains.dev.json'
 import {initAccessContext} from 'eos-transit'
 import scatter from 'eos-transit-scatter-provider'
 import tokenpocket from 'eos-transit-tokenpocket-provider'
 import AnchorLinkProvider from 'eos-transit-anchorlink-provider'
-import TOKENS from 'config/tokens.json'
-import { JsonRpc, RpcError } from 'eosjs'
+import TOKENS from 'config/tokens.dev.json'
+import { JsonRpc } from 'eosjs'
 
 const initRpc = () => {
     const {host, port, protocol} = CHAINS.EOS.chain
@@ -34,12 +34,6 @@ const connect = async ({providerIdx}) => {
         address: _.get(wallet, 'auth.accountName'),
         wallet,
     }
-    // try {
-    //
-    // } catch (e) {
-    //     console.error("EOS connection failed", e);
-    // }
-    // return null
 }
 
 const fetchBalance = async ({symbol}, account) => {

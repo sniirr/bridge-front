@@ -1,8 +1,9 @@
 import _ from "lodash";
 import {fetchOneByPk, fetchOne, fetchTableData, createTransferAction} from 'utils/api/eosApi'
 import {BRIDGE_REGISTRY_ERROR} from '../'
-import config from 'config/bridge.json'
+import config from 'config/bridge.dev.json'
 import {amountToAsset} from "utils/utils";
+import TOKENS from 'config/tokens.dev.json'
 
 // actions
 const fetchSupportedTokens = async (account, contract) => {
@@ -121,7 +122,9 @@ const fetchTransferFee = async (account, {symbol, depositContracts}) => {
         table,
     })
 
-    return _.get(row, 'minfeewithdraw', '')
+    const {minfeedeposit, minfeewithdraw} = row || {}
+
+    return {deposit: minfeedeposit, withdraw: minfeewithdraw}
 }
 
 const transfer = async (account, amount, token) => {

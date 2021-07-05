@@ -1,8 +1,8 @@
-import config from 'config/bridge.json'
+import config from 'config/bridge.dev.json'
 import bridgeAbi from "config/abi/bridgeAbi"
 import web3 from 'utils/api/ethApi'
 import tokenAbi from "config/abi/tokenAbi"
-import TOKENS from "config/tokens.json"
+import TOKENS from "config/tokens.dev.json"
 
 import {ethers} from "ethers"
 
@@ -95,10 +95,9 @@ const transfer = async (account, amount, token, infiniteApproval) => {
     const contract = await tokenContract.connect(account.signer)
 
     // const stakeAmount = web3.utils.toWei(amount, "mwei")
-    const stakeAmount =
-        token.symbol === "USDC"
-            ? web3.utils.toWei(amount, "mwei")
-            : web3.utils.toWei(amount, "ether");
+    const stakeAmount = parseInt(token.symbol === "USDC"
+        ? web3.utils.toWei(amount, "mwei")
+        : web3.utils.toWei(amount, "ether"))
 
     console.log("stakeAMount ", stakeAmount);
 

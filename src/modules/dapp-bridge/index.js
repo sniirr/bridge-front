@@ -1,7 +1,7 @@
 import {makeReducer, reduceSetKey} from "utils/reduxUtils";
 import _ from "lodash";
 import {chainCoreSelector} from "modules/dapp-core";
-import config from 'config/bridge.json'
+import config from 'config/bridge.dev.json'
 import {showNotification} from "modules/utils";
 
 export const BRIDGE_REGISTRY_ERROR = {
@@ -102,14 +102,14 @@ export const initBridge = (controllers, {registerOn}) => {
     }
 
     // TRANSFER
-    const fetchTransferFee = (fromChain, token) => async (dispatch, getState) => {
-        const [handler, chain] = getHandler(fromChain, 'fetchTransferFee', getState())
+    const fetchTransferFee = (token) => async (dispatch, getState) => {
+        const [handler, chain] = getHandler(registerOn, 'fetchTransferFee', getState())
 
         try {
             const fee = await handler(chain, token)
             dispatch({
                 type: 'BRIDGE.SET_TX_FEE',
-                payload: fee
+                payload: fee || {}
             })
         }
         catch (e) {
@@ -172,7 +172,7 @@ const INITIAL_STATE = {
     tokens: {},
     registry: null,
     regFee: [-1, 'EOS'],
-    txFee: null,
+    txFee: {},
 
     regResult: null,
     transferResult: null,
