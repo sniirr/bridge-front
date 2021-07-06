@@ -20,3 +20,25 @@ export const amountToAsset = (amount, {symbol, precision}, withSymbol = true, pr
     const format = prettify ? '0,' + PRECISION_FORMAT[precision] : PRECISION_FORMAT[precision]
     return `${numeral(_.isString(amount) ? parseFloat(amount) : amount).format(format)}${withSymbol ? (' ' + symbol) : ''}`
 }
+
+export const poll = async opts => {
+    const {interval, pollFunc, checkFunc, timerId, setTimerId} = opts
+    try {
+        const res = await pollFunc()
+        const shouldStop = _.isFunction(checkFunc) && checkFunc(res)
+
+        if (!shouldStop) {
+            if (timerId !== -1) {
+                clearTimeout(timerId)
+            }
+            setTimerId(
+                setTimeout(() => {
+                    poll(opts)
+                }, interval)
+            )
+        }
+    }
+    catch (e) {
+
+    }
+}

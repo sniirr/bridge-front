@@ -36,7 +36,7 @@
   }
 
   .bridge-panel {
-    width: 610px;
+    width: 680px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -138,6 +138,51 @@
     }
   }
 
+  .tx-status {
+    margin-top: 40px;
+    position: relative;
+    border: solid 1px white;
+    border-radius: 4px;
+    padding: 15px;
+
+    .close-icon {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    .status-row {
+      &:not(:first-child) {
+        margin-top: 15px;
+      }
+
+      .marker {
+        margin-right: 15px;
+
+        svg path {
+          fill: #b5b5b5;
+        }
+
+        &.done {
+          svg path {
+            fill: green;
+          }
+        }
+      }
+    }
+
+    .tx-id {
+      margin: 8px 0 0 42px;
+      font-size: .8em;
+
+      span {
+        color: green;
+        margin-left: 5px;
+      }
+    }
+  }
+
   .Mui-disabled {
     background-color: #aaa;
     color: #5b5b5b;
@@ -145,6 +190,6 @@
   }
 
   input[type=text] {
-    width: 550px;
+    width: 620px;
   }
 }

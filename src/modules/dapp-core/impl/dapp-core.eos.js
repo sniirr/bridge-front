@@ -1,10 +1,10 @@
 import _ from "lodash";
-import CHAINS from 'config/chains.dev.json'
+import CHAINS from 'config/chains.json'
 import {initAccessContext} from 'eos-transit'
 import scatter from 'eos-transit-scatter-provider'
 import tokenpocket from 'eos-transit-tokenpocket-provider'
 import AnchorLinkProvider from 'eos-transit-anchorlink-provider'
-import TOKENS from 'config/tokens.dev.json'
+import TOKENS from 'config/tokens.json'
 import { JsonRpc } from 'eosjs'
 
 const initRpc = () => {

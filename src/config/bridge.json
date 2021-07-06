@@ -6,6 +6,8 @@
     "registry": "accountdet",
     "fees": "configset",
     "feeSettings": "feesettings",
-    "acceptedSym": "acceptedsym"
+    "acceptedSym": "acceptedsym",
+    "withdrawQueue": "withdrawq",
+    "genLog": "genlogdet"
   }
 }

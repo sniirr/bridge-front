@@ -1,9 +1,9 @@
 import _ from "lodash";
 import {fetchOneByPk, fetchOne, fetchTableData, createTransferAction} from 'utils/api/eosApi'
 import {BRIDGE_REGISTRY_ERROR} from '../'
-import config from 'config/bridge.dev.json'
-import {amountToAsset} from "utils/utils";
-import TOKENS from 'config/tokens.dev.json'
+import config from 'config/bridge.json'
+import {amountToAsset, poll} from "utils/utils";
+import TOKENS from 'config/tokens.json'
 
 // actions
 const fetchSupportedTokens = async (account, contract) => {
@@ -157,6 +157,105 @@ const transfer = async (account, amount, token) => {
     )
 }
 
+export const fetchWithdrawQueue = async ({rpc, address}, {symbol, depositContracts}, startFrom = -1) => {
+    if (_.isEmpty(rpc)) return
+
+    const {contract, tables: {withdrawQueue}} = config
+
+    // TODO - remove this:
+    const depositContract = _.get(depositContracts, 'EOS', contract)
+    const table = depositContract === 'dadethbridge' ? 'withdrawq3' : withdrawQueue
+
+    const opts = startFrom !== -1 ? {
+        lower_bound: startFrom,
+    } : {
+        limit: 1,
+        reverse: true,
+    }
+
+    const data = await fetchTableData(rpc, {
+        code: depositContract,
+        scope: symbol,
+        table,
+        ...opts,
+    })
+
+    if (startFrom === -1) {
+        const lastId = _.get(data.rows, [0, 'id'], -1)
+        return {lastId: lastId + 1}
+    }
+
+    const userRow = _.find(data.rows, r => r.account === address)
+    return {userRow}
+}
+
+const awaitDeposit = async (account, token, onComplete) => {
+    const {lastId} = await fetchWithdrawQueue(account, token)
+
+    poll({
+        interval: 2000,
+        pollFunc: () => fetchWithdrawQueue(account, token, lastId),
+        checkFunc: ({userRow}) => {
+            const deposited = !_.isEmpty(userRow)
+
+            if (deposited) {
+                onComplete({deposited: true})
+            }
+            return deposited
+        }
+    })
+}
+
+export const fetchGenLog = async ({rpc}, fromAccount, {depositContracts}, startFrom = -1) => {
+    if (_.isEmpty(rpc)) return
+
+    const {contract, tables: {genLog}} = config
+
+    const depositContract = _.get(depositContracts, 'EOS', contract)
+
+    const opts = startFrom !== -1 ? {
+        lower_bound: startFrom,
+    } : {
+        limit: 1,
+        reverse: true,
+    }
+
+    const data = await fetchTableData(rpc, {
+        code: depositContract,
+        scope: depositContract,
+        table: genLog,
+        ...opts,
+    })
+
+    if (startFrom === -1) {
+        const lastId = _.get(data.rows, [0, 'id'], -1)
+        return {lastId: lastId + 1}
+    }
+
+    // TODO
+    const fromAddress = _.toLower(fromAccount.address.substring(2))
+
+    const logRow = _.find(data.rows, ({type, msg}) => type === 'incomingMessage' && _.toLower(msg?.address) === fromAddress && msg?.success === 1)
+    // const logRow = _.find(data.rows, ({type, msg}) => type === 'incomingMessage' && _.toLower(msg?.address) === _.toLower(fromAccount.address) && msg?.success === 1)
+    return {logRow}
+}
+
+const awaitReceived = async (account, fromAccount, token, onComplete) => {
+    const {lastId} = await fetchGenLog(account, fromAccount, token)
+
+    poll({
+        interval: 5000,
+        pollFunc: () => fetchGenLog(account, fromAccount, token, lastId),
+        checkFunc: ({logRow}) => {
+            const received = !_.isEmpty(logRow)
+            if (received) {
+                onComplete({received: true})
+            }
+            return received
+        }
+    })
+}
+
 // prices
 const updatePrices = async (account) => {
     const {eosApi, auth} = _.get(account, 'wallet', {})
@@ -201,7 +300,7 @@ const updatePrices = async (account) => {
         },
     ]
 
-    return await eosApi.transact(
+    const res = await eosApi.transact(
         {actions},
         {
             broadcast: true,
@@ -209,6 +308,10 @@ const updatePrices = async (account) => {
             expireSeconds: 60,
         }
     )
+
+    console.log('UPDATE_PRICE ' + JSON.stringify(res))
+
+    return res
 }
 
 // selectors
@@ -235,4 +338,6 @@ export default {
 
     fetchTransferFee,
     transfer,
+    awaitDeposit,
+    awaitReceived,
 }

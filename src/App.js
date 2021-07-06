@@ -5,7 +5,7 @@ import Bridge from "components/Bridge";
 import {useDispatch} from "react-redux";
 import ConnectModal, {showConnectModal} from "components/ConnectModal";
 import Notification from "components/Notification"
-import CHAINS from 'config/chains.dev.json'
+import CHAINS from 'config/chains.json'
 import {initDappCore} from "modules/dapp-core"
 import ethCore from 'modules/dapp-core/impl/dapp-core.eth'
 import eosCore from 'modules/dapp-core/impl/dapp-core.eos'
@@ -24,7 +24,7 @@ const registerOn = 'EOS'
 const bridgeController = initBridge({
     EOS: eosBridge,
     ETH: ethBridge,
-}, {registerOn: 'EOS'})
+}, {registerOn: 'EOS'}, coreController)
 
 function App() {
     const dispatch = useDispatch()
@@ -43,7 +43,7 @@ function App() {
                         coreController={coreController}
                         supportedChains={['EOS', 'ETH']}
                         registerOn={registerOn}
-                        supportedTokens={['DAPP', 'USDC', 'DAI']}/>
+                        supportedTokens={['USDC', 'DAPP', 'DAI']}/>
             </div>
             <ConnectModal config={CHAINS} controller={coreController}/>
             <Notification/>

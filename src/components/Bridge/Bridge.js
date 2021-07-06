@@ -8,12 +8,13 @@ import Slider from 'rc-slider'
 import {showConnectModal} from "components/ConnectModal"
 import {balanceSelector, chainCoreSelector} from "modules/dapp-core"
 import useOnLogin from "hooks/useOnLogin";
-import TOKENS from 'config/tokens.dev.json'
-import {amountToAsset} from "utils/utils"
+import TOKENS from 'config/tokens.json'
+import {amountToAsset, poll} from "utils/utils"
 import Dropdown from 'components/Common/Dropdown'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTimes, faAddressBook, faSync, faInfo} from '@fortawesome/free-solid-svg-icons'
 import BridgeRegister from "./BridgeRegister"
+import BridgeTxStatus from './BridgeTxStatus'
 import {bridgeSelector} from "modules/dapp-bridge";
 import classNames from "classnames";
 
@@ -32,11 +33,12 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
     const fromConnected = !_.isEmpty(fromChain?.address)
     const toConnected = !_.isEmpty(toChain?.address)
     const isConnected = fromConnected && toConnected
-    const disabled = !isConnected
     const [amount, setAmount] = useState('0')
 
     // bridge
-    const {txFee, tokens} = useSelector(bridgeSelector)
+    const {txFee, tokens, txStatus} = useSelector(bridgeSelector)
+
+    const disabled = !isConnected || txStatus.active
 
     // tokens
     const [selectedSymbol, setSelectedSymbol] = useState(supportedTokens[0])
@@ -57,12 +59,18 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
     const [showModify, setShowModify] = useState(false)
     const [infiniteApproval, setInfiniteApproval] = useState(false)
 
+    const [txFeesTimer, setTxFeesTimer] = useState(-1)
+
     const {hasRpc} = useOnLogin(fromChainKey, () => {
         dispatch(coreController.fetchBalance(fromChainKey, token))
     })
 
     useOnLogin(registerOn, () => {
         dispatch(controller.fetchRegistry())
+    })
+
+    useOnLogin('ETH', () => {
+        dispatch(controller.init('ETH'))
     })
 
     useEffect(() => {
@@ -73,9 +81,26 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
 
     useEffect(() => {
         if (!_.isEmpty(tokens)) {
-            dispatch(controller.fetchTransferFee(token))
+            dispatch({
+                type: 'BRIDGE.SET_TX_FEE',
+                payload: {}
+            })
+            poll({
+                interval: 10000,
+                timerId: txFeesTimer,
+                setTimerId: setTxFeesTimer,
+                pollFunc: () => dispatch(controller.fetchTransferFee(token)),
+            })
+        }
+
+        return () => {
+            if (txFeesTimer !== -1) {
+                clearTimeout(txFeesTimer)
+                setTxFeesTimer(-1)
+            }
         }
     }, [tokens, selectedSymbol])
+
 
     useEffect(() => {
         setAmount((0).toFixed(token.precision))
@@ -83,10 +108,6 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
             dispatch(coreController.fetchBalance(fromChainKey, token))
         }
     }, [fromChainKey, selectedSymbol])
-
-    // useEffect(() => {
-    //     dispatch(controller.fetchTransferFee(token))
-    // }, [selectedSymbol])
 
     const onSliderChange = value => {
         setAmount((balance * value / 100).toFixed(6))
@@ -163,23 +184,26 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                             </div>
                         </div>
                     </div>
-                    <div className="row input-container checkbox-row">
-                        <div className="item">
-                            <div className="item-input">
-                                <input disabled={disabled} type="checkbox" className="input" checked={infiniteApproval}
-                                       onChange={() => setInfiniteApproval(!infiniteApproval)}/> Infinite Approval
+                    {fromChainKey === 'ETH' && (
+                        <div className="row input-container checkbox-row">
+                            <div className="item">
+                                <div className="item-input">
+                                    <input disabled={disabled} type="checkbox" className="input" checked={infiniteApproval}
+                                           onChange={() => setInfiniteApproval(!infiniteApproval)}/> Infinite Approval
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                     <div className="row center-aligned-spaced-row" style={{textAlign: 'right'}}>
                         <span className="info-message">
                             {!_.isEmpty(currentTxFee) && `Transaction Fee ${currentTxFee}`}
                         </span>
                         <Button disabled={disabled} variant="contained" color="default"
-                                onClick={() => dispatch(controller.transfer(fromChainKey, amount, token, infiniteApproval))}>
+                                onClick={() => dispatch(controller.transfer(fromChainKey, toChainKey, amount, token, infiniteApproval))}>
                             Send Tokens
                         </Button>
                     </div>
+                    <BridgeTxStatus controller={controller} fromChainKey={fromChainKey} toChainKey={toChainKey}/>
                 </>
             ) : (
                 <BridgeRegister controller={controller} isModify={showModify}/>

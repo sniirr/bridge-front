@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import CHAINS from 'config/chains.dev.json'
+import CHAINS from 'config/chains.json'
 import {makeReducer, getHandler, showNotification} from 'modules/utils'
 
 export const initDappCore = (controllers) => {

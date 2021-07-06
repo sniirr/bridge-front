@@ -1,7 +1,7 @@
-import {makeReducer, reduceSetKey} from "utils/reduxUtils";
+import {makeReducer, reduceSetKey, reduceUpdateKey} from "utils/reduxUtils";
 import _ from "lodash";
 import {chainCoreSelector} from "modules/dapp-core";
-import config from 'config/bridge.dev.json'
+import config from 'config/bridge.json'
 import {showNotification} from "modules/utils";
 
 export const BRIDGE_REGISTRY_ERROR = {
@@ -10,7 +10,7 @@ export const BRIDGE_REGISTRY_ERROR = {
     ACCOUNT_MISMATCH: 2,
 }
 
-export const initBridge = (controllers, {registerOn}) => {
+export const initBridge = (controllers, {registerOn}, coreController) => {
 
     const getHandler = (chainKey, method, state) => {
         const ctrl = controllers[chainKey]
@@ -19,6 +19,26 @@ export const initBridge = (controllers, {registerOn}) => {
         }
         const chain = chainCoreSelector(chainKey)(state)
         return [ctrl[method], chain]
+    }
+
+    // INIT
+    const init = chainKey => async (dispatch, getState) => {
+        const [handler, chain] = getHandler(chainKey, 'init', getState())
+
+        try {
+            const update = await handler(chain)
+            dispatch({
+                type: 'DAPPCORE.UPDATE_CHAIN',
+                payload: {
+                    chainKey,
+                    update,
+                }
+            })
+        }
+        catch (e) {
+            console.error(e)
+            dispatch(showNotification({type: 'error', text: 'Init failed'}))
+        }
     }
 
     // CONFIG
@@ -118,18 +138,51 @@ export const initBridge = (controllers, {registerOn}) => {
         }
     }
 
-    const transfer = (fromChain, amount, token, infiniteApproval) => async (dispatch, getState) => {
+    const awaitDeposit = (chainKey, token) => (dispatch, getState) => {
+        const [handler, chain] = getHandler(chainKey, 'awaitDeposit', getState())
+        handler(chain, token, payload => {
+            dispatch({
+                type: 'BRIDGE.SET_TX_STATUS',
+                payload,
+            })
+            dispatch(coreController.fetchBalance(chainKey, token))
+        })
+    }
+
+    const awaitReceived = (fromChainKey, toChainKey, token) => (dispatch, getState) => {
+        const state = getState()
+        const [handler, chain] = getHandler(toChainKey, 'awaitReceived', state)
+        const fromChain = chainCoreSelector(fromChainKey)(state)
+        handler(chain, fromChain, token, payload => {
+            dispatch({
+                type: 'BRIDGE.SET_TX_STATUS',
+                payload,
+            })
+            dispatch(coreController.fetchBalance(toChainKey, token))
+        })
+    }
+
+    const clearTxStatus = () => ({type: 'BRIDGE.CLEAR_TX_STATUS'})
+
+    const transfer = (fromChain, toChain, amount, token, infiniteApproval) => async (dispatch, getState) => {
         const [handler, chain] = getHandler(fromChain, 'transfer', getState())
 
         try {
-            const result = await handler(chain, amount, token, infiniteApproval)
+            const response = await handler(chain, amount, token, infiniteApproval)
+
+            // const response = {transaction_id :'skdfhskdhfkjsdhf'}
+
             dispatch({
-                type: 'BRIDGE.TRANSFER_SUCCESS',
-                payload: result
+                type: 'BRIDGE.SET_TX_STATUS',
+                payload: {depositTxId: response?.transaction_id, active: true}
             })
+
+            dispatch(awaitDeposit(fromChain, token))
+            dispatch(awaitReceived(fromChain, toChain, token))
         }
         catch (e) {
             console.error(e)
+            dispatch(clearTxStatus())
             dispatch(showNotification({type: 'error', text: e.message}))
         }
     }
@@ -151,6 +204,7 @@ export const initBridge = (controllers, {registerOn}) => {
     }
 
     return {
+        init,
         fetchSupportedTokens,
         fetchRegistry,
         fetchRegFee,
@@ -161,6 +215,7 @@ export const initBridge = (controllers, {registerOn}) => {
 
         fetchTransferFee,
         transfer,
+        clearTxStatus,
     }
 }
 
@@ -173,6 +228,18 @@ const INITIAL_STATE = {
     registry: null,
     regFee: [-1, 'EOS'],
     txFee: {},
+    txStatus: {
+        active: false,
+        deposited: false,
+        depositTxId: '',
+        received: false,
+        receivedTxId: '',
+        // active: true,
+        // deposited: true,
+        // depositTxId: 'dlskjflsdjflsjdflksjdf',
+        // received: true,
+        // receivedTxId: 'sdlfjsldlsjflksdjflksdjf',
+    },
 
     regResult: null,
     transferResult: null,
@@ -184,6 +251,13 @@ export const bridgeReducer = makeReducer({
     'BRIDGE.SET_REGISTRY': reduceSetKey('registry'),
     'BRIDGE.SET_REG_FEE': reduceSetKey('regFee'),
     'BRIDGE.SET_TX_FEE': reduceSetKey('txFee'),
+    'BRIDGE.SET_TX_STATUS': reduceUpdateKey('txStatus'),
+    'BRIDGE.CLEAR_TX_STATUS': state => ({
+        ...state,
+        txStatus: INITIAL_STATE.txStatus,
+        // active: false,
+    }),
+
     'BRIDGE.REGISTER_SUCCESS': reduceSetKey('regResult'),
     'BRIDGE.TRANSFER_SUCCESS': reduceSetKey('transferResult'),
     'BRIDGE.UPDATE_PRICES_SUCCESS': reduceSetKey('pricesResult'),
