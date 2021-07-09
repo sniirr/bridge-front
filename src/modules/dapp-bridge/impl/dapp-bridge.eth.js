@@ -9,7 +9,7 @@ import {ethers} from "ethers"
 
 // const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 
-const {ethAddress: bridgeEthAddress} = config
+const {ethAddresses} = config
 
 
 // const sendToken = async (account, amount, {ethTokenId}) => {
@@ -29,26 +29,38 @@ const init = async ({contracts, signer}) => {
     // const state = getState()
     //
     // const {contracts, signer} = _.get(state, 'dappcore.accounts.ETH', {})
+
+    console.log('init ETH bridge')
+
     if (_.isNil(signer)) {
         return console.error('init bridge failed - account.signer is null')
     }
 
-    const bridgeContract = await new ethers.Contract(bridgeEthAddress, bridgeAbi, signer)
+    // const bridgeContract = await new ethers.Contract(bridgeEthAddress, bridgeAbi, signer)
 
-    bridgeContract.on('Refund', (id, recipient, amount, reason, event) => {
-        console.log('Bridge.Refund event', JSON.stringify({id, recipient, amount, reason, event}, null, 2))
-    })
-    bridgeContract.on('Failure', (reason, event) => {
-        console.log('Bridge.Failure event', JSON.stringify({reason, event}, null, 2))
-    })
-    bridgeContract.on('Receipt', (recipient, amount, reason, event) => {
-        console.log('Bridge.Receipt event', JSON.stringify({recipient, amount, reason, event}, null, 2))
+    const newContracts = await Promise.all(_.map(ethAddresses, async a => await new ethers.Contract(a, bridgeAbi, signer)))
+
+    _.forEach(newContracts, bridgeContract => {
+        bridgeContract.on('Refund', (id, recipient, amount, reason, event) => {
+            console.log('Bridge.Refund event', JSON.stringify({id, recipient, amount, reason, event}, null, 2))
+            console.log('--------------------------------------')
+        })
+        bridgeContract.on('Failure', (reason, event) => {
+            console.log('Bridge.Failure event', JSON.stringify({reason, event}, null, 2))
+            console.log('--------------------------------------')
+        })
+        bridgeContract.on('Receipt', (recipient, amount, reason, event) => {
+            console.log('Bridge.Receipt event', JSON.stringify({recipient, amount, reason, event}, null, 2))
+            console.log('--------------------------------------')
+        })
+
     })
 
     return {
         contracts: {
             ...contracts,
-            bridge: bridgeContract
+            ..._.zipObject(_.keys(ethAddresses), newContracts)
+            // bridge: bridgeContract
         }
     }
 
@@ -63,12 +75,12 @@ const init = async ({contracts, signer}) => {
     // })
 }
 
-const sendToken = ({contracts}, amount, {ethTokenId}) => {
+const sendToken = ({contracts}, amount, {depositContracts, ethTokenId}) => {
 
     // const bridgeContract = new ethers.Contract(bridgeEthAddress, bridgeAbi, account.provider)
     //
     // const contract = await bridgeContract.connect(account.signer)
-    const contract = _.get(contracts, 'bridge')
+    const contract = _.get(contracts, depositContracts.EOS)
 
     contract.sendToken(amount, ethTokenId)
     // const tx = await contract.sendToken(amount, ethTokenId)
@@ -77,8 +89,11 @@ const sendToken = ({contracts}, amount, {ethTokenId}) => {
     // return tx
 };
 
-const approveAndSendToken = ({contracts}, stakeAMount, {ethTokenId, symbol}, infiniteApproval) => {
+const approveAndSendToken = (account, sendAmount, token, infiniteApproval) => {
     console.log("inside approve and send token");
+
+    const {contracts} = account
+    const {symbol, depositContracts} = token
 
     // const usdcContract = new ethers.Contract(TOKENS.USDC.addresses.ETH, tokenAbi, account.provider)
     //
@@ -91,28 +106,41 @@ const approveAndSendToken = ({contracts}, stakeAMount, {ethTokenId, symbol}, inf
     // const approveAmount = web3.utils.toWei("10000000000000000", "mwei")
     let approveAmount
     if (infiniteApproval) {
-        approveAmount = symbol === "USDC"
-            ? web3.utils.toWei("10000000000000000", "mwei")
-            : web3.utils.toWei("10000000000000000", "ether");
+        approveAmount = web3.utils.toWei("10000000000000000", "kwei")
+        // approveAmount = Math.floor(10000000000000000 * Math.pow(10, precision))
+        // approveAmount = symbol === "USDC"
+        //     ? web3.utils.toWei("10000000000000000", "mwei")
+        //     : web3.utils.toWei("10000000000000000", "ether");
     } else {
-        approveAmount = stakeAMount;
+        approveAmount = sendAmount;
     }
+
     console.log("approved amount ", approveAmount);
 
-    // const filter = contract.filters.Approved(account.address, bridgeEthAddress)
-    contract.on('Approval', (owner, spender, amount, event) => {
+    const filter = contract.filters.Approval(account.address, depositContracts.ETH)
+    contract.on(filter, (owner, spender, amount, event) => {
         // The to will always be "address"
-        console.log(`Approved ${owner} to spend ${ ethers.utils.formatEther(amount) } on behalf of ${ spender }.`);
+
+        console.log('--------------------------------------')
+        console.log('--------------------------------------')
+        console.log('approveAndSendToken EVENT TRIGGERED')
+        console.log('--------------------------------------')
+        console.log('--------------------------------------')
+        console.log(`APPROVAL ${spender} to spend ${ ethers.utils.formatEther(amount) } ${symbol} on behalf of ${ owner }.`)
         console.log(`EVENT ${JSON.stringify(event)}`)
+        console.log('--------------------------------------')
+        console.log('--------------------------------------')
 
         // onComplete({
         //     deposited: true,
         //     depositTxId: 'txid1234567890'
         // })
-        sendToken(contract, stakeAMount, {ethTokenId})
+        sendToken(account, sendAmount, token)
 
         // contract.off('Approval', contract.listeners('Approval')[0])
     });
+
+    contract.approve(depositContracts.ETH, approveAmount)
 
     // const tx = await contract.approve(bridgeEthAddress, approveAmount)
     //
@@ -160,35 +188,46 @@ const transfer = async (account, amount, token, infiniteApproval) => {
     //         : web3.utils.toWei(amount, "ether");
 
     // const contract = usdcContract
-    const tokenContract = new ethers.Contract(token.addresses.ETH, tokenAbi, account.provider)
-    const contract = await tokenContract.connect(account.signer)
+    // const tokenContract = new ethers.Contract(token.addresses.ETH, tokenAbi, account.provider)
+    // const contract = await tokenContract.connect(account.signer)
+
+    const {symbol, precision, depositContracts} = token
+
+    const contract = _.get(account, ['contracts', symbol])
+
+    if (!contract) {
+        return console.error(`Contract not initialized: ${symbol} ERC20`)
+    }
 
     // const stakeAmount = web3.utils.toWei(amount, "mwei")
-    const stakeAmount = parseInt(token.symbol === "USDC"
-        ? web3.utils.toWei(amount, "mwei")
-        : web3.utils.toWei(amount, "ether"))
+    // const stakeAmount = parseInt(token.symbol === "USDC"
+    //     ? web3.utils.toWei(amount, "mwei")
+    //     : web3.utils.toWei(amount, "ether"))
 
-    console.log("stakeAMount ", stakeAmount);
+    const sendAmount = Math.floor(amount * Math.pow(10, precision))
 
-    const approvedAmount = await contract.allowance(account.address, bridgeEthAddress)
+    console.log("sendAmount ", sendAmount);
+
+    const approvedAmount = await contract.allowance(account.address, depositContracts.ETH)
     // const approvedAmount = await contract.methods.allowance(account.address, bridgeEthAddress).call();
 
     const appAmount = parseFloat(ethers.utils.formatUnits(approvedAmount, token.precision))
 
     console.log("approvedAmount in contract ", appAmount);
 
-    return appAmount > stakeAmount ? sendToken(account, stakeAmount, token) : approveAndSendToken(account, stakeAmount, token, infiniteApproval)
+    return appAmount >= amount ? sendToken(account, sendAmount, token) : approveAndSendToken(account, sendAmount, token, infiniteApproval)
     // return await appAmount > stakeAmount ? sendToken(account, stakeAmount, token) : approveAndSendToken(account, stakeAmount, token)
 }
 
 const awaitDeposit = (account, token, onComplete) => {
-    const contract = _.get(account, ['contracts', token.symbol])
+    const {symbol, depositContracts} = token
+    const contract = _.get(account, ['contracts', symbol])
 
     if (!contract) {
-        return console.error(`Contract not initialized: ${token.symbol} ERC20`)
+        return console.error(`Contract not initialized: ${symbol} ERC20`)
     }
 
-    const filter = contract.filters.Transfer(account.address, bridgeEthAddress)
+    const filter = contract.filters.Transfer(account.address, depositContracts.ETH)
     contract.on(filter, (from, to, amount, event) => {
         // The to will always be "address"
         console.log(`I sent ${ ethers.utils.formatEther(amount) } to ${ to }.`);
@@ -204,13 +243,16 @@ const awaitDeposit = (account, token, onComplete) => {
 }
 
 const awaitReceived = async (account, fromAccount, token, onComplete) => {
-    const contract = _.get(account, ['contracts', token.symbol])
+    const {symbol, depositContracts} = token
+    const contract = _.get(account, ['contracts', symbol])
 
     if (!contract) {
-        return console.error(`Contract not initialized: ${token.symbol} ERC20`)
+        return console.error(`Contract not initialized: ${symbol} ERC20`)
     }
 
-    const filter = contract.filters.Transfer(bridgeEthAddress, account.address)
+    console.log(`awaitReceived on ETH from ${depositContracts.ETH} to ${account.address}`)
+
+    const filter = contract.filters.Transfer(null, account.address)
     contract.on(filter, (from, to, amount, event) => {
         // The to will always be "address"
         console.log(`I got ${ ethers.utils.formatEther(amount) } from ${ from }.`);
@@ -224,139 +266,6 @@ const awaitReceived = async (account, fromAccount, token, onComplete) => {
         // contract.off('Transfer', contract.listeners('Transfer')[0])
     });
 }
-
-// const bridgeContract = eth.contract(bridgeAbi).at(ethAddress)
-// const bridgeContract = new web3.eth.Contract(bridgeAbi, bridgeEthAddress)
-// const usdcContract = new web3.eth.Contract(tokenAbi, TOKENS.USDC.addresses.ETH)
-// const sendToken = async (account, amount, {ethTokenId}) => {
-//     const result = await new Promise((resolve, reject) => {
-//         console.log(`SEND_TOKEN from ${account.address} amount ${amount} tokenId ${ethTokenId}`)
-//         bridgeContract.methods.sendToken(amount, ethTokenId)
-//             .send({
-//                 from: account.address,
-//             })
-//             .on("transactionHash", (hash) => {
-//                 console.log("transactionHash  sendToken", hash);
-//             })
-//             .on("receipt", (receipt) => {
-//                 console.log("receipt sendToken", receipt);
-//                 // setLoading(false);
-//                 // setsuccessMsg(receipt.transactionHash);
-//                 resolve(receipt.transactionHash)
-//             })
-//             .on("confirmation", (confirmationNumber, receipt) => {
-//                 console.log("confirmationNumber sendToken", confirmationNumber);
-//                 console.log("receipt sendToken", receipt);
-//             })
-//             .on("error", (error) => {
-//                 console.log("error sendToken", error);
-//                 reject(error)
-//                 // setLoading(false);
-//                 // seterrorMsg(error.message);
-//             });
-//     })
-//
-//     console.log('sendToken result', result)
-//     return result
-//     // const resul = await bridgeContract.sendToken(amount, ethTokenId)
-//     // bridgeContract.methods
-//     //     .sendToken(amount, ethTokenId)
-//     //     .send({
-//     //         from: account.address,
-//     //     })
-//     //     .on("transactionHash", (hash) => {
-//     //         console.log("transactionHash  sendToken", hash);
-//     //     })
-//     //     .on("receipt", (receipt) => {
-//     //         console.log("receipt sendToken", receipt);
-//     //         setLoading(false);
-//     //         setsuccessMsg(receipt.transactionHash);
-//     //     })
-//     //     .on("confirmation", (confirmationNumber, receipt) => {
-//     //         console.log("confirmationNumber sendToken", confirmationNumber);
-//     //         console.log("receipt sendToken", receipt);
-//     //     })
-//     //     .on("error", (error) => {
-//     //         console.log("error sendToken", error);
-//     //         setLoading(false);
-//     //         seterrorMsg(error.message);
-//     //     });
-// };
-//
-//
-// const approveAndSendToken = async (account, stakeAMount, {ethTokenId, symbol}) => {
-//     console.log("inside approve and send token");
-//     const contract = usdcContract;
-//     // const contract = token === "USDC" ? usdcContract : daiContract;
-//     // const approveAmount = stakeAMount
-//     const approveAmount = web3.utils.toWei("10000000000000000", "mwei")
-//     // if (checked) {
-//     //     approvedAmount =
-//     //         token === "USDC"
-//     //             ? web3.utils.toWei("10000000000000000", "mwei")
-//     //             : web3.utils.toWei("10000000000000000", "ether");
-//     // } else {
-//     //     approvedAmount = stakeAMount;
-//     // }
-//     console.log("approved amount ", approveAmount);
-//     const result = await new Promise((resolve, reject) => {
-//         contract.methods.approve(bridgeEthAddress, approveAmount)
-//             .send({
-//                 from: account.address,
-//             })
-//             .on("transactionHash", (hash) => {
-//                 console.log("transactionHash approve ", hash);
-//             })
-//             .on("receipt", (receipt) => {
-//                 console.log("receipt approve", receipt);
-//                 // setapprovedMsg(receipt.transactionHash);
-//             })
-//             .on("confirmation", (confirmationNumber, receipt) => {
-//                 console.log("confirmationNumber approve", confirmationNumber);
-//                 console.log("receipt approve", receipt);
-//             })
-//             .on("error", (error) => {
-//                 console.log("error approve", error);
-//                 // setLoading(false);
-//                 // seterrorMsg(error.message);
-//                 reject(error)
-//             })
-//             .then(async () => {
-//                 const res = await sendToken(account, stakeAMount, {ethTokenId})
-//                 resolve(res)
-//             });
-//     })
-//
-//     console.log('approveAndSendToken result', result)
-//     return result
-// };
-//
-// const transfer = async (account, amount, token) => {
-//     // const contract = symbol === "USDC" ? usdcContract : daiContract
-//     // const stakeAMount =
-//     //     symbol === "USDC"
-//     //         ? web3.utils.toWei(amount, "mwei")
-//     //         : web3.utils.toWei(amount, "ether");
-//
-//     const contract = usdcContract
-//     const stakeAmount = web3.utils.toWei(amount, "mwei")
-//
-//     console.log("stakeAMount ", stakeAmount);
-//
-//     const approvedAmount = await contract.methods.allowance(account.address, bridgeEthAddress).call();
-//
-//     console.log("approvedAmount in contract ", approvedAmount);
-//
-//     return await approvedAmount > stakeAmount ? sendToken(account, stakeAmount, token) : approveAndSendToken(account, stakeAmount, token)
-//     // const response = await sendToken(account, stakeAmount, token);
-//     //
-//     // return response
-//     // if (approvedAmount > stakeAMount) {
-//     //     sendToken(stakeAMount, ethTokenId);
-//     // } else {
-//     //     approveAndSendToken(stakeAMount, ethTokenId, token);
-//     // }
-// }
 
 export default {
     init,

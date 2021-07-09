@@ -36,14 +36,14 @@ function App() {
     return (
         <div className="App">
             <header>
-                <div className="button" onClick={() => dispatch(showConnectModal(['ETH', 'EOS']))}>Accounts</div>
+                <div className="pointer" onClick={() => dispatch(showConnectModal(['ETH', 'EOS']))}>Accounts</div>
             </header>
             <div className="page bridge">
                 <Bridge controller={bridgeController}
                         coreController={coreController}
                         supportedChains={['EOS', 'ETH']}
                         registerOn={registerOn}
-                        supportedTokens={['USDC', 'DAPP', 'DAI']}/>
+                        supportedTokens={['DAPP']}/>
             </div>
             <ConnectModal config={CHAINS} controller={coreController}/>
             <Notification/>

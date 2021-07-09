@@ -71,8 +71,28 @@ input[type=text] {
   }
 }
 
-.button {
+.pointer {
   cursor: pointer;
+
+  &.red {
+    color: #da5151;
+  }
+}
+
+.button {
+  background-color: #453986;
+  padding: 10px 24px;
+  border-radius: 5px;
+  text-align: center;
+
+  &.disabled {
+    opacity: .7;
+    cursor: not-allowed;
+  }
+
+  &:not(.disabled) {
+    cursor: pointer;
+  }
 }
 
 .App {

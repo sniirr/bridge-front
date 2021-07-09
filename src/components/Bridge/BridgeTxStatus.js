@@ -25,12 +25,12 @@ const StatusMarker = ({status}) => {
     return <span className={classNames("marker", status)}>{renderMarker()}</span>
 }
 
-const BridgeTxStatus = ({controller, fromChainKey, toChainKey}) => {
+const BridgeTxStatus = ({controller}) => {
 
     const dispatch = useDispatch()
 
     const {txStatus} = useSelector(bridgeSelector)
-    const {active, deposited, depositTxId, received, receivedTxId} = txStatus
+    const {active, deposited, depositTxId, received, receivedTxId, fromChainKey, toChainKey} = txStatus
 
     const fromChain = CHAINS[fromChainKey]
     const toChain = CHAINS[toChainKey]
@@ -38,21 +38,6 @@ const BridgeTxStatus = ({controller, fromChainKey, toChainKey}) => {
     if (!active) return null
 
     let s1 = 'loading', s2 = '', s3 = ''
-
-    // switch (step) {
-    //     case 0:
-    //         s1 = 'loading'
-    //         break
-    //     case 1:
-    //         s1 = 'done'
-    //         s2 = 'loading'
-    //         break
-    //     case 2:
-    //         s1 = 'done'
-    //         s2 = 'done'
-    //         s3 = 'done'
-    //         break
-    // }
 
     if (deposited) {
         s1 = 'done'
@@ -64,13 +49,21 @@ const BridgeTxStatus = ({controller, fromChainKey, toChainKey}) => {
         s3 = 'done'
     }
 
+    const hideReceivedTxId = toChainKey === 'EOS'
+
+    const getExplorerLink = (chainKey, txId) => {
+        return chainKey === 'EOS'
+            ? `https://bloks.io/transaction/${txId}`
+            : `https://etherscan.io/tx/${txId}`
+    }
+
     return (
         <div className="tx-status">
             <div className={classNames("center-aligned-row status-row done")}>
                 <StatusMarker status={s1}/> Deposit on {fromChain.name}
             </div>
             {deposited && (
-                <div className="tx-id">Transaction ID: <span>{depositTxId}</span></div>
+                <div className="tx-id">TX: <a target="_blank" rel="noreferrer" href={getExplorerLink(fromChainKey, depositTxId)}>{depositTxId}</a></div>
             )}
             <div className={classNames("center-aligned-row status-row loading")}>
                 <StatusMarker status={s2}/> Bridge to {toChain.name}
@@ -78,8 +71,8 @@ const BridgeTxStatus = ({controller, fromChainKey, toChainKey}) => {
             <div className={classNames("center-aligned-row status-row")}>
                 <StatusMarker status={s3}/> Receive on {toChain.name}
             </div>
-            {received && (
-                <div className="tx-id">Transaction ID: <span>{receivedTxId}</span></div>
+            {!hideReceivedTxId && received && (
+                <div className="tx-id">TX: <a target="_blank" rel="noreferrer" href={getExplorerLink(toChainKey, receivedTxId)}>{receivedTxId}</a></div>
             )}
             <div className="close-icon">
                 <FontAwesomeIcon icon={faTimes} onClick={() => dispatch(controller.clearTxStatus())}/>

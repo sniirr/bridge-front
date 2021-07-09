@@ -5,6 +5,7 @@ import {useDispatch, useSelector} from "react-redux"
 import {chainCoreSelector} from "modules/dapp-core"
 import {regFeeSelector, BRIDGE_REGISTRY_ERROR} from "modules/dapp-bridge"
 import {amountToAsset} from "utils/utils"
+import ActionButton from 'components/Common/ActionButton'
 
 const BridgeRegister = ({controller, isModify}) => {
 
@@ -53,10 +54,10 @@ const BridgeRegister = ({controller, isModify}) => {
                        onChange={e => setAddressInput(e.target.value)}/>
             </div>
             <div className="row center-aligned-spaced-row" style={{textAlign: 'right'}}>
-                    <span className="info-message">
-                        {regFee > 0 && `Registration Fee ${amountToAsset(regFee, {symbol: feeSymbol, precision: 4}, true, true)}`}
-                    </span>
-                <Button variant="contained" color="default" onClick={onRegisterClick}>Register</Button>
+                <span className="info-message">
+                    {regFee > 0 && `Registration Fee ${amountToAsset(regFee, {symbol: feeSymbol, precision: 4}, true, true)}`}
+                </span>
+                <ActionButton actionKey="register" onClick={onRegisterClick}>Register</ActionButton>
             </div>
         </>
     )

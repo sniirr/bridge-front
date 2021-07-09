@@ -3,6 +3,8 @@ import _ from "lodash";
 import {chainCoreSelector} from "modules/dapp-core";
 import config from 'config/bridge.json'
 import {showNotification} from "modules/utils";
+import CHAINS from "config/chains.json";
+import {clearActionStatus, setActionPending} from "store/actionStatusReducer";
 
 export const BRIDGE_REGISTRY_ERROR = {
     NOT_READY: 0,
@@ -99,18 +101,33 @@ export const initBridge = (controllers, {registerOn}, coreController) => {
         }
     }
 
+    const awaitRegister = chainKey => (dispatch, getState) => {
+        const [handler, chain] = getHandler(chainKey, 'awaitRegister', getState())
+        handler(chain, registry => {
+            dispatch({
+                type: 'BRIDGE.SET_REGISTRY',
+                payload: registry,
+            })
+            dispatch(clearActionStatus('register'))
+            dispatch(showNotification({type: 'success', text: `Registered successfully`}))
+        })
+    }
+
     const register = (newAddress, regFee, isModify) => async (dispatch, getState) => {
         const [handler, chain] = getHandler(registerOn, 'register', getState())
 
         try {
+            dispatch(setActionPending('register'))
             const result = await handler(chain, newAddress, regFee, isModify)
-            dispatch({
-                type: 'BRIDGE.REGISTER_SUCCESS',
-                payload: result
-            })
+            // dispatch({
+            //     type: 'BRIDGE.REGISTER_SUCCESS',
+            //     payload: result
+            // })
+            dispatch(awaitRegister(registerOn))
         }
         catch (e){
             console.error(e)
+            dispatch(clearActionStatus('register'))
             dispatch(showNotification({type: 'error', text: e.message || e}))
         }
     }
@@ -145,6 +162,7 @@ export const initBridge = (controllers, {registerOn}, coreController) => {
                 type: 'BRIDGE.SET_TX_STATUS',
                 payload,
             })
+            dispatch(clearActionStatus('transfer'))
             dispatch(coreController.fetchBalance(chainKey, token))
         })
     }
@@ -168,13 +186,14 @@ export const initBridge = (controllers, {registerOn}, coreController) => {
         const [handler, chain] = getHandler(fromChain, 'transfer', getState())
 
         try {
+            dispatch(setActionPending('transfer'))
             const response = await handler(chain, amount, token, infiniteApproval)
 
             // const response = {transaction_id :'skdfhskdhfkjsdhf'}
 
             dispatch({
                 type: 'BRIDGE.SET_TX_STATUS',
-                payload: {depositTxId: response?.transaction_id, active: true}
+                payload: {depositTxId: response?.transaction_id, active: true, fromChainKey: fromChain, toChainKey: toChain}
             })
 
             dispatch(awaitDeposit(fromChain, token))
@@ -183,6 +202,7 @@ export const initBridge = (controllers, {registerOn}, coreController) => {
         catch (e) {
             console.error(e)
             dispatch(clearTxStatus())
+            dispatch(clearActionStatus('transfer'))
             dispatch(showNotification({type: 'error', text: e.message}))
         }
     }

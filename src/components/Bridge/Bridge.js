@@ -17,6 +17,7 @@ import BridgeRegister from "./BridgeRegister"
 import BridgeTxStatus from './BridgeTxStatus'
 import {bridgeSelector} from "modules/dapp-bridge";
 import classNames from "classnames";
+import ActionButton from "components/Common/ActionButton";
 
 const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
 
@@ -128,8 +129,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                             <span className="address" title={address}>{address}</span>
                         </>
                     ) : (
-                        <Button color="secondary" onClick={() => dispatch(showConnectModal([chainKey]))}>Connect
-                            Wallet</Button>
+                        <div className="pointer red" onClick={() => dispatch(showConnectModal([chainKey]))}>CONNECT WALLET</div>
                     )}
                 </div>
             </div>
@@ -198,12 +198,12 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                         <span className="info-message">
                             {!_.isEmpty(currentTxFee) && `Transaction Fee ${currentTxFee}`}
                         </span>
-                        <Button disabled={disabled} variant="contained" color="default"
+                        <ActionButton disabled={disabled} actionKey="transfer"
                                 onClick={() => dispatch(controller.transfer(fromChainKey, toChainKey, amount, token, infiniteApproval))}>
                             Send Tokens
-                        </Button>
+                        </ActionButton>
                     </div>
-                    <BridgeTxStatus controller={controller} fromChainKey={fromChainKey} toChainKey={toChainKey}/>
+                    <BridgeTxStatus controller={controller}/>
                 </>
             ) : (
                 <BridgeRegister controller={controller} isModify={showModify}/>
@@ -213,8 +213,8 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                     <FontAwesomeIcon icon={faTimes} onClick={() => setShowModify(false)}/>
                 )}
                 {!showModify && isConnected && isRegistered && (
-                    <FontAwesomeIcon icon={faAddressBook} title="Change registered Ethereum address"
-                                     onClick={() => setShowModify(true)}/>
+                    <FontAwesomeIcon icon={faAddressBook} className={classNames({disabled})} title="Change registered Ethereum address"
+                                     onClick={() => !disabled && setShowModify(true)}/>
                 )}
                 <FontAwesomeIcon icon={faSync} className={classNames({disabled})} title={`Refresh fees${disabled ? ' (requires login)' : ''}`} onClick={() => !disabled && dispatch(controller.updatePrices())}/>
                 <FontAwesomeIcon icon={faInfo} title="DAPP Bridge guide" onClick={() => console.log('guide')}/>

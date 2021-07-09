@@ -56,24 +56,26 @@ export const connect = async ({providerIdx}) => {
 
             const contracts = _.zipObject(
                 _.map(tokens, 'symbol'),
-                _.map(tokens, ({addresses}) => {
-                    const c = new ethers.Contract(addresses.ETH, tokenAbi, provider)
-                    c.on('Transfer', (from, to, amount, event) => {
-                        if (from === BRIDGE.ethAddress || to === BRIDGE.ethAddress) {
-                            console.log('--------------------------------------')
-                            console.log(`TRANSFER ${amount} from ${from} to ${to}`)
+                _.map(tokens, ({symbol, addresses}) => {
+                    const c = new ethers.Contract(addresses.ETH, tokenAbi, signer)
+                    if (symbol === 'DAPP') {
+                        c.on('Transfer', (from, to, amount, event) => {
+                            // if (from === BRIDGE.ethAddress || to === BRIDGE.ethAddress) {
+                            //     console.log('--------------------------------------')
+                            console.log(`TRANSFER ${amount} ${symbol} from ${from} to ${to}`)
                             console.log(`EVENT ${JSON.stringify(event)}`)
-                            console.log('--------------------------------------')
-                        }
-                    })
-                    c.on('Approval', (owner, spender, amount, event) => {
-                        if (owner === BRIDGE.ethAddress) {
-                            console.log('--------------------------------------')
-                            console.log(`APPROVAL ${owner} to spend ${ ethers.utils.formatEther(amount) } on behalf of ${ spender }.`)
+                            // console.log('--------------------------------------')
+                            // }
+                        })
+                        c.on('Approval', (owner, spender, amount, event) => {
+                            // if (owner === BRIDGE.ethAddress) {
+                            //     console.log('--------------------------------------')
+                            console.log(`APPROVAL ${spender} to spend ${ ethers.utils.formatEther(amount) } ${symbol} on behalf of ${ owner }.`)
                             console.log(`EVENT ${JSON.stringify(event)}`)
-                            console.log('--------------------------------------')
-                        }
-                    })
+                            // console.log('--------------------------------------')
+                            // }
+                        })
+                    }
                     return c
                 })
             )

@@ -50,12 +50,12 @@ const fetchRegFee = async account => {
 
     if (_.isEmpty(rpc)) return
 
-    const {contract, tables: {fees}} = config
+    const {contract, tables: {regFee}} = config
 
     const row = await fetchOne(rpc, {
         code: contract,
         scope: contract,
-        table: fees,
+        table: regFee,
     })
 
     const fee = _.split(_.get(row, 'registrationfee', '-1 EOS'), ' ')
@@ -105,6 +105,23 @@ const register = async (account, newAddress, [regFee, feeSymbol], isModify) => {
             expireSeconds: 60,
         }
     )
+}
+
+const awaitRegister = async (account, onComplete) => {
+    // const {lastId} = await fetchWithdrawQueue(account, token)
+
+    poll({
+        interval: 2000,
+        pollFunc: () => fetchRegistry(account),
+        checkFunc: registry => {
+            const registered = !_.isEmpty(registry)
+
+            if (registered) {
+                onComplete(registry)
+            }
+            return registered
+        }
+    })
 }
 
 const fetchTransferFee = async (account, {symbol, depositContracts}) => {
@@ -332,6 +349,7 @@ export default {
     fetchRegistry,
     fetchRegFee,
     register,
+    awaitRegister,
     isRegisteredSelector,
 
     updatePrices,

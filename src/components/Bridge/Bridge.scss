@@ -176,7 +176,7 @@
       margin: 8px 0 0 42px;
       font-size: .8em;
 
-      span {
+      a {
         color: green;
         margin-left: 5px;
       }
@@ -191,5 +191,21 @@
 
   input[type=text] {
     width: 620px;
+  }
+
+  .pointer.red {
+    font-size: .875em;
+  }
+
+  .button {
+    padding: 10px 0;
+
+    &.register {
+      width: 110px;
+    }
+
+    &.transfer {
+      width: 140px;
+    }
   }
 }
