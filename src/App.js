@@ -36,14 +36,32 @@ function App() {
     return (
         <div className="App">
             <header>
+                <div className="center-aligned-row logo-container">
+                    <div className="logo"/>
+                    Bifrost
+                </div>
                 <div className="pointer" onClick={() => dispatch(showConnectModal(['ETH', 'EOS']))}>Accounts</div>
             </header>
             <div className="page bridge">
-                <Bridge controller={bridgeController}
-                        coreController={coreController}
-                        supportedChains={['EOS', 'ETH']}
-                        registerOn={registerOn}
-                        supportedTokens={['DAPP']}/>
+                <div className="center">
+                    <div className="info">
+                        <h1>Bifrost Bridge</h1>
+                        <p>
+                            Bifrost token bridge is developed by the DAPP Account DAO (DAD) and powered by the DAPP Network’s universal bridging technology.
+                        </p>
+                        <div className="list-item">
+                            Login with both your EOS and Ethereum Wallets.
+                        </div>
+                        <div className="list-item">
+                            Send tokens across bridges to Ethereum or EOS.
+                        </div>
+                    </div>
+                    <Bridge controller={bridgeController}
+                            coreController={coreController}
+                            supportedChains={['EOS', 'ETH']}
+                            registerOn={registerOn}
+                            supportedTokens={['DAPP']}/>
+                </div>
             </div>
             <ConnectModal config={CHAINS} controller={coreController}/>
             <Notification/>

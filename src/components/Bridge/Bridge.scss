@@ -1,10 +1,21 @@
 @import "css/vars";
 
 .page.bridge {
+  width: 1200px;
+  padding-top: 120px;
+  display: flex;
+  justify-content: space-evenly;
+
+  .center {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+  }
+
   .toolbar {
     position: absolute;
-    top: 15px;
-    right: 30px;
+    top: 20px;
+    right: 40px;
 
     svg {
       cursor: pointer;
@@ -18,20 +29,37 @@
   }
 
   .info {
+    position: relative;
     flex-grow: 2;
     padding-right: 100px;
-    margin-top: 30px;
+    color: white;
 
     h1 {
-      margin: 15px 0 25px;
-      text-align: left;
+      margin: 0 0 30px;
+      font-size: 2.25em;
     }
 
-    h2 {
-      font-size: 1.1em;
-      line-height: 1.3em;
+    p {
+      margin: 30px 0;
       font-style: italic;
-      font-weight: normal;
+      line-height: 1.5em;
+      font-size: 1.1em;
+    }
+
+    .list-item {
+      position: relative;
+      margin-bottom: 20px;
+      font-style: italic;
+
+      &:before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: -10px;
+        width: 2px;
+        height: 2px;
+        background-color: white;
+      }
     }
   }
 
@@ -39,6 +67,8 @@
     width: 680px;
     margin-left: auto;
     margin-right: auto;
+    border: solid 2px white;
+    background-color: black;
   }
 
   .chains-row {
@@ -70,7 +100,7 @@
           margin-right: 6px;
 
           path {
-            fill: green;
+            fill: $green;
           }
         }
       }
@@ -166,7 +196,7 @@
 
         &.done {
           svg path {
-            fill: green;
+            fill: $green;
           }
         }
       }
@@ -177,7 +207,7 @@
       font-size: .8em;
 
       a {
-        color: green;
+        color: $green;
         margin-left: 5px;
       }
     }
@@ -190,7 +220,7 @@
   }
 
   input[type=text] {
-    width: 620px;
+    width: 600px;
   }
 
   .pointer.red {

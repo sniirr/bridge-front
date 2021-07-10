@@ -18,6 +18,22 @@ body {
   background-color: black;
 }
 
+#root {
+  position: relative;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 100px;
+    left: 0;
+    right: 0;
+    background: black url("../images/rainbow.png") no-repeat center center;
+    background-size: 100% 100%;
+    opacity: .3;
+  }
+}
+
 .center-aligned-row {
   display: flex;
   align-items: center;
@@ -75,12 +91,12 @@ input[type=text] {
   cursor: pointer;
 
   &.red {
-    color: #da5151;
+    color: $red;
   }
 }
 
 .button {
-  background-color: #453986;
+  background-image: linear-gradient(#93488e -50%, #4c3c8d);
   padding: 10px 24px;
   border-radius: 5px;
   text-align: center;
@@ -100,21 +116,33 @@ input[type=text] {
 
   height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: stretch;
   justify-content: stretch;
 
   header {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    height: 72px;
-    padding: 0 72px;
+    justify-content: space-between;
+    height: 150px;
+    //padding: 0 30px;
     font-size: .875em;
-    position: fixed;
+    width: 1200px;
+    margin: 0 auto;
     left: 0;
     right: 0;
-    background-color: black;
     z-index: 1;
+
+    .logo-container {
+      font-size: 1.5em;
+    }
+
+    .logo {
+      margin-right: 10px;
+      width: 50px;
+      height: 55px;
+      background: url("../images/bifrost.png") no-repeat left center;
+    }
   }
 
   .page {
@@ -124,9 +152,8 @@ input[type=text] {
   }
 
   .section {
-    margin-top: 30px;
     position: relative;
-    padding: 30px;
+    padding: 40px;
     background-color: $section-dark-bg;
     border-radius: 12px;
 
