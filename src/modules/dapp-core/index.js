@@ -39,12 +39,13 @@ export const initDappCore = (controllers) => {
         try {
             const balance = await handler(token, account)
             if (!_.isNil(balance)) {
+                const b = parseFloat(balance)
                 dispatch({
                     type: 'DAPPCORE.SET_BALANCE',
                     payload: {
                         chainKey,
                         symbol: token.symbol,
-                        balance: parseFloat(balance),
+                        balance: _.isNumber(b) ? b : 0,
                     }
                 })
             }

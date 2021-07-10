@@ -45,7 +45,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
     const [selectedSymbol, setSelectedSymbol] = useState(supportedTokens[0])
     let token = {
         ...TOKENS[selectedSymbol],
-        ..._.get(tokens[selectedSymbol], fromChainKey === registerOn ? 'outToken' : 'inToken', {symbol: selectedSymbol, precision: 0})
+            ..._.get(tokens[selectedSymbol], fromChainKey === registerOn ? 'outToken' : 'inToken', {symbol: selectedSymbol, precision: 0})
     }
     token = {
         ...token,
@@ -153,6 +153,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                             <div className="item-text">
                                 {_.size(supportedTokens) === 1 ? selectedSymbol : (
                                     <Dropdown id="token-select" withCaret={true}
+                                              disabled={txStatus.active}
                                               items={_.map(supportedTokens, t => ({name: t}))}
                                               onItemClick={({name: symbol}) => {setSelectedSymbol(symbol)}}>
                                         {selectedSymbol}

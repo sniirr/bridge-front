@@ -2,7 +2,7 @@
 
 .page.bridge {
   width: 1200px;
-  padding-top: 120px;
+  padding-top: 100px;
   display: flex;
   justify-content: space-evenly;
 
@@ -159,12 +159,12 @@
     }
 
     .dropdown-menu {
-      background-color: $section-dark-bg;
+      //background-color: $section-dark-bg;
       font-size: .8em;
 
-      .dropdown-item {
-        padding: 12px 24px 12px 0;
-      }
+      //.dropdown-item {
+      //  padding: 12px 24px 12px 0;
+      //}
     }
   }
 

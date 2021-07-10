@@ -16,7 +16,7 @@ const Notification = () => {
         if(visible) {
             setTimeout(() => {
                 dispatch(removeNotification())
-            }, 3500)
+            }, 5000)
         }
     }, [visible])
 

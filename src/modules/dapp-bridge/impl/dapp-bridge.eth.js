@@ -2,7 +2,7 @@ import _ from 'lodash'
 import config from 'config/bridge.json'
 import bridgeAbi from "config/abi/bridgeAbi"
 import web3 from 'utils/api/ethApi'
-import tokenAbi from "config/abi/tokenAbi"
+// import tokenAbi from "config/abi/tokenAbi"
 // import TOKENS from "config/tokens.json"
 
 import {ethers} from "ethers"
@@ -93,7 +93,7 @@ const approveAndSendToken = (account, sendAmount, token, infiniteApproval) => {
     console.log("inside approve and send token");
 
     const {contracts} = account
-    const {symbol, depositContracts} = token
+    const {symbol, depositContracts, toWeiUnit} = token
 
     // const usdcContract = new ethers.Contract(TOKENS.USDC.addresses.ETH, tokenAbi, account.provider)
     //
@@ -106,7 +106,9 @@ const approveAndSendToken = (account, sendAmount, token, infiniteApproval) => {
     // const approveAmount = web3.utils.toWei("10000000000000000", "mwei")
     let approveAmount
     if (infiniteApproval) {
-        approveAmount = web3.utils.toWei("10000000000000000", "kwei")
+        // approveAmount = web3.utils.toWei("10000000000000000", "kwei")
+        approveAmount = web3.utils.toWei("10000000000000000", toWeiUnit)
+
         // approveAmount = Math.floor(10000000000000000 * Math.pow(10, precision))
         // approveAmount = symbol === "USDC"
         //     ? web3.utils.toWei("10000000000000000", "mwei")
@@ -191,7 +193,7 @@ const transfer = async (account, amount, token, infiniteApproval) => {
     // const tokenContract = new ethers.Contract(token.addresses.ETH, tokenAbi, account.provider)
     // const contract = await tokenContract.connect(account.signer)
 
-    const {symbol, precision, depositContracts} = token
+    const {symbol, precision, depositContracts, toWeiUnit} = token
 
     const contract = _.get(account, ['contracts', symbol])
 
@@ -204,7 +206,17 @@ const transfer = async (account, amount, token, infiniteApproval) => {
     //     ? web3.utils.toWei(amount, "mwei")
     //     : web3.utils.toWei(amount, "ether"))
 
-    const sendAmount = Math.floor(amount * Math.pow(10, precision))
+    let sendAmount
+    switch (token.symbol) {
+        case 'USDC':
+        case 'DAI':
+            sendAmount = web3.utils.toWei(amount, toWeiUnit)
+            break
+        default:
+            sendAmount = Math.floor(amount * Math.pow(10, precision))
+    }
+    // const sendAmount = web3.utils.toWei(amount, toWeiUnit)
+    // const sendAmount = Math.floor(amount * Math.pow(10, precision))
 
     console.log("sendAmount ", sendAmount);
 

@@ -14,12 +14,15 @@
     top: calc(100% - 4px);
     //right: -10px;
     left: 0;
-    background-color: transparent;
+    //background-color: transparent;
     z-index: 10;
     text-align: left;
+    background-color: black;
+    border: solid 1px white;
+    margin-top: 10px;
 
     .dropdown-item {
-      padding: 12px 0;
+      padding: 12px 24px 12px 12px;
 
       &:not(:last-child) {
         border-bottom: solid 1px white;

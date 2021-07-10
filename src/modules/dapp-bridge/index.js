@@ -157,27 +157,45 @@ export const initBridge = (controllers, {registerOn}, coreController) => {
 
     const awaitDeposit = (chainKey, token) => (dispatch, getState) => {
         const [handler, chain] = getHandler(chainKey, 'awaitDeposit', getState())
-        handler(chain, token, payload => {
-            dispatch({
-                type: 'BRIDGE.SET_TX_STATUS',
-                payload,
+
+        try {
+            handler(chain, token, payload => {
+                dispatch({
+                    type: 'BRIDGE.SET_TX_STATUS',
+                    payload,
+                })
+                dispatch(clearActionStatus('transfer'))
+                dispatch(coreController.fetchBalance(chainKey, token))
             })
-            dispatch(clearActionStatus('transfer'))
-            dispatch(coreController.fetchBalance(chainKey, token))
-        })
+        }
+        catch (e) {
+            console.error(e)
+            // dispatch(clearTxStatus())
+            // dispatch(clearActionStatus('transfer'))
+            dispatch(showNotification({type: 'error', text: e.message}))
+        }
     }
 
     const awaitReceived = (fromChainKey, toChainKey, token) => (dispatch, getState) => {
         const state = getState()
         const [handler, chain] = getHandler(toChainKey, 'awaitReceived', state)
         const fromChain = chainCoreSelector(fromChainKey)(state)
-        handler(chain, fromChain, token, payload => {
-            dispatch({
-                type: 'BRIDGE.SET_TX_STATUS',
-                payload,
+
+        try {
+            handler(chain, fromChain, token, payload => {
+                dispatch({
+                    type: 'BRIDGE.SET_TX_STATUS',
+                    payload,
+                })
+                dispatch(coreController.fetchBalance(toChainKey, token))
             })
-            dispatch(coreController.fetchBalance(toChainKey, token))
-        })
+        }
+        catch (e) {
+            console.error(e)
+            // dispatch(clearTxStatus())
+            // dispatch(clearActionStatus('transfer'))
+            dispatch(showNotification({type: 'error', text: e.message}))
+        }
     }
 
     const clearTxStatus = () => ({type: 'BRIDGE.CLEAR_TX_STATUS'})

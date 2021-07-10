@@ -25,7 +25,7 @@ const fetchSupportedTokens = async (account, contract) => {
         const [outPrecision, outSymbol] = _.split(dtoken, ',')
         return {
             symbol: inSymbol,
-            inToken: {symbol: inSymbol, precision: parseInt(inPrecision)},
+            inToken: {symbol: inSymbol, precision: outSymbol === 'DAI' ? 18 : parseInt(inPrecision)},
             outToken: {symbol: outSymbol, precision: parseInt(outPrecision)},
         }
     })

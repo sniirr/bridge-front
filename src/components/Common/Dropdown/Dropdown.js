@@ -6,7 +6,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCaretDown, faCaretRight} from '@fortawesome/free-solid-svg-icons'
 import useOnClickOutside from "hooks/useClickOutside"
 
-const Dropdown = ({id, className, items, onItemClick, withCaret, children}) => {
+const Dropdown = ({id, className, items, onItemClick, withCaret, disabled, children}) => {
 
     const ref = useRef(null)
     const [isVisible, setIsVisible] = useState(false)
@@ -15,7 +15,7 @@ const Dropdown = ({id, className, items, onItemClick, withCaret, children}) => {
     useOnClickOutside(ref, () => setIsVisible(false))
 
     return (
-        <div ref={ref} className={classNames('dropdown', className, {'is-visible': isVisible})} onClick={() => setIsVisible(!isVisible)}>
+        <div ref={ref} className={classNames('dropdown', className, {'is-visible': isVisible})} onClick={() => !disabled && setIsVisible(!isVisible)}>
             <div>
                 {children}
             </div>

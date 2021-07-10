@@ -16,9 +16,12 @@ const PRECISION_FORMAT = _.zipObject(
     })
 )
 
-export const amountToAsset = (amount, {symbol, precision}, withSymbol = true, prettify = false) => {
-    const format = prettify ? '0,' + PRECISION_FORMAT[precision] : PRECISION_FORMAT[precision]
-    return `${numeral(_.isString(amount) ? parseFloat(amount) : amount).format(format)}${withSymbol ? (' ' + symbol) : ''}`
+export const amountToAsset = (amount, {symbol, precision}, withSymbol = true, prettify = false, overridePrecision = -1) => {
+    const p = overridePrecision === -1 ? precision : overridePrecision
+    const format = prettify ? '0,' + PRECISION_FORMAT[p] : PRECISION_FORMAT[p]
+    // console.log('amountToAsset amount', amount, 'format', format)
+    const num = numeral(_.isString(amount) ? parseFloat(amount) : amount)
+    return `${(_.isNumber(num) ? num.format(format) : parseFloat(amount).toFixed(p))}${withSymbol ? (' ' + symbol) : ''}`
 }
 
 export const poll = async opts => {
