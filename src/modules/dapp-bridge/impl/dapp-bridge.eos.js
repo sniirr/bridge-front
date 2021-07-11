@@ -5,15 +5,15 @@ import config from 'config/bridge.json'
 import {amountToAsset, poll} from "utils/utils";
 
 // actions
-const fetchSupportedTokens = async (account, contract) => {
-    if (_.isEmpty(account.rpc)) return
+const fetchSupportedTokens = async ({rpc}, contract) => {
+    if (_.isEmpty(rpc)) return
 
     const {tables: {acceptedSym}} = config
 
     // TODO - remove this:
     const table = contract === 'etheosmultok' ? 'acceptedsym1' : acceptedSym
 
-    const data = await fetchTableData(account.rpc, {
+    const data = await fetchTableData(rpc, {
         code: contract,
         scope: contract,
         table,
@@ -30,9 +30,7 @@ const fetchSupportedTokens = async (account, contract) => {
     })
 }
 
-const fetchRegistry = async account => {
-    const rpc = _.get(account, 'wallet.eosApi.rpc')
-
+const fetchRegistry = async ({rpc}, account) => {
     if (_.isEmpty(rpc)) return
 
     const {contract, tables: {registry}} = config
@@ -44,9 +42,7 @@ const fetchRegistry = async account => {
     }, 'account', account.address)
 }
 
-const fetchRegFee = async account => {
-    const rpc = _.get(account, 'wallet.eosApi.rpc')
-
+const fetchRegFee = async ({rpc}) => {
     if (_.isEmpty(rpc)) return
 
     const {contract, tables: {regFee}} = config
@@ -123,8 +119,8 @@ const awaitRegister = async (account, onComplete) => {
     })
 }
 
-const fetchTransferFee = async (account, {symbol, depositContracts}) => {
-    if (_.isEmpty(account.rpc)) return
+const fetchTransferFee = async ({rpc}, {symbol, depositContracts}) => {
+    if (_.isEmpty(rpc)) return
 
     const {contract, tables: {feeSettings}} = config
 
@@ -132,7 +128,7 @@ const fetchTransferFee = async (account, {symbol, depositContracts}) => {
     const depositContract = _.get(depositContracts, 'EOS', contract)
     const table = depositContract === 'dadethbridge' ? 'feesettings4' : feeSettings
 
-    const row = await fetchOne(account.rpc, {
+    const row = await fetchOne(rpc, {
         code: depositContract,
         scope: symbol,
         table,
@@ -143,7 +139,7 @@ const fetchTransferFee = async (account, {symbol, depositContracts}) => {
     return {deposit: minfeedeposit, withdraw: minfeewithdraw}
 }
 
-const transfer = async (account, amount, token) => {
+const transfer = async (chain, account, amount, token) => {
     const {eosApi, auth} = _.get(account, 'wallet', {})
 
     if (_.isEmpty(eosApi)) return
@@ -173,7 +169,7 @@ const transfer = async (account, amount, token) => {
     )
 }
 
-export const fetchWithdrawQueue = async ({rpc, address}, {symbol, depositContracts}, startFrom = -1) => {
+export const fetchWithdrawQueue = async ({rpc}, {address}, {symbol, depositContracts}, startFrom = -1) => {
     if (_.isEmpty(rpc)) return
 
     const {contract, tables: {withdrawQueue}} = config
@@ -205,12 +201,12 @@ export const fetchWithdrawQueue = async ({rpc, address}, {symbol, depositContrac
     return {userRow}
 }
 
-const awaitDeposit = async (account, token, onComplete) => {
-    const {lastId} = await fetchWithdrawQueue(account, token)
+const awaitDeposit = async (chain, account, token, onComplete) => {
+    const {lastId} = await fetchWithdrawQueue(chain, account, token)
 
     poll({
         interval: 2000,
-        pollFunc: () => fetchWithdrawQueue(account, token, lastId),
+        pollFunc: () => fetchWithdrawQueue(chain, account, token, lastId),
         checkFunc: ({userRow}) => {
             const deposited = !_.isEmpty(userRow)
 
@@ -256,12 +252,12 @@ export const fetchGenLog = async ({rpc}, fromAccount, {depositContracts}, startF
     return {logRow}
 }
 
-const awaitReceived = async (account, fromAccount, token, onComplete) => {
-    const {lastId} = await fetchGenLog(account, fromAccount, token)
+const awaitReceived = async (chain, account, fromAccount, token, onComplete) => {
+    const {lastId} = await fetchGenLog(chain, fromAccount, token)
 
     poll({
         interval: 5000,
-        pollFunc: () => fetchGenLog(account, fromAccount, token, lastId),
+        pollFunc: () => fetchGenLog(chain, fromAccount, token, lastId),
         checkFunc: ({logRow}) => {
             const received = !_.isEmpty(logRow)
             if (received) {
@@ -332,13 +328,13 @@ const updatePrices = async (account) => {
 
 // selectors
 export const isRegisteredSelector = state => {
-    const dappcore = _.get(state, 'dappcore')
+    const accounts = _.get(state, 'accounts')
     const registry = _.get(state, 'bridge.registry')
 
-    if (!_.has(dappcore, 'EOS') || !_.has(dappcore, 'ETH')) return {isRegistered: false, error: BRIDGE_REGISTRY_ERROR.NOT_READY}
+    if (!_.has(accounts, 'EOS') || !_.has(accounts, 'ETH')) return {isRegistered: false, error: BRIDGE_REGISTRY_ERROR.NOT_READY}
     if (_.isNil(registry)) return {isRegistered: false, error: BRIDGE_REGISTRY_ERROR.NOT_READY}
     if (_.isEmpty(registry)) return {isRegistered: false, error: BRIDGE_REGISTRY_ERROR.NOT_REGISTERED}
-    if (_.toLower(registry.ethaddress) !== _.toLower(dappcore.ETH.address)) return {isRegistered: false, error: BRIDGE_REGISTRY_ERROR.ACCOUNT_MISMATCH}
+    if (_.toLower(registry.ethaddress) !== _.toLower(accounts.ETH.address)) return {isRegistered: false, error: BRIDGE_REGISTRY_ERROR.ACCOUNT_MISMATCH}
 
     return {isRegistered: true}
 }

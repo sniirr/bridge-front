@@ -1,9 +1,10 @@
 import {makeReducer, reduceSetKey, reduceUpdateKey} from "utils/reduxUtils";
 import _ from "lodash";
-import {chainCoreSelector} from "modules/dapp-core";
+// import {chainCoreSelector} from "modules/dapp-core";
 import config from 'config/bridge.json'
-import {showNotification} from "modules/utils";
+import {getHandler, showNotification} from "modules/utils";
 import {clearActionStatus, setActionPending} from "store/actionStatusReducer";
+import {chainSelector} from "modules/dapp-core/chains";
 
 export const BRIDGE_REGISTRY_ERROR = {
     NOT_READY: 0,
@@ -19,18 +20,18 @@ export const initBridge = (controllers, {registerOn}) => (dispatch, getState) =>
         console.error(`Failed to initBridge - coreController must be initialized before calling initBridge`)
     }
 
-    const getHandler = (chainKey, method, state) => {
-        const ctrl = controllers[chainKey]
-        if (!_.isFunction(ctrl[method])) {
-            throw `NotImplementedError: ${method} is not implemented for ${chainKey}`
-        }
-        const chain = chainCoreSelector(chainKey)(state)
-        return [ctrl[method], chain]
-    }
+    // const getHandler = (chainKey, method, state) => {
+    //     const ctrl = controllers[chainKey]
+    //     if (!_.isFunction(ctrl[method])) {
+    //         throw `NotImplementedError: ${method} is not implemented for ${chainKey}`
+    //     }
+    //     const chain = chainSelector(chainKey)(state)
+    //     return [ctrl[method], chain]
+    // }
 
     // INIT
     const init = async chainKey => {
-        const [handler, chain] = getHandler(chainKey, 'init', getState())
+        const [handler, chain] = getHandler(controllers, chainKey, 'init', getState())
 
         try {
             const update = await handler(chain)
@@ -55,7 +56,7 @@ export const initBridge = (controllers, {registerOn}) => (dispatch, getState) =>
         try {
             const tokenSets = await Promise.all(
                 _.map([contract, ...supportedContracts], async c => {
-                    const [handler, chain] = getHandler(registerOn, 'fetchSupportedTokens', getState())
+                    const [handler, chain] = getHandler(controllers, registerOn, 'fetchSupportedTokens', getState())
                     return await handler(chain, c)
                 })
             )
@@ -75,10 +76,10 @@ export const initBridge = (controllers, {registerOn}) => (dispatch, getState) =>
 
     // REGISTER
     const fetchRegistry = async () => {
-        const [handler, chain] = getHandler(registerOn, 'fetchRegistry', getState())
+        const [handler, chain, account] = getHandler(controllers, registerOn, 'fetchRegistry', getState())
 
         try {
-            const registry = await handler(chain)
+            const registry = await handler(chain, account)
             dispatch({
                 type: 'BRIDGE.SET_REGISTRY',
                 payload: registry || {}
@@ -91,7 +92,7 @@ export const initBridge = (controllers, {registerOn}) => (dispatch, getState) =>
     }
 
     const fetchRegFee = async () => {
-        const [handler, chain] = getHandler(registerOn, 'fetchRegFee', getState())
+        const [handler, chain] = getHandler(controllers, registerOn, 'fetchRegFee', getState())
 
         try {
             const fee = await handler(chain)
@@ -107,8 +108,8 @@ export const initBridge = (controllers, {registerOn}) => (dispatch, getState) =>
     }
 
     const awaitRegister = chainKey => {
-        const [handler, chain] = getHandler(chainKey, 'awaitRegister', getState())
-        handler(chain, registry => {
+        const [handler,, account] = getHandler(controllers, chainKey, 'awaitRegister', getState())
+        handler(account, registry => {
             dispatch({
                 type: 'BRIDGE.SET_REGISTRY',
                 payload: registry,
@@ -119,11 +120,11 @@ export const initBridge = (controllers, {registerOn}) => (dispatch, getState) =>
     }
 
     const register = async (newAddress, regFee, isModify) => {
-        const [handler, chain] = getHandler(registerOn, 'register', getState())
+        const [handler, , account] = getHandler(controllers, registerOn, 'register', getState())
 
         try {
             dispatch(setActionPending('register'))
-            await handler(chain, newAddress, regFee, isModify)
+            await handler(account, newAddress, regFee, isModify)
             awaitRegister(registerOn)
             // dispatch(awaitRegister(registerOn))
         }
@@ -135,14 +136,14 @@ export const initBridge = (controllers, {registerOn}) => (dispatch, getState) =>
     }
 
     const isRegisteredSelector = state => {
-        const [selector, ] = getHandler(registerOn, 'isRegisteredSelector', state)
+        const [selector, ] = getHandler(controllers, registerOn, 'isRegisteredSelector', state)
 
         return selector(state)
     }
 
     // TRANSFER
     const fetchTransferFee = async token => {
-        const [handler, chain] = getHandler(registerOn, 'fetchTransferFee', getState())
+        const [handler, chain] = getHandler(controllers, registerOn, 'fetchTransferFee', getState())
 
         try {
             const fee = await handler(chain, token)
@@ -158,10 +159,10 @@ export const initBridge = (controllers, {registerOn}) => (dispatch, getState) =>
     }
 
     const awaitDeposit = (chainKey, token) => {
-        const [handler, chain] = getHandler(chainKey, 'awaitDeposit', getState())
+        const [handler, chain, account] = getHandler(controllers, chainKey, 'awaitDeposit', getState())
 
         try {
-            handler(chain, token, payload => {
+            handler(chain, account, token, payload => {
                 dispatch({
                     type: 'BRIDGE.SET_TX_STATUS',
                     payload,
@@ -181,11 +182,11 @@ export const initBridge = (controllers, {registerOn}) => (dispatch, getState) =>
 
     const awaitReceived = (fromChainKey, toChainKey, token) => {
         const state = getState()
-        const [handler, chain] = getHandler(toChainKey, 'awaitReceived', state)
-        const fromChain = chainCoreSelector(fromChainKey)(state)
+        const [handler, chain, account] = getHandler(controllers, toChainKey, 'awaitReceived', state)
+        const fromChain = chainSelector(fromChainKey)(state)
 
         try {
-            handler(chain, fromChain, token, payload => {
+            handler(chain, account, fromChain, token, payload => {
                 dispatch({
                     type: 'BRIDGE.SET_TX_STATUS',
                     payload,
@@ -205,11 +206,11 @@ export const initBridge = (controllers, {registerOn}) => (dispatch, getState) =>
     const clearTxStatus = () => ({type: 'BRIDGE.CLEAR_TX_STATUS'})
 
     const transfer = async (fromChain, toChain, amount, token, infiniteApproval) => {
-        const [handler, chain] = getHandler(fromChain, 'transfer', getState())
+        const [handler, chain, account] = getHandler(controllers, fromChain, 'transfer', getState())
 
         try {
             dispatch(setActionPending('transfer'))
-            const response = await handler(chain, amount, token, infiniteApproval)
+            const response = await handler(chain, account, amount, token, infiniteApproval)
 
             dispatch({
                 type: 'BRIDGE.SET_TX_STATUS',
@@ -231,10 +232,10 @@ export const initBridge = (controllers, {registerOn}) => (dispatch, getState) =>
     }
 
     const updatePrices = async () => {
-        const [handler, chain] = getHandler(registerOn, 'updatePrices', getState())
+        const [handler, chain, account] = getHandler(controllers, registerOn, 'updatePrices', getState())
 
         try {
-            const result = await handler(chain)
+            const result = await handler(account)
             dispatch({
                 type: 'BRIDGE.UPDATE_PRICES_SUCCESS',
                 payload: result

@@ -46,7 +46,7 @@ const sendToken = ({contracts}, amount, {depositContracts, ethTokenId}) => {
     contract.sendToken(amount, ethTokenId)
 };
 
-const approveAndSendToken = (account, sendAmount, token, infiniteApproval) => {
+const approveAndSendToken = (chain, account, sendAmount, token, infiniteApproval) => {
     console.log("inside approve and send token");
 
     const {contracts} = account
@@ -78,10 +78,11 @@ const approveAndSendToken = (account, sendAmount, token, infiniteApproval) => {
     contract.approve(depositContracts.ETH, approveAmount)
 };
 
-const transfer = async (account, amount, token, infiniteApproval) => {
+const transfer = async (chain, account, amount, token, infiniteApproval) => {
     const {symbol, precision, depositContracts, toWeiUnit} = token
 
-    const contract = _.get(account, ['contracts', symbol])
+    // const contract = _.get(chain, ['contracts', symbol])
+    const contract = _.get(token, ['contracts', 'ETH'])
     if (!contract) {
         return console.error(`Contract not initialized: ${symbol} ERC20`)
     }
@@ -103,12 +104,13 @@ const transfer = async (account, amount, token, infiniteApproval) => {
     const appAmount = parseFloat(ethers.utils.formatUnits(approvedAmount, token.precision))
     console.log("approvedAmount in contract ", appAmount);
 
-    return appAmount >= amount ? sendToken(account, sendAmount, token) : approveAndSendToken(account, sendAmount, token, infiniteApproval)
+    return appAmount >= amount ? sendToken(chain, sendAmount, token) : approveAndSendToken(chain, account, sendAmount, token, infiniteApproval)
 }
 
-const awaitDeposit = (account, token, onComplete) => {
+const awaitDeposit = (chain, account, token, onComplete) => {
     const {symbol, depositContracts} = token
-    const contract = _.get(account, ['contracts', symbol])
+    const contract = _.get(token, ['contracts', 'ETH'])
+    // const contract = _.get(account, ['contracts', symbol])
 
     if (!contract) {
         return console.error(`Contract not initialized: ${symbol} ERC20`)
@@ -130,9 +132,10 @@ const awaitDeposit = (account, token, onComplete) => {
     });
 }
 
-const awaitReceived = async (account, fromAccount, token, onComplete) => {
+const awaitReceived = async (chain, account, fromAccount, token, onComplete) => {
     const {symbol} = token
-    const contract = _.get(account, ['contracts', symbol])
+    const contract = _.get(token, ['contracts', 'ETH'])
+    // const contract = _.get(account, ['contracts', symbol])
 
     if (!contract) {
         return console.error(`Contract not initialized: ${symbol} ERC20`)

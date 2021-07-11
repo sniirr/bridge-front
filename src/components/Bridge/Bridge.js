@@ -5,9 +5,8 @@ import './Bridge.scss'
 import {useDispatch, useSelector} from "react-redux"
 import Slider from 'rc-slider'
 import {showModal} from "shared/Modal";
-import {balanceSelector, chainCoreSelector} from "modules/dapp-core"
-import useOnLogin from "hooks/useOnLogin";
-import TOKENS from 'config/tokens.json'
+import {accountSelector, balanceSelector} from "modules/dapp-core/accounts"
+import useOnLogin from "modules/dapp-core/hooks/useOnLogin";
 import {amountToAsset, poll} from "utils/utils"
 import Dropdown from 'components/Common/Dropdown'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -18,6 +17,8 @@ import {bridgeSelector} from "modules/dapp-bridge";
 import classNames from "classnames";
 import ActionButton from "components/Common/ActionButton";
 import {ctrlSelector} from "modules/dapp-core/controllers";
+import useOnRpcReady from "modules/dapp-core/hooks/useOnRpcReady";
+import {tokenSelector} from "modules/dapp-core/tokens";
 
 const Bridge = ({supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
 
@@ -32,10 +33,10 @@ const Bridge = ({supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'D
     const toChainKey = chains[1]
 
     // accounts
-    const fromChain = useSelector(chainCoreSelector(fromChainKey))
-    const toChain = useSelector(chainCoreSelector(toChainKey))
-    const fromConnected = !_.isEmpty(fromChain?.address)
-    const toConnected = !_.isEmpty(toChain?.address)
+    const fromAccount = useSelector(accountSelector(fromChainKey))
+    const toAccount = useSelector(accountSelector(toChainKey))
+    const fromConnected = !_.isEmpty(fromAccount?.address)
+    const toConnected = !_.isEmpty(toAccount?.address)
     const isConnected = fromConnected && toConnected
     const [amount, setAmount] = useState('0')
 
@@ -46,16 +47,17 @@ const Bridge = ({supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'D
 
     // tokens
     const [selectedSymbol, setSelectedSymbol] = useState(supportedTokens[0])
+    const tokenConf = useSelector(tokenSelector(selectedSymbol))
     let token = {
-        ...TOKENS[selectedSymbol],
-            ..._.get(tokens[selectedSymbol], fromChainKey === registerOn ? 'outToken' : 'inToken', {symbol: selectedSymbol, precision: 0})
+        ...tokenConf,
+        ..._.get(tokens[selectedSymbol], fromChainKey === registerOn ? 'outToken' : 'inToken', {symbol: selectedSymbol, precision: 0})
     }
-    token = {
-        ...token,
-        ..._.get(TOKENS, token.symbol, {})
-    }
+    // token = {
+    //     ...token,
+    //     ..._.get(TOKENS, token.symbol, {})
+    // }
 
-    const currentTxFee = fromChainKey === TOKENS[selectedSymbol].issuedOn ? txFee.deposit : txFee.withdraw
+    const currentTxFee = fromChainKey === token.issuedOn ? txFee.deposit : txFee.withdraw
 
     const {isRegistered} = useSelector(controller.isRegisteredSelector)
     const balance = useSelector(balanceSelector(fromChainKey, token.symbol))
@@ -65,26 +67,21 @@ const Bridge = ({supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'D
 
     const [txFeesTimer, setTxFeesTimer] = useState(-1)
 
-    const {hasRpc} = useOnLogin(fromChainKey, () => {
+    useOnRpcReady(registerOn, () => {
+        controller.fetchSupportedTokens()
+    })
+
+    useOnLogin(fromChainKey, () => {
         coreController.fetchBalance(fromChainKey, token)
     })
 
     useOnLogin(registerOn, () => {
         controller.fetchRegistry()
-        // dispatch(controller.fetchRegistry())
     })
 
     useOnLogin('ETH', () => {
-        // dispatch(controller.init('ETH'))
         controller.init('ETH')
     })
-
-    useEffect(() => {
-        if (hasRpc) {
-            controller.fetchSupportedTokens()
-            // dispatch(controller.fetchSupportedTokens())
-        }
-    }, [hasRpc])
 
     useEffect(() => {
         if (!_.isEmpty(tokens)) {
@@ -97,7 +94,6 @@ const Bridge = ({supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'D
                 timerId: txFeesTimer,
                 setTimerId: setTxFeesTimer,
                 pollFunc: () => controller.fetchTransferFee(token),
-                // pollFunc: () => dispatch(controller.fetchTransferFee(token)),
             })
         }
 
@@ -126,7 +122,7 @@ const Bridge = ({supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'D
     }
 
     const renderChainBox = (chainKey, direction) => {
-        const address = direction === 'From' ? fromChain.address : toChain.address
+        const address = direction === 'From' ? fromAccount?.address : toAccount?.address
         return (
             <div key={`bridge-chain-${chainKey}`} className="chain-box">
                 <div className="item">
@@ -140,7 +136,7 @@ const Bridge = ({supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'D
                             <span className="address" title={address}>{address}</span>
                         </>
                     ) : (
-                        <div className="pointer red-text small-text" onClick={() => dispatch(showModal('connect', {chains: [chainKey]}))}>CONNECT WALLET</div>
+                        <div className="pointer red-text small-text" onClick={() => dispatch(showModal('connect', {activeChains: [chainKey]}))}>CONNECT WALLET</div>
                     )}
                 </div>
             </div>

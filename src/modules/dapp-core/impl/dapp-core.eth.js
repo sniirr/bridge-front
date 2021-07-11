@@ -1,54 +1,73 @@
 import _ from "lodash";
-import TOKENS from "config/tokens.json";
-import CHAINS from 'config/chains.json'
 import tokenAbi from 'config/abi/tokenAbi'
 import { ethers } from "ethers"
 
-const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+export const init = ({chains, tokens}) => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 
-const tokens = _.filter(TOKENS, ({addresses}) => _.has(addresses, 'ETH'))
+    return {
+        chains: {
+            ...chains,
+            ETH: {
+                ..._.get(chains, 'ETH', {}),
+                provider,
+            }
+        },
+        tokens: _.mapValues(tokens, token => ({
+            ...token,
+            contracts: {
+                ..._.get(token, 'contracts', {}),
+                ETH: new ethers.Contract(token.addresses.ETH, tokenAbi, provider),
+            }
+        }))
+    }
+}
 
-export const connect = async ({providerIdx}) => {
+export const connect = async ({providerIdx}, {chainId, provider}, tokens) => {
     const {ethereum} = window;
-    const {chainId} = ethereum;
+    const {currChainId} = ethereum;
 
-    if (chainId === CHAINS.ETH.chain.chainId) {
+    if (currChainId === chainId) {
         if (!!ethereum) {
             await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
             const address = await signer.getAddress()
 
-            const contracts = _.zipObject(
-                _.map(tokens, 'symbol'),
-                _.map(tokens, ({symbol, addresses}) => {
-                    const c = new ethers.Contract(addresses.ETH, tokenAbi, signer)
-                    if (symbol === 'DAPP') {
-                        c.on('Transfer', (from, to, amount, event) => {
-                            // if (from === BRIDGE.ethAddress || to === BRIDGE.ethAddress) {
-                            //     console.log('--------------------------------------')
-                            console.log(`TRANSFER ${amount} ${symbol} from ${from} to ${to}`)
-                            console.log(`EVENT ${JSON.stringify(event)}`)
-                            // console.log('--------------------------------------')
-                            // }
-                        })
-                        c.on('Approval', (owner, spender, amount, event) => {
-                            // if (owner === BRIDGE.ethAddress) {
-                            //     console.log('--------------------------------------')
-                            console.log(`APPROVAL ${spender} to spend ${ ethers.utils.formatEther(amount) } ${symbol} on behalf of ${ owner }.`)
-                            console.log(`EVENT ${JSON.stringify(event)}`)
-                            // console.log('--------------------------------------')
-                            // }
-                        })
-                    }
-                    return c
-                })
-            )
+            _.forEach(tokens, async token => {
+                await token.contracts.ETH.connect(signer)
+            })
+
+            // const contracts = _.zipObject(
+            //     _.map(tokens, 'symbol'),
+            //     _.map(tokens, ({symbol, addresses}) => {
+            //         const c = new ethers.Contract(addresses.ETH, tokenAbi, signer)
+            //         if (symbol === 'DAPP') {
+            //             c.on('Transfer', (from, to, amount, event) => {
+            //                 // if (from === BRIDGE.ethAddress || to === BRIDGE.ethAddress) {
+            //                 //     console.log('--------------------------------------')
+            //                 console.log(`TRANSFER ${amount} ${symbol} from ${from} to ${to}`)
+            //                 console.log(`EVENT ${JSON.stringify(event)}`)
+            //                 // console.log('--------------------------------------')
+            //                 // }
+            //             })
+            //             c.on('Approval', (owner, spender, amount, event) => {
+            //                 // if (owner === BRIDGE.ethAddress) {
+            //                 //     console.log('--------------------------------------')
+            //                 console.log(`APPROVAL ${spender} to spend ${ ethers.utils.formatEther(amount) } ${symbol} on behalf of ${ owner }.`)
+            //                 console.log(`EVENT ${JSON.stringify(event)}`)
+            //                 // console.log('--------------------------------------')
+            //                 // }
+            //             })
+            //         }
+            //         return c
+            //     })
+            // )
 
             return {
                 address,
-                provider,
+                // provider,
                 signer,
-                contracts,
+                // contracts,
             }
         }
     } else {
@@ -57,8 +76,8 @@ export const connect = async ({providerIdx}) => {
     return null
 }
 
-export const fetchBalance = async ({symbol, precision}, account) => {
-    const contract = _.get(account, ['contracts', symbol])
+export const fetchBalance = async (chain, account, {symbol, precision, contracts}) => {
+    const contract = _.get(contracts, 'ETH')
 
     if (_.isNil(contract)) return
 
@@ -70,6 +89,8 @@ export const fetchBalance = async ({symbol, precision}, account) => {
 const logout = async () => {}
 
 export default {
+    init,
+
     connect,
     logout,
     fetchBalance,

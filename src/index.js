@@ -12,14 +12,20 @@ import ethCore from "modules/dapp-core/impl/dapp-core.eth";
 import {initBridge} from "modules/dapp-bridge";
 import eosBridge from "modules/dapp-bridge/impl/dapp-bridge.eos";
 import ethBridge from "modules/dapp-bridge/impl/dapp-bridge.eth";
+import tokens from 'config/tokens.json'
+import chains from 'config/chains.json'
 
 const store = makeStore()
+
+// ------------------------------------------
+// init dapp-fronts
+// ------------------------------------------
 const {dispatch, getState} = store
 
 dispatch(initDappCore({
     EOS: eosCore,
     ETH: ethCore,
-}))
+}, {chains, tokens}))
 
 const coreController = _.get(getState(), 'controllers.core')
 
@@ -30,6 +36,9 @@ dispatch(initBridge({
     ETH: ethBridge,
 }, {registerOn: 'EOS'}))
 
+// ------------------------------------------
+// end init dapp-fronts
+// ------------------------------------------
 
 ReactDOM.render(
     <Provider store={store}>

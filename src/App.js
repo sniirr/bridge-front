@@ -2,18 +2,11 @@ import React from 'react'
 import 'rc-slider/assets/index.css';
 import 'css/shared.scss'
 import 'css/main.scss'
-import Bridge from "components/Bridge";
 import {useDispatch} from "react-redux";
+import Bridge from "components/Bridge";
 import {Modals, showModal} from "shared/Modal";
 import ConnectModal from "components/ConnectModal";
 import Notification from "components/Notification"
-import CHAINS from 'config/chains.json'
-
-// init core
-// const coreController = initDappCore({
-//     EOS: eosCore,
-//     ETH: ethCore,
-// })
 
 // init bridge
 const registerOn = 'EOS'
@@ -24,7 +17,7 @@ const registerOn = 'EOS'
 
 // init modals
 const modals = {
-    'connect': <ConnectModal config={CHAINS}/>,
+    'connect': <ConnectModal/>,
 }
 
 function App() {
@@ -38,7 +31,7 @@ function App() {
                     Bifrost
                 </div>
                 <div className="pointer" onClick={() => dispatch(showModal('connect', {
-                    chains: ['ETH', 'EOS']
+                    activeChains: ['ETH', 'EOS']
                 }))}>Accounts
                 </div>
             </header>

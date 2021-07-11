@@ -2,31 +2,33 @@ import React, {useEffect, useState} from 'react'
 import _ from 'lodash'
 import classNames from 'classnames'
 import {useDispatch, useSelector} from "react-redux";
-import {dappCoreSelector} from "modules/dapp-core"
 import './ConnectModal.scss'
-import useOnLogin from "hooks/useOnLogin"
+import useOnLogin from "modules/dapp-core/hooks/useOnLogin"
 import Modal, {hideModal} from "shared/Modal";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faChevronRight, faTimes} from '@fortawesome/free-solid-svg-icons'
 import {ctrlSelector} from "modules/dapp-core/controllers";
+import {accountsSelector} from "modules/dapp-core/accounts";
+import {chainsSelector} from "modules/dapp-core/chains";
 
-const ConnectModal = ({config, chains}) => {
+const ConnectModal = ({activeChains}) => {
 
     const dispatch = useDispatch()
 
     const controller = useSelector(ctrlSelector('core'))
-    const dappcore = useSelector(dappCoreSelector)
+    const accounts = useSelector(accountsSelector)
+    const chains = useSelector(chainsSelector)
 
     const [selectedChain, setSelectedChain] = useState('')
 
     const hasSelectedChain = !_.isEmpty(selectedChain)
-    const isSingleChain = _.size(chains) === 1
+    const isSingleChain = _.size(activeChains) === 1
 
     const closeModal = () => dispatch(hideModal())
 
     useEffect(() => {
-        setSelectedChain(isSingleChain ? chains[0] : '')
-    }, [chains])
+        setSelectedChain(isSingleChain ? activeChains[0] : '')
+    }, [activeChains])
 
     useOnLogin(selectedChain, () => {
         if (isSingleChain) {
@@ -40,8 +42,8 @@ const ConnectModal = ({config, chains}) => {
     const renderContent = () => {
         if (!hasSelectedChain) {
             // multiple chains - render chain selection first
-            return _.map(chains, chainKey => {
-                const address = _.get(dappcore, [chainKey, 'address'])
+            return _.map(activeChains, chainKey => {
+                const address = _.get(accounts, [chainKey, 'address'])
                 const isConnected = !_.isEmpty(address)
                 return (
                     <div key={`connect-chain-${chainKey}`} className={classNames("chain", {'not-connected': !isConnected})}
@@ -67,7 +69,7 @@ const ConnectModal = ({config, chains}) => {
 
         return (
             <div className="connectors">
-                {_.map(config[selectedChain].connectors, (text, i) => {
+                {_.map(chains[selectedChain].connectors, (text, i) => {
                     return (
                         <div key={`connect-wallet-btn-${i}`} className="connector"
                              onClick={() => controller.connect(selectedChain, {providerIdx: i})}>

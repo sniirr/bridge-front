@@ -1,13 +1,11 @@
-import React, {useEffect, useState} from 'react'
-import _ from 'lodash'
-import {useDispatch, useSelector} from "react-redux"
+import React from 'react'
+import {useSelector} from "react-redux"
 import {bridgeSelector} from "modules/dapp-bridge"
-import {amountToAsset} from "utils/utils"
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faCheck, faMinus, faTimes, faUndo} from '@fortawesome/free-solid-svg-icons'
-import CHAINS from 'config/chains.json'
+import {faCheck, faMinus, faTimes} from '@fortawesome/free-solid-svg-icons'
 import classNames from "classnames";
 import ClipLoader from "react-spinners/ClipLoader"
+import {chainSelector} from "modules/dapp-core/chains";
 
 const StatusMarker = ({status}) => {
 
@@ -27,13 +25,11 @@ const StatusMarker = ({status}) => {
 
 const BridgeTxStatus = ({controller}) => {
 
-    const dispatch = useDispatch()
-
     const {txStatus} = useSelector(bridgeSelector)
     const {active, deposited, depositTxId, received, receivedTxId, fromChainKey, toChainKey} = txStatus
 
-    const fromChain = CHAINS[fromChainKey]
-    const toChain = CHAINS[toChainKey]
+    const fromChain = useSelector(chainSelector(fromChainKey))
+    const toChain = useSelector(chainSelector(toChainKey))
 
     if (!active) return null
 

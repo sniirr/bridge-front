@@ -1,21 +1,19 @@
 import _ from "lodash";
-import CHAINS from 'config/chains.json'
 import {initAccessContext} from 'eos-transit'
 import scatter from 'eos-transit-scatter-provider'
 import tokenpocket from 'eos-transit-tokenpocket-provider'
 import AnchorLinkProvider from 'eos-transit-anchorlink-provider'
-import TOKENS from 'config/tokens.json'
 import { JsonRpc } from 'eosjs'
 
-const initRpc = () => {
-    const {host, port, protocol} = CHAINS.EOS.chain
+const initRpc = ({chain}) => {
+    const {host, port, protocol} = chain
     return new JsonRpc(`${protocol}://${host}:${port}`)
 }
 
-const connect = async ({providerIdx}) => {
+const connect = async ({providerIdx}, {chain}) => {
     const accessContext = initAccessContext({
         appName: 'DeFights',
-        network: CHAINS.EOS.chain,
+        network: chain,
         walletProviders: [
             scatter(),
             AnchorLinkProvider(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)),
@@ -36,20 +34,21 @@ const connect = async ({providerIdx}) => {
     }
 }
 
-const fetchBalance = async ({symbol}, account) => {
+const fetchBalance = async (chain, account, {symbol, addresses}) => {
     const rpc = _.get(account, 'wallet.eosApi.rpc')
-    const contract = _.get(TOKENS, [symbol, 'addresses', 'EOS'])
 
     if (_.isEmpty(rpc)) return
 
-    const balances = await rpc.get_currency_balance(contract, account.address, symbol)
+    const balances = await rpc.get_currency_balance(addresses.EOS, account.address, symbol)
     return _.size(balances) === 1 ? balances[0] : 0
 }
 
 const logout = async () => {}
 
 export default {
+    init: data => data,
     initRpc,
+
     connect,
     logout,
     fetchBalance,

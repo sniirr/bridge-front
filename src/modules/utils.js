@@ -15,8 +15,9 @@ export const getHandler = (controllers, chainKey, method, state) => {
     if (!_.isFunction(ctrl[method])) {
         throw `NotImplementedError: ${method} is not implemented for ${chainKey}`
     }
-    const connector = _.get(state, ['dappcore', chainKey], {})
-    return [ctrl[method], connector]
+    const chain = !_.isEmpty(state) ? _.get(state, ['chains', chainKey], {}) : null
+    const account = !_.isEmpty(state) ? _.get(state, ['accounts', chainKey], {}) : null
+    return [ctrl[method], chain, account]
 }
 
 export const showNotification = ({ type, text }) => ({
@@ -27,27 +28,3 @@ export const showNotification = ({ type, text }) => ({
 export const removeNotification = () => ({
     type: 'NOTIFICATION.REMOVE'
 })
-
-
-// export const generateError = (e, defaultMsg) => {
-//
-//     try {
-//         let errorString = JSON.stringify(e)
-//
-//         if (errorString && errorString.includes('assertion failure with message')) {
-//             let errorObj = JSON.parse(errorString)
-//
-//             const msgObj = errorObj?.json?.error?.details[0]?.message
-//
-//             if (typeof msgObj === 'string' && msgObj.includes(':')) {
-//                 return msgObj.split(':')[1]
-//             }
-//
-//             return defaultMsg
-//         }
-//
-//         return defaultMsg
-//     } catch {
-//         return 'Something went wrong'
-//     }
-// }
