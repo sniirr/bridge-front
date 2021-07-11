@@ -34,30 +34,6 @@
     color: $red;
   }
 
-  .button {
-    background-image: linear-gradient(#93488e -50%, #4c3c8d);
-    padding: 10px 0;
-    border-radius: 5px;
-    text-align: center;
-
-    &.disabled {
-      opacity: .7;
-      cursor: not-allowed;
-    }
-
-    &:not(.disabled) {
-      cursor: pointer;
-    }
-
-    &.register {
-      width: 110px;
-    }
-
-    &.transfer {
-      width: 140px;
-    }
-  }
-
   .slider {
     flex-grow: 2;
     margin: -10px 15px 0 0;

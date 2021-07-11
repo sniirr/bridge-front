@@ -2,20 +2,17 @@ import React, {useEffect, useState} from 'react'
 import _ from 'lodash'
 import classNames from 'classnames'
 import {useDispatch, useSelector} from "react-redux";
-import {
-    Button, Dialog, DialogTitle, DialogContent, DialogActions,
-} from '@material-ui/core';
-import {NavigateNext, Close} from '@material-ui/icons'
-import {connectModalSelector, hideConnectModal} from './ConnectModal.module'
 import {dappCoreSelector} from "modules/dapp-core"
 import './ConnectModal.scss'
 import useOnLogin from "hooks/useOnLogin"
+import Modal, {hideModal} from "shared/Modal";
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faChevronRight, faTimes} from '@fortawesome/free-solid-svg-icons'
 
-const ConnectModal = ({config, controller}) => {
+const ConnectModal = ({config, chains, controller}) => {
 
     const dispatch = useDispatch()
 
-    const {visible, chains} = useSelector(connectModalSelector)
     const dappcore = useSelector(dappCoreSelector)
 
     const [selectedChain, setSelectedChain] = useState('')
@@ -23,7 +20,7 @@ const ConnectModal = ({config, controller}) => {
     const hasSelectedChain = !_.isEmpty(selectedChain)
     const isSingleChain = _.size(chains) === 1
 
-    const closeModal = () => dispatch(hideConnectModal())
+    const closeModal = () => dispatch(hideModal())
 
     useEffect(() => {
         setSelectedChain(isSingleChain ? chains[0] : '')
@@ -56,7 +53,11 @@ const ConnectModal = ({config, controller}) => {
                                 </div>
                             </div>
                         </div>
-                        {isConnected ? (<span className="logout" onClick={() => dispatch(controller.logout(chainKey))}><Close/></span>) : <NavigateNext/>}
+                        {isConnected ? (
+                            <span className="logout" onClick={() => dispatch(controller.logout(chainKey))}>
+                                <FontAwesomeIcon title="Disconnect" icon={faTimes}/>
+                            </span>
+                        ) : <FontAwesomeIcon icon={faChevronRight}/>}
                     </div>
                 )
             })
@@ -69,13 +70,12 @@ const ConnectModal = ({config, controller}) => {
                         <div key={`connect-wallet-btn-${i}`} className="connector"
                              onClick={() => {
                                  dispatch(controller.connect(selectedChain, {providerIdx: i}))
-                                 // dispatch(connect(selectedChain, handlers[selectedChain], {providerIdx: i}))
                              }}>
                             <div className="name">
                                 <img className={`${_.toLower(text)}-icon`} src={`images/${_.toLower(text)}.svg`} alt={text}/>
                                 <span>{text}</span>
                             </div>
-                            <NavigateNext/>
+                            <FontAwesomeIcon icon={faChevronRight}/>
                         </div>
                     )
                 })}
@@ -84,39 +84,17 @@ const ConnectModal = ({config, controller}) => {
     }
 
     return (
-        <Dialog open={visible}
-                className="connect-modal"
-                keepMounted={false}
-                onClose={closeModal}>
-            <DialogTitle>{!hasSelectedChain ? 'Accounts' : `Connect ${selectedChain} account`}</DialogTitle>
-            <DialogContent>
-                {renderContent()}
-            </DialogContent>
-            <DialogActions>
-                {!isSingleChain && hasSelectedChain && (
-                    <Button onClick={() => setSelectedChain('')}>
+        <Modal className="connect-modal" title={!hasSelectedChain ? 'Accounts' : `Connect ${selectedChain} account`}>
+            {renderContent()}
+            {!isSingleChain && hasSelectedChain && (
+                <div className="modal-buttons">
+                    <div className="button" onClick={() => setSelectedChain('')}>
                         Back
-                    </Button>
-                )}
-            </DialogActions>
-        </Dialog>
+                    </div>
+                </div>
+            )}
+        </Modal>
     )
-
-    // return (
-    //     <div className="modal">
-    //         <div className="modal-header">
-    //             Connect to a Wallet
-    //         </div>
-    //         <div className="modal-content">
-    //             {renderContent()}
-    //         </div>
-    //         <div className="modal-footer">
-    //             <Button onClick={closeModal} color="primary">
-    //                 Cancel
-    //             </Button>
-    //         </div>
-    //     </div>
-    // )
 }
 
 export default ConnectModal

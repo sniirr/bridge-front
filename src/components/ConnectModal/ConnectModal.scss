@@ -16,8 +16,8 @@
   .chain, .connector {
     @extend .center-aligned-spaced-row;
     height: 60px;
-    width: 360px;
     font-size: 1.2em;
+    padding: 0 20px;
 
     img {
       width: 20px;
@@ -30,18 +30,29 @@
     }
 
     svg path {
-      fill: #b4b4b4;
+      fill: #555;
+    }
+
+    svg.svg-inline--fa {
+      width: .4em;
     }
 
     &:not(:last-child) {
-      border-bottom: solid 1px #ccc;
+      border-bottom: solid 1px white;
+    }
+
+    &:first-child {
+      margin-top: 15px;
+    }
+
+    &:last-child {
+      margin-bottom: 15px;
     }
   }
 
   .chain {
     height: 80px;
-    font-size: 1.4em;
-    padding: 15px 0;
+    padding: 15px 20px;
 
     .name {
       height: 100%;
@@ -55,23 +66,18 @@
     }
 
     .account-name {
-      font-size: .65em;
+      font-size: 0.8em;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
-      max-width: 240px;
+      color: $green;
     }
 
     .logout {
-      align-self: flex-end;
       cursor: pointer;
 
       svg {
-        width: 20px;
-
-        path {
-          fill: red;
-        }
+        width: 0.5em;
       }
     }
 

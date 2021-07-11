@@ -34,6 +34,31 @@ body {
   }
 }
 
+.button {
+  background-image: linear-gradient(#93488e -50%, #4c3c8d);
+  padding: 10px 0;
+  border-radius: 5px;
+  text-align: center;
+  color: white;
+
+  &.disabled {
+    opacity: .7;
+    cursor: not-allowed;
+  }
+
+  &:not(.disabled) {
+    cursor: pointer;
+  }
+
+  &.register {
+    width: 110px;
+  }
+
+  &.transfer {
+    width: 140px;
+  }
+}
+
 .App {
   header {
     position: relative;
@@ -106,6 +131,35 @@ body {
           height: 2px;
           background-color: white;
         }
+      }
+    }
+  }
+
+  .modal-container {
+    .close {
+      display: none;
+    }
+
+    .modal {
+      border: solid 1px white;
+      background-color: #ddd;
+      padding: 0;
+      color: black;
+      width: 500px;
+      border-radius: 6px;
+
+      .modal-header {
+        background-image: linear-gradient(#4c3c8d -50%, #93488e);
+        padding: 16px 24px;
+        margin: 0;
+        font-size: 1.2em;
+        border-top-right-radius: 4px;
+        border-top-left-radius: 6px;
+      }
+
+      .modal-content {
+        padding: 0;
+        //background-color: #d5cdd6;
       }
     }
   }

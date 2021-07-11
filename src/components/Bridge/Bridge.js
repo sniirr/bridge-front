@@ -1,11 +1,10 @@
 import _ from 'lodash'
 import React, {useEffect, useState} from 'react'
 import {CheckCircleOutlineTwoTone, SwapHoriz} from '@material-ui/icons'
-import {Button} from '@material-ui/core'
 import './Bridge.scss'
 import {useDispatch, useSelector} from "react-redux"
 import Slider from 'rc-slider'
-import {showConnectModal} from "components/ConnectModal"
+import {showModal} from "shared/Modal";
 import {balanceSelector, chainCoreSelector} from "modules/dapp-core"
 import useOnLogin from "hooks/useOnLogin";
 import TOKENS from 'config/tokens.json'
@@ -129,7 +128,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                             <span className="address" title={address}>{address}</span>
                         </>
                     ) : (
-                        <div className="pointer red-text small-text" onClick={() => dispatch(showConnectModal([chainKey]))}>CONNECT WALLET</div>
+                        <div className="pointer red-text small-text" onClick={() => dispatch(showModal('connect', {chains: [chainKey]}))}>CONNECT WALLET</div>
                     )}
                 </div>
             </div>
