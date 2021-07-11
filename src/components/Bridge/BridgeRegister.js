@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import React, {useEffect, useState} from 'react'
-import {Button} from '@material-ui/core'
-import {useDispatch, useSelector} from "react-redux"
+import {useSelector} from "react-redux"
 import {chainCoreSelector} from "modules/dapp-core"
 import {regFeeSelector, BRIDGE_REGISTRY_ERROR} from "modules/dapp-bridge"
 import {amountToAsset} from "utils/utils"
@@ -9,7 +8,6 @@ import ActionButton from 'components/Common/ActionButton'
 
 const BridgeRegister = ({controller, isModify}) => {
 
-    const dispatch = useDispatch()
 
     const {address: connectedAddress} = useSelector(chainCoreSelector('ETH'))
     const [addressInput, setAddressInput] = useState('')
@@ -17,7 +15,8 @@ const BridgeRegister = ({controller, isModify}) => {
     const {error: registryError} = useSelector(controller.isRegisteredSelector)
 
     useEffect(() => {
-        dispatch(controller.fetchRegFee())
+        controller.fetchRegFee()
+        // dispatch(controller.fetchRegFee())
     }, [])
 
     useEffect(() => {
@@ -25,7 +24,8 @@ const BridgeRegister = ({controller, isModify}) => {
     }, [connectedAddress])
 
     const onRegisterClick = () => {
-        dispatch(controller.register(addressInput, [regFee, feeSymbol], isModify || registryError === BRIDGE_REGISTRY_ERROR.ACCOUNT_MISMATCH))
+        controller.register(addressInput, [regFee, feeSymbol], isModify || registryError === BRIDGE_REGISTRY_ERROR.ACCOUNT_MISMATCH)
+        // dispatch(controller.register(addressInput, [regFee, feeSymbol], isModify || registryError === BRIDGE_REGISTRY_ERROR.ACCOUNT_MISMATCH))
     }
 
     let mainText = ''

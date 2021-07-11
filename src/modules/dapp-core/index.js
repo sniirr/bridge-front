@@ -2,9 +2,9 @@ import _ from 'lodash'
 import CHAINS from 'config/chains.json'
 import {makeReducer, getHandler, showNotification} from 'modules/utils'
 
-export const initDappCore = (controllers) => {
+export const initDappCore = (controllers, tokens) => (dispatch, getState) => {
 
-    const initRpc = (chainKey) => async (dispatch, getState) => {
+    const initRpc = async (chainKey) => {
         const [handler, account] = getHandler(controllers, chainKey, 'initRpc', getState())
 
         try {
@@ -16,7 +16,7 @@ export const initDappCore = (controllers) => {
         }
     }
 
-    const connect = (chainKey, opts={}) => async (dispatch, getState) => {
+    const connect = async (chainKey, opts={}) => {
 
         const [handler, ] = getHandler(controllers, chainKey, 'connect', getState())
 
@@ -33,7 +33,7 @@ export const initDappCore = (controllers) => {
         }
     }
 
-    const fetchBalance = (chainKey, token) => async (dispatch, getState) => {
+    const fetchBalance = async (chainKey, token) => {
         const [handler, account] = getHandler(controllers, chainKey, 'fetchBalance', getState())
 
         try {
@@ -55,7 +55,7 @@ export const initDappCore = (controllers) => {
         }
     }
 
-    const logout = (chainKey) => async (dispatch, getState) => {
+    const logout = async (chainKey) => {
         const [handler, account] = getHandler(controllers, chainKey, 'logout', getState())
 
         try {
@@ -71,12 +71,28 @@ export const initDappCore = (controllers) => {
         }
     }
 
-    return {
+    const ctrl = {
         initRpc,
         connect,
         logout,
         fetchBalance,
     }
+
+    dispatch({
+        type: 'DAPP.CORE.SET_CTRL',
+        payload: {
+            ctrlName: 'core',
+            ctrl,
+        }
+    })
+
+    return ctrl
+    // return {
+    //     initRpc,
+    //     connect,
+    //     logout,
+    //     fetchBalance,
+    // }
 }
 
 // ACTIONS

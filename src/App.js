@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React from 'react'
 import 'rc-slider/assets/index.css';
 import 'css/shared.scss'
 import 'css/main.scss'
@@ -8,37 +8,27 @@ import {Modals, showModal} from "shared/Modal";
 import ConnectModal from "components/ConnectModal";
 import Notification from "components/Notification"
 import CHAINS from 'config/chains.json'
-import {initDappCore} from "modules/dapp-core"
-import ethCore from 'modules/dapp-core/impl/dapp-core.eth'
-import eosCore from 'modules/dapp-core/impl/dapp-core.eos'
-import {initBridge} from "modules/dapp-bridge";
-import ethBridge from 'modules/dapp-bridge/impl/dapp-bridge.eth'
-import eosBridge from 'modules/dapp-bridge/impl/dapp-bridge.eos'
 
 // init core
-const coreController = initDappCore({
-    EOS: eosCore,
-    ETH: ethCore,
-})
+// const coreController = initDappCore({
+//     EOS: eosCore,
+//     ETH: ethCore,
+// })
 
 // init bridge
 const registerOn = 'EOS'
-const bridgeController = initBridge({
-    EOS: eosBridge,
-    ETH: ethBridge,
-}, {registerOn: 'EOS'}, coreController)
+// const bridgeController = initBridge({
+//     EOS: eosBridge,
+//     ETH: ethBridge,
+// }, {registerOn: 'EOS'}, coreController)
 
 // init modals
 const modals = {
-    'connect': <ConnectModal config={CHAINS} controller={coreController}/>,
+    'connect': <ConnectModal config={CHAINS}/>,
 }
 
 function App() {
     const dispatch = useDispatch()
-
-    useEffect(() => {
-        dispatch(coreController.initRpc('EOS'))
-    }, [])
 
     return (
         <div className="App">
@@ -67,9 +57,7 @@ function App() {
                             Send tokens across bridges to Ethereum or EOS.
                         </div>
                     </div>
-                    <Bridge controller={bridgeController}
-                            coreController={coreController}
-                            supportedChains={['EOS', 'ETH']}
+                    <Bridge supportedChains={['EOS', 'ETH']}
                             registerOn={registerOn}
                             supportedTokens={['DAPP', 'USDC', 'DAI']}/>
                 </div>

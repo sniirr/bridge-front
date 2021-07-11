@@ -17,10 +17,14 @@ import BridgeTxStatus from './BridgeTxStatus'
 import {bridgeSelector} from "modules/dapp-bridge";
 import classNames from "classnames";
 import ActionButton from "components/Common/ActionButton";
+import {ctrlSelector} from "modules/dapp-core/controllers";
 
-const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
+const Bridge = ({supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
 
     const dispatch = useDispatch()
+
+    const controller = useSelector(ctrlSelector('bridge'))
+    const coreController = useSelector(ctrlSelector('core'))
 
     // chain
     const [chains, setChains] = useState(supportedChains)
@@ -62,20 +66,23 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
     const [txFeesTimer, setTxFeesTimer] = useState(-1)
 
     const {hasRpc} = useOnLogin(fromChainKey, () => {
-        dispatch(coreController.fetchBalance(fromChainKey, token))
+        coreController.fetchBalance(fromChainKey, token)
     })
 
     useOnLogin(registerOn, () => {
-        dispatch(controller.fetchRegistry())
+        controller.fetchRegistry()
+        // dispatch(controller.fetchRegistry())
     })
 
     useOnLogin('ETH', () => {
-        dispatch(controller.init('ETH'))
+        // dispatch(controller.init('ETH'))
+        controller.init('ETH')
     })
 
     useEffect(() => {
         if (hasRpc) {
-            dispatch(controller.fetchSupportedTokens())
+            controller.fetchSupportedTokens()
+            // dispatch(controller.fetchSupportedTokens())
         }
     }, [hasRpc])
 
@@ -89,7 +96,8 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                 interval: 10000,
                 timerId: txFeesTimer,
                 setTimerId: setTxFeesTimer,
-                pollFunc: () => dispatch(controller.fetchTransferFee(token)),
+                pollFunc: () => controller.fetchTransferFee(token),
+                // pollFunc: () => dispatch(controller.fetchTransferFee(token)),
             })
         }
 
@@ -105,9 +113,13 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
     useEffect(() => {
         setAmount((0).toFixed(token.precision))
         if (fromConnected) {
-            dispatch(coreController.fetchBalance(fromChainKey, token))
+            coreController.fetchBalance(fromChainKey, token)
         }
     }, [fromChainKey, selectedSymbol])
+
+    if (_.isNil(controller)) {
+        return null
+    }
 
     const onSliderChange = value => {
         setAmount((balance * value / 100).toFixed(6))
@@ -199,7 +211,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                             {!_.isEmpty(currentTxFee) && `Transaction Fee ${currentTxFee}`}
                         </span>
                         <ActionButton disabled={disabled} actionKey="transfer"
-                                onClick={() => dispatch(controller.transfer(fromChainKey, toChainKey, amount, token, infiniteApproval))}>
+                                onClick={() => controller.transfer(fromChainKey, toChainKey, amount, token, infiniteApproval)}>
                             Send Tokens
                         </ActionButton>
                     </div>
@@ -216,7 +228,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                     <FontAwesomeIcon icon={faAddressBook} className={classNames({disabled})} title="Change registered Ethereum address"
                                      onClick={() => !disabled && setShowModify(true)}/>
                 )}
-                <FontAwesomeIcon icon={faSync} className={classNames({disabled})} title={`Refresh fees${disabled ? ' (requires login)' : ''}`} onClick={() => !disabled && dispatch(controller.updatePrices())}/>
+                <FontAwesomeIcon icon={faSync} className={classNames({disabled})} title={`Refresh fees${disabled ? ' (requires login)' : ''}`} onClick={() => !disabled && controller.updatePrices()}/>
                 <FontAwesomeIcon icon={faInfo} title="DAPP Bridge guide" onClick={() => console.log('guide')}/>
             </div>
         </div>

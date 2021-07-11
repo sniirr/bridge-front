@@ -75,7 +75,7 @@ const BridgeTxStatus = ({controller}) => {
                 <div className="tx-id">TX: <a target="_blank" rel="noreferrer" href={getExplorerLink(toChainKey, receivedTxId)}>{receivedTxId}</a></div>
             )}
             <div className="close-icon">
-                <FontAwesomeIcon icon={faTimes} onClick={() => dispatch(controller.clearTxStatus())}/>
+                <FontAwesomeIcon icon={faTimes} onClick={() => controller.clearTxStatus()}/>
             </div>
         </div>
     )

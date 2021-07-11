@@ -8,11 +8,13 @@ import useOnLogin from "hooks/useOnLogin"
 import Modal, {hideModal} from "shared/Modal";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faChevronRight, faTimes} from '@fortawesome/free-solid-svg-icons'
+import {ctrlSelector} from "modules/dapp-core/controllers";
 
-const ConnectModal = ({config, chains, controller}) => {
+const ConnectModal = ({config, chains}) => {
 
     const dispatch = useDispatch()
 
+    const controller = useSelector(ctrlSelector('core'))
     const dappcore = useSelector(dappCoreSelector)
 
     const [selectedChain, setSelectedChain] = useState('')
@@ -54,7 +56,7 @@ const ConnectModal = ({config, chains, controller}) => {
                             </div>
                         </div>
                         {isConnected ? (
-                            <span className="logout" onClick={() => dispatch(controller.logout(chainKey))}>
+                            <span className="logout" onClick={() => controller.logout(chainKey)}>
                                 <FontAwesomeIcon title="Disconnect" icon={faTimes}/>
                             </span>
                         ) : <FontAwesomeIcon icon={faChevronRight}/>}
@@ -68,9 +70,7 @@ const ConnectModal = ({config, chains, controller}) => {
                 {_.map(config[selectedChain].connectors, (text, i) => {
                     return (
                         <div key={`connect-wallet-btn-${i}`} className="connector"
-                             onClick={() => {
-                                 dispatch(controller.connect(selectedChain, {providerIdx: i}))
-                             }}>
+                             onClick={() => controller.connect(selectedChain, {providerIdx: i})}>
                             <div className="name">
                                 <img className={`${_.toLower(text)}-icon`} src={`images/${_.toLower(text)}.svg`} alt={text}/>
                                 <span>{text}</span>
