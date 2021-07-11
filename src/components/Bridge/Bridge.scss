@@ -1,15 +1,131 @@
-@import "css/vars";
+.dapp-bridge {
+  $red: #e64c22;
+  $green: #61ad4f;
+  $panel-width: 680px;
 
-.page.bridge {
-  width: 1200px;
-  padding-top: 100px;
-  display: flex;
-  justify-content: space-evenly;
+  position: relative;
+  padding: 40px;
+  border-radius: 12px;
+  width: $panel-width;
+  min-width: $panel-width;
+  margin: 0 auto;
+  border: solid 2px white;
+  background-color: black;
 
-  .center {
-    display: flex;
-    align-items: flex-start;
-    width: 100%;
+  .row {
+    &:not(:first-child) {
+      margin-top: 40px;
+    }
+
+    &.checkbox-row {
+      margin-top: 20px;
+    }
+
+    &.text-row {
+      margin-bottom: 46px;
+    }
+  }
+
+  .small-text {
+    font-size: .85em;
+  }
+
+  .red-text {
+    color: $red;
+  }
+
+  .button {
+    background-image: linear-gradient(#93488e -50%, #4c3c8d);
+    padding: 10px 0;
+    border-radius: 5px;
+    text-align: center;
+
+    &.disabled {
+      opacity: .7;
+      cursor: not-allowed;
+    }
+
+    &:not(.disabled) {
+      cursor: pointer;
+    }
+
+    &.register {
+      width: 110px;
+    }
+
+    &.transfer {
+      width: 140px;
+    }
+  }
+
+  .slider {
+    flex-grow: 2;
+    margin: -10px 15px 0 0;
+
+    .rc-slider-track {
+      background-color: #4090b5;
+    }
+
+    .rc-slider-handle, .rc-slider-dot-active {
+      border-color: #4090b5;
+    }
+
+    .rc-slider-disabled {
+      background-color: transparent;
+      opacity: .7;
+      cursor: not-allowed !important;
+    }
+  }
+
+  .dropdown {
+    svg {
+      width: .5em;
+      margin-left: 5px;
+    }
+
+    .dropdown-menu {
+      font-size: .8em;
+    }
+  }
+
+  input[type=text] {
+    height: 2em;
+    font-size: 1.2em;
+    padding: 0 10px;
+    width: $panel-width - 80px;
+
+    &:focus {
+      outline: none;
+    }
+
+    &[disabled] {
+      cursor: not-allowed;
+    }
+  }
+
+  .item {
+    &.item-group {
+      margin-right: 80px;
+    }
+
+    .item-title {
+      font-size: 0.8em;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .item-text {
+      font-size: 1.4em;
+      position: relative;
+
+      .small-text {
+        font-size: .6em;
+      }
+    }
+
+    .item-input {
+      margin-top: 2px;
+    }
   }
 
   .toolbar {
@@ -26,49 +142,6 @@
         cursor: not-allowed;
       }
     }
-  }
-
-  .info {
-    position: relative;
-    flex-grow: 2;
-    padding-right: 100px;
-    color: white;
-
-    h1 {
-      margin: 0 0 30px;
-      font-size: 2.25em;
-    }
-
-    p {
-      margin: 30px 0;
-      font-style: italic;
-      line-height: 1.5em;
-      font-size: 1.1em;
-    }
-
-    .list-item {
-      position: relative;
-      margin-bottom: 20px;
-      font-style: italic;
-
-      &:before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: -10px;
-        width: 2px;
-        height: 2px;
-        background-color: white;
-      }
-    }
-  }
-
-  .bridge-panel {
-    width: 680px;
-    margin-left: auto;
-    margin-right: auto;
-    border: solid 2px white;
-    background-color: black;
   }
 
   .chains-row {
@@ -117,57 +190,6 @@
     }
   }
 
-  .row:not(:first-child) {
-    margin-top: 40px;
-  }
-
-  .row.checkbox-row {
-    margin-top: 20px;
-  }
-
-  .slider {
-    flex-grow: 2;
-    margin: -10px 15px 0 0;
-
-    .rc-slider-track {
-      background-color: #4090b5;
-    }
-
-    .rc-slider-handle, .rc-slider-dot-active {
-      border-color: #4090b5;
-    }
-
-    .rc-slider-disabled {
-      background-color: transparent;
-      opacity: .7;
-      cursor: not-allowed !important;
-    }
-  }
-
-  .row.text-row {
-    margin-bottom: 46px;
-  }
-  
-  .max-balance {
-    cursor: pointer;
-  }
-
-  .dropdown {
-    svg {
-      width: .5em;
-      margin-left: 5px;
-    }
-
-    .dropdown-menu {
-      //background-color: $section-dark-bg;
-      font-size: .8em;
-
-      //.dropdown-item {
-      //  padding: 12px 24px 12px 0;
-      //}
-    }
-  }
-
   .tx-status {
     margin-top: 40px;
     position: relative;
@@ -210,32 +232,6 @@
         color: $green;
         margin-left: 5px;
       }
-    }
-  }
-
-  .Mui-disabled {
-    background-color: #aaa;
-    color: #5b5b5b;
-    cursor: not-allowed;
-  }
-
-  input[type=text] {
-    width: 600px;
-  }
-
-  .pointer.red {
-    font-size: .875em;
-  }
-
-  .button {
-    padding: 10px 0;
-
-    &.register {
-      width: 110px;
-    }
-
-    &.transfer {
-      width: 140px;
     }
   }
 }

@@ -1,0 +1,13 @@
+.center-aligned-row {
+  display: flex;
+  align-items: center;
+}
+
+.center-aligned-spaced-row {
+  @extend .center-aligned-row;
+  justify-content: space-between;
+}
+
+.pointer {
+  cursor: pointer;
+}

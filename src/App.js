@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react'
 import 'rc-slider/assets/index.css';
+import 'css/shared.scss'
 import 'css/main.scss'
 import Bridge from "components/Bridge";
 import {useDispatch} from "react-redux";

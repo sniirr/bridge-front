@@ -129,7 +129,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                             <span className="address" title={address}>{address}</span>
                         </>
                     ) : (
-                        <div className="pointer red" onClick={() => dispatch(showConnectModal([chainKey]))}>CONNECT WALLET</div>
+                        <div className="pointer red-text small-text" onClick={() => dispatch(showConnectModal([chainKey]))}>CONNECT WALLET</div>
                     )}
                 </div>
             </div>
@@ -137,7 +137,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
     }
 
     return (
-        <div className="section bridge-panel">
+        <div className="dapp-bridge">
             <div className="row chains-row">
                 {renderChainBox(fromChainKey, 'From')}
                 <div className="arrow" onClick={() => setChains([toChainKey, fromChainKey])}>
@@ -173,7 +173,7 @@ const Bridge = ({controller, coreController, supportedChains = ['EOS', 'ETH'], s
                             <div className="item-title">
                                 <span>Amount</span>
                                 <span>
-                                  Max: <span className="max-balance"
+                                  Max: <span className="max-balance pointer"
                                              onClick={() => !disabled && setAmount(balance.toFixed(token.precision))}>
                                       {amountToAsset(balance, token, false, true)}
                                   </span>
