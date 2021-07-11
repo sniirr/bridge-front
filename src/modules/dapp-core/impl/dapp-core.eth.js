@@ -1,5 +1,4 @@
 import _ from "lodash";
-import BRIDGE from 'config/bridge.json'
 import TOKENS from "config/tokens.json";
 import CHAINS from 'config/chains.json'
 import tokenAbi from 'config/abi/tokenAbi'
@@ -8,41 +7,6 @@ import { ethers } from "ethers"
 const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 
 const tokens = _.filter(TOKENS, ({addresses}) => _.has(addresses, 'ETH'))
-
-// const tokenContracts = _.zipObject(
-//     _.map(tokens, 'symbol'),
-//     _.map(tokens, ({addresses}) => {
-//         // const c = new ethers.Contract(addresses.ETH, tokenAbi, provider)
-//         //
-//         // const myAddress = "0x6fAe7852634b6E111a3dAc4810501813b12e7BeE";
-//         // const filter = c.filters.Transfer(null, myAddress)
-//         //
-//         // c.on(filter, (from, to, amount, event) => {
-//         //     // The to will always be "address"
-//         //     console.log(`I got ${ ethers.utils.formatEther(amount) } from ${ from }.`);
-//         // });
-//         //
-//         // return c
-//         return new ethers.Contract(addresses.ETH, tokenAbi, provider)
-//     })
-// )
-
-// const init = (account, tokens) => {
-//     if (_.isNil(account.signer)) {
-//         return console.error(`Failed to init, signer is null`)
-//     }
-//
-//     const contracts = _.zipObject(
-//         _.map(tokens, 'symbol'),
-//         _.map(tokens, ({addresses}) => {
-//             return new ethers.Contract(addresses.ETH, tokenAbi, provider)
-//         })
-//     )
-//
-//     return {
-//         contracts
-//     }
-// }
 
 export const connect = async ({providerIdx}) => {
     const {ethereum} = window;

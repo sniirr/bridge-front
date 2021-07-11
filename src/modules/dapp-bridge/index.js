@@ -3,7 +3,6 @@ import _ from "lodash";
 import {chainCoreSelector} from "modules/dapp-core";
 import config from 'config/bridge.json'
 import {showNotification} from "modules/utils";
-import CHAINS from "config/chains.json";
 import {clearActionStatus, setActionPending} from "store/actionStatusReducer";
 
 export const BRIDGE_REGISTRY_ERROR = {
@@ -119,10 +118,6 @@ export const initBridge = (controllers, {registerOn}, coreController) => {
         try {
             dispatch(setActionPending('register'))
             const result = await handler(chain, newAddress, regFee, isModify)
-            // dispatch({
-            //     type: 'BRIDGE.REGISTER_SUCCESS',
-            //     payload: result
-            // })
             dispatch(awaitRegister(registerOn))
         }
         catch (e){
@@ -206,8 +201,6 @@ export const initBridge = (controllers, {registerOn}, coreController) => {
         try {
             dispatch(setActionPending('transfer'))
             const response = await handler(chain, amount, token, infiniteApproval)
-
-            // const response = {transaction_id :'skdfhskdhfkjsdhf'}
 
             dispatch({
                 type: 'BRIDGE.SET_TX_STATUS',
@@ -293,9 +286,7 @@ export const bridgeReducer = makeReducer({
     'BRIDGE.CLEAR_TX_STATUS': state => ({
         ...state,
         txStatus: INITIAL_STATE.txStatus,
-        // active: false,
     }),
-
     'BRIDGE.REGISTER_SUCCESS': reduceSetKey('regResult'),
     'BRIDGE.TRANSFER_SUCCESS': reduceSetKey('transferResult'),
     'BRIDGE.UPDATE_PRICES_SUCCESS': reduceSetKey('pricesResult'),

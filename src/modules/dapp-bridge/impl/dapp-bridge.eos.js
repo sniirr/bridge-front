@@ -3,7 +3,6 @@ import {fetchOneByPk, fetchOne, fetchTableData, createTransferAction} from 'util
 import {BRIDGE_REGISTRY_ERROR} from '../'
 import config from 'config/bridge.json'
 import {amountToAsset, poll} from "utils/utils";
-import TOKENS from 'config/tokens.json'
 
 // actions
 const fetchSupportedTokens = async (account, contract) => {
