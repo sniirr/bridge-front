@@ -5,15 +5,15 @@ import tokenpocket from 'eos-transit-tokenpocket-provider'
 import AnchorLinkProvider from 'eos-transit-anchorlink-provider'
 import { JsonRpc } from 'eosjs'
 
-const initRpc = ({chain}) => {
-    const {host, port, protocol} = chain
+const initRpc = ({chain}) => () => {
+    const {host, port, protocol} = chain.chainInfo
     return new JsonRpc(`${protocol}://${host}:${port}`)
 }
 
-const connect = async ({providerIdx}, {chain}) => {
+const connect = ({chain}) => async ({providerIdx}) => {
     const accessContext = initAccessContext({
         appName: 'DeFights',
-        network: chain,
+        network: chain.chainInfo,
         walletProviders: [
             scatter(),
             AnchorLinkProvider(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)),
@@ -34,8 +34,8 @@ const connect = async ({providerIdx}, {chain}) => {
     }
 }
 
-const fetchBalance = async (chain, account, {symbol, addresses}) => {
-    const rpc = _.get(account, 'wallet.eosApi.rpc')
+const fetchBalance = ({chain, account}) => async ({symbol, addresses}) => {
+    const {rpc} = chain
 
     if (_.isEmpty(rpc)) return
 
@@ -43,7 +43,7 @@ const fetchBalance = async (chain, account, {symbol, addresses}) => {
     return _.size(balances) === 1 ? balances[0] : 0
 }
 
-const logout = async () => {}
+const logout = () => async () => {}
 
 export default {
     init: data => data,

@@ -79,9 +79,9 @@ const Bridge = ({supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'D
         controller.fetchRegistry()
     })
 
-    useOnLogin('ETH', () => {
-        controller.init('ETH')
-    })
+    // useOnLogin('ETH', () => {
+    //     controller.init('ETH')
+    // })
 
     useEffect(() => {
         if (!_.isEmpty(tokens)) {

@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import {getHandler, showNotification} from 'modules/utils'
+import {getHandler, getMethod, showNotification} from 'modules/utils'
 import {setChains, updateChain} from "./chains";
 import {setTokens, tokensSelector} from './tokens'
 import {clearAccount, setBalance, updateAccount} from "modules/dapp-core/accounts";
@@ -9,7 +9,7 @@ export const initDappCore = (controllers, {chains, tokens}) => (dispatch, getSta
     // init
     try {
         const data = _.reduce(chains, (memo, chain, chainKey) => {
-            const [handler,] = getHandler(controllers, chainKey, 'init')
+            const handler = getMethod(controllers, chainKey, 'init')
             return handler(memo)
         }, {chains, tokens})
 
@@ -21,10 +21,10 @@ export const initDappCore = (controllers, {chains, tokens}) => (dispatch, getSta
 
     // methods
     const initRpc = async (chainKey) => {
-        const [handler, chain] = getHandler(controllers, chainKey, 'initRpc', getState())
+        const {handler} = getHandler(controllers, chainKey, 'initRpc', getState())
 
         try {
-            const rpc = await handler(chain)
+            const rpc = await handler()
             dispatch(updateChain(chainKey, {rpc}))
         } catch (e) {
             console.error(e)
@@ -34,11 +34,11 @@ export const initDappCore = (controllers, {chains, tokens}) => (dispatch, getSta
     const connect = async (chainKey, opts = {}) => {
 
         const state = getState()
-        const [handler, chain] = getHandler(controllers, chainKey, 'connect', state)
+        const {handler, context: {chain}} = getHandler(controllers, chainKey, 'connect', state)
 
         try {
             const tokens = tokensSelector(state)
-            const account = await handler(opts, chain, tokens)
+            const account = await handler(opts, tokens)
             if (!_.isNil(account)) {
                 dispatch(updateAccount(chainKey, account))
                 dispatch(showNotification({type: 'success', text: `Connected to ${chain.name}`}))
@@ -53,10 +53,10 @@ export const initDappCore = (controllers, {chains, tokens}) => (dispatch, getSta
     }
 
     const fetchBalance = async (chainKey, token) => {
-        const [handler, chain, account] = getHandler(controllers, chainKey, 'fetchBalance', getState())
+        const {handler} = getHandler(controllers, chainKey, 'fetchBalance', getState())
 
         try {
-            const balance = await handler(chain, account, token)
+            const balance = await handler(token)
             if (!_.isNil(balance)) {
                 const b = parseFloat(balance)
                 dispatch(setBalance(chainKey, token.symbol,  _.isNumber(b) ? b : 0))
@@ -67,7 +67,7 @@ export const initDappCore = (controllers, {chains, tokens}) => (dispatch, getSta
     }
 
     const logout = async (chainKey) => {
-        const [handler, chain] = getHandler(controllers, chainKey, 'logout', getState())
+        const {handler, context: {chain}} = getHandler(controllers, chainKey, 'logout', getState())
 
         try {
             await handler()

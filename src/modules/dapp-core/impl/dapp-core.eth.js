@@ -23,11 +23,13 @@ export const init = ({chains, tokens}) => {
     }
 }
 
-export const connect = async ({providerIdx}, {chainId, provider}, tokens) => {
+export const connect = ({chain}) => async ({providerIdx}, tokens) => {
     const {ethereum} = window;
-    const {currChainId} = ethereum;
+    const {chainId: currChainId} = ethereum;
 
-    if (currChainId === chainId) {
+    const {chainInfo, provider} = chain
+
+    if (currChainId === chainInfo.chainId) {
         if (!!ethereum) {
             await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
@@ -65,9 +67,7 @@ export const connect = async ({providerIdx}, {chainId, provider}, tokens) => {
 
             return {
                 address,
-                // provider,
                 signer,
-                // contracts,
             }
         }
     } else {
@@ -76,7 +76,7 @@ export const connect = async ({providerIdx}, {chainId, provider}, tokens) => {
     return null
 }
 
-export const fetchBalance = async (chain, account, {symbol, precision, contracts}) => {
+export const fetchBalance = ({account}) => async ({precision, contracts}) => {
     const contract = _.get(contracts, 'ETH')
 
     if (_.isNil(contract)) return
@@ -86,7 +86,7 @@ export const fetchBalance = async (chain, account, {symbol, precision, contracts
     return ethers.utils.formatUnits(balance, precision)
 }
 
-const logout = async () => {}
+const logout = () => async () => {}
 
 export default {
     init,

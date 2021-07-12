@@ -1,7 +1,7 @@
 {
   "EOS": {
     "name": "EOS",
-    "chain": {
+    "chainInfo": {
       "chainId": "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906",
       "host": "eos.greymass.com",
       "port": 443,
@@ -11,7 +11,7 @@
   },
   "ETH": {
     "name": "Ethereum",
-    "chain": {
+    "chainInfo": {
       "chainId": "0x1"
     },
     "connectors": ["MetaMask"]

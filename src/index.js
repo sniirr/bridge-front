@@ -10,10 +10,11 @@ import {initDappCore} from "modules/dapp-core";
 import eosCore from "modules/dapp-core/impl/dapp-core.eos";
 import ethCore from "modules/dapp-core/impl/dapp-core.eth";
 import {initBridge} from "modules/dapp-bridge";
-import eosBridge from "modules/dapp-bridge/impl/dapp-bridge.eos";
-import ethBridge from "modules/dapp-bridge/impl/dapp-bridge.eth";
+import {createController as createEosBridge} from "modules/dapp-bridge/impl/dapp-bridge.eos";
+import {createController as createEthBridge} from "modules/dapp-bridge/impl/dapp-bridge.eth";
 import tokens from 'config/tokens.json'
 import chains from 'config/chains.json'
+import bridge from 'config/bridge.json'
 
 const store = makeStore()
 
@@ -32,9 +33,9 @@ const coreController = _.get(getState(), 'controllers.core')
 coreController.initRpc('EOS')
 
 dispatch(initBridge({
-    EOS: eosBridge,
-    ETH: ethBridge,
-}, {registerOn: 'EOS'}))
+    EOS: createEosBridge(bridge),
+    ETH: createEthBridge(bridge),
+}, bridge, {chains, tokens}))
 
 // ------------------------------------------
 // end init dapp-fronts
