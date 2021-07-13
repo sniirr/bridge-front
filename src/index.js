@@ -6,9 +6,9 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {Provider} from 'react-redux';
 import createStore from 'store/createStore'
-import {initDappCore} from "modules/dapp-core";
-import eosCore from "modules/dapp-core/impl/dapp-core.eos";
-import ethCore from "modules/dapp-core/impl/dapp-core.eth";
+import {initDappCore} from "shared/dapp-core";
+import eosCore from "shared/dapp-core/impl/dapp-core.eos";
+import ethCore from "shared/dapp-core/impl/dapp-core.eth";
 import {initBridge} from "modules/dapp-bridge";
 import {createController as createEosBridge} from "modules/dapp-bridge/impl/dapp-bridge.eos";
 import {createController as createEthBridge} from "modules/dapp-bridge/impl/dapp-bridge.eth";

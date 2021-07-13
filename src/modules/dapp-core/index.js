@@ -1,5 +1,0 @@
-export {initDappCore} from './dapp-core'
-export {controllersReducer} from 'modules/dapp-core/redux/controllers'
-export {chainsReducer} from 'modules/dapp-core/redux/chains'
-export {accountsReducer} from 'modules/dapp-core/redux/accounts'
-export {tokensReducer} from 'modules/dapp-core/redux/tokens'

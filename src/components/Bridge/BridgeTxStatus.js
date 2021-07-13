@@ -5,7 +5,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCheck, faMinus, faTimes} from '@fortawesome/free-solid-svg-icons'
 import classNames from "classnames";
 import ClipLoader from "react-spinners/ClipLoader"
-import {chainSelector} from "modules/dapp-core/redux/chains";
+import {chainSelector} from "shared/dapp-core";
 
 const StatusMarker = ({status}) => {
 
