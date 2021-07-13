@@ -1,6 +1,6 @@
 import {createLogger} from 'redux-logger';
 import {createDappStore} from "shared/dapp-core";
-import {bridgeReducer} from "modules/dapp-bridge"
+import {bridgeReducer} from "shared/dapp-bridge"
 import {notificationReducer} from "shared/dapp-common/components/Notification"
 import {actionStatusReducer} from 'shared/dapp-common/components/ActionButton'
 import {modalReducer} from "shared/dapp-common/components/Modal"

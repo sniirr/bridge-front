@@ -1,11 +1,11 @@
 import React from 'react'
 import 'rc-slider/assets/index.css';
-import 'css/shared.scss'
-import 'css/main.scss'
+import 'shared/dapp-common/utils/shared.scss'
+import 'App.scss'
 import {useDispatch} from "react-redux";
-import Bridge from "components/Bridge";
+import {Bridge} from "shared/dapp-bridge";
 import {Modals, showModal} from "shared/dapp-common/components/Modal";
-import ConnectModal from "components/ConnectModal";
+import ConnectModal from "shared/dapp-common/components/ConnectModal";
 import Notification from "shared/dapp-common/components/Notification"
 
 const modals = {

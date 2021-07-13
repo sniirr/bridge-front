@@ -1,6 +1,6 @@
 import _ from "lodash";
 import {fetchOneByPk, fetchOne, fetchTableData, createTransferAction} from 'shared/dapp-common/utils/eosApi'
-import {BRIDGE_REGISTRY_ERROR} from '../'
+import {BRIDGE_REGISTRY_ERROR} from 'shared/dapp-bridge/dapp-bridge'
 import {amountToAsset, poll} from "shared/dapp-common/utils/utils";
 
 // actions

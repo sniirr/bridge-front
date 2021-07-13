@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import bridgeAbi from "config/abi/bridgeAbi"
+import bridgeAbi from "shared/dapp-bridge/utils/bridgeAbi"
 import web3 from 'shared/dapp-common/utils/ethApi'
 import {ethers} from "ethers"
 

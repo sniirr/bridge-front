@@ -1,15 +1,4 @@
-@import "css/vars";
-
-.center-aligned-row {
-  display: flex;
-  align-items: center;
-}
-
-.center-aligned-spaced-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+@import "shared/dapp-common/utils/mixins";
 
 .connect-modal {
 
@@ -87,7 +76,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
-      color: $green;
+      color: var(--success-color);
     }
 
     .logout {
@@ -102,7 +91,7 @@
       cursor: pointer;
 
       .account-name {
-        color: red;
+        color: var(--error-color);
         font-style: italic;
       }
     }

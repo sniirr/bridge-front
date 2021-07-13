@@ -13,14 +13,14 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTimes, faAddressBook, faSync, faInfo} from '@fortawesome/free-solid-svg-icons'
 import BridgeRegister from "./BridgeRegister"
 import BridgeTxStatus from './BridgeTxStatus'
-import {bridgeSelector} from "modules/dapp-bridge";
+import {bridgeSelector} from "shared/dapp-bridge";
 import classNames from "classnames";
 import ActionButton from "shared/dapp-common/components/ActionButton";
 import useOnRpcReady from "shared/dapp-common/hooks/useOnRpcReady";
 import AssetInput from "shared/dapp-common/components/AssetInput";
 import {useForm} from "react-hook-form";
 
-const Bridge = ({supportedChains, supportedTokens}) => {
+export const Bridge = ({supportedChains, supportedTokens}) => {
 
     const dispatch = useDispatch()
 

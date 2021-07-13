@@ -1,5 +1,5 @@
 import _ from "lodash";
-import tokenAbi from 'config/abi/tokenAbi'
+import tokenAbi from 'shared/dapp-common/utils/tokenAbi'
 import { ethers } from "ethers"
 
 export const init = ({chains, tokens}) => {

@@ -1,6 +1,6 @@
 import React from 'react'
 import {useSelector} from "react-redux"
-import {bridgeSelector} from "modules/dapp-bridge"
+import {bridgeSelector} from "shared/dapp-bridge/dapp-bridge"
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCheck, faMinus, faTimes} from '@fortawesome/free-solid-svg-icons'
 import classNames from "classnames";
