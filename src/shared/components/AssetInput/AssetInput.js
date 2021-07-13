@@ -5,7 +5,7 @@ import {amountToAsset, removeComma} from "utils/utils";
 import './AssetInput.scss'
 
 
-export const AssetInput = ({token, name = "amount", label, apiKey, maxAmount, withSymbol, register, setValue, onChange, error, disabled, canBeZero, validations = {}, ...inputProps}) => {
+export const AssetInput = ({token, name = "amount", label, apiKey, maxAmount, register, setValue, onChange, error, disabled, canBeZero, validations = {}, ...inputProps}) => {
     const withMax = _.isNumber(maxAmount)
 
     // useApiStatus(apiKey, () => setValue(name, 0))

@@ -80,8 +80,6 @@ const Bridge = ({supportedChains, supportedTokens}) => {
         defaultValues: {amount: '0'}
     })
 
-    console.log('FORM ERRORS', errors)
-
     const amount = watch('amount')
 
     const onSubmit = () => {
@@ -139,7 +137,6 @@ const Bridge = ({supportedChains, supportedTokens}) => {
 
     const onSliderChange = value => {
         setInputAmount(balance * value / 100)
-        // setValue('amount', balance * value / 100, {shouldValidate: true})
     }
 
     const renderChainBox = (chainKey, direction) => {

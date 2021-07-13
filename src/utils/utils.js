@@ -26,7 +26,7 @@ export const amountToAsset = (amount, {symbol, precision}, withSymbol = true, pr
     const f = getFormat(p)
     const format = prettify ? '0,' + f : f
     const num = numeral(_.isString(amount) ? parseFloat(amount) : amount)
-    return `${(_.isNumber(num) ? num.format(format) : parseFloat(amount).toFixed(p))}${withSymbol ? (' ' + symbol) : ''}`
+    return `${num.format(format)}${withSymbol ? (' ' + symbol) : ''}`
 }
 
 export const removeComma = v => (v + '').replace(/\,/g, '')

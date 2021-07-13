@@ -1,28 +1,38 @@
 import _ from 'lodash'
-import React, {useEffect, useState} from 'react'
+import React, {useEffect} from 'react'
 import {useSelector} from "react-redux"
 import {accountSelector} from "modules/dapp-core/accounts"
 import {regFeeSelector, BRIDGE_REGISTRY_ERROR} from "modules/dapp-bridge"
 import {amountToAsset} from "utils/utils"
 import ActionButton from 'components/Common/ActionButton'
+import {useForm} from "react-hook-form";
+import web3 from 'utils/api/ethApi'
 
 const BridgeRegister = ({controller, isModify}) => {
 
     const {address: connectedAddress} = useSelector(accountSelector('ETH'))
-    const [addressInput, setAddressInput] = useState('')
     const [regFee, feeSymbol] = useSelector(regFeeSelector)
     const {error: registryError} = useSelector(controller.isRegisteredSelector)
+
+    const {register, handleSubmit, watch, formState: { errors }, setValue} = useForm({
+        mode: 'onChange',
+        reValidateMode: 'onChange',
+        criteriaMode: 'all',
+        defaultValues: {amount: '0'}
+    })
+
+    const address = watch('address')
 
     useEffect(() => {
         controller.fetchRegFee()
     }, [])
 
     useEffect(() => {
-        setAddressInput(isModify ? '' : connectedAddress)
+        setValue('address', isModify ? '' : connectedAddress, {shouldValidate: true})
     }, [connectedAddress])
 
-    const onRegisterClick = () => {
-        controller.register(addressInput, [regFee, feeSymbol], isModify || registryError === BRIDGE_REGISTRY_ERROR.ACCOUNT_MISMATCH)
+    const onSubmit = () => {
+        controller.register(address, [regFee, feeSymbol], isModify || registryError === BRIDGE_REGISTRY_ERROR.ACCOUNT_MISMATCH)
     }
 
     let mainText = ''
@@ -40,21 +50,33 @@ const BridgeRegister = ({controller, isModify}) => {
         secondaryText = 'please switch account or modify registry'
     }
 
+    const hasError = !_.isEmpty(address) && _.has(errors, 'address')
+
     return (
         <>
             <div className="row text-row">
                 <p>{mainText}</p>
                 {!_.isEmpty(secondaryText) && (<p className="small-text">{secondaryText}</p>)}
             </div>
-            <div className="row input-container">
-                <input className="input" type="text" value={addressInput} placeholder="Enter your ETH address"
-                       onChange={e => setAddressInput(e.target.value)}/>
+            <div className="row input">
+                <input type="text"
+                       placeholder="Enter your ETH address"
+                       {...register('address', {
+                            validate: {
+                                ethAddress: v => web3.utils.isAddress(v) || 'Invalid Ethereum address',
+                                sameAddress: v => v !== connectedAddress || 'Must be a different address then current registered address'
+                            }
+                       })}
+                />
+                {hasError && (
+                    <div className="error">{_.get(errors, 'address.message')}</div>
+                )}
             </div>
             <div className="row center-aligned-spaced-row" style={{textAlign: 'right'}}>
                 <span className="info-message">
                     {regFee > 0 && `Registration Fee ${amountToAsset(regFee, {symbol: feeSymbol, precision: 4}, true, true)}`}
                 </span>
-                <ActionButton actionKey="register" onClick={onRegisterClick}>Register</ActionButton>
+                <ActionButton actionKey="register" onClick={handleSubmit(onSubmit)}>Register</ActionButton>
             </div>
         </>
     )
