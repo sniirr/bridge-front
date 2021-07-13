@@ -5,7 +5,7 @@ import './Bridge.scss'
 import {useDispatch, useSelector} from "react-redux"
 import Slider from 'rc-slider'
 import {showModal} from "shared/dapp-common/components/Modal";
-import {accountSelector, balanceSelector} from "modules/dapp-core/accounts"
+import {accountSelector, balanceSelector} from "modules/dapp-core/redux/accounts"
 import useOnLogin from "shared/dapp-common/hooks/useOnLogin";
 import {amountToAsset, poll} from "shared/dapp-common/utils/utils"
 import Dropdown from 'shared/dapp-common/components/Dropdown'
@@ -16,9 +16,9 @@ import BridgeTxStatus from './BridgeTxStatus'
 import {bridgeSelector} from "modules/dapp-bridge";
 import classNames from "classnames";
 import ActionButton from "shared/dapp-common/components/ActionButton";
-import {ctrlSelector} from "modules/dapp-core/controllers";
+import {ctrlSelector} from "modules/dapp-core/redux/controllers";
 import useOnRpcReady from "shared/dapp-common/hooks/useOnRpcReady";
-import {tokenSelector} from "modules/dapp-core/tokens";
+import {tokenSelector} from "modules/dapp-core/redux/tokens";
 import AssetInput from "shared/dapp-common/components/AssetInput";
 import {useForm} from "react-hook-form";
 

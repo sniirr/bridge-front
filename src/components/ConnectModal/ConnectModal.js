@@ -7,9 +7,9 @@ import useOnLogin from "shared/dapp-common/hooks/useOnLogin"
 import Modal, {hideModal} from "shared/dapp-common/components/Modal";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faChevronRight, faTimes} from '@fortawesome/free-solid-svg-icons'
-import {ctrlSelector} from "modules/dapp-core/controllers";
-import {accountsSelector} from "modules/dapp-core/accounts";
-import {chainsSelector} from "modules/dapp-core/chains";
+import {ctrlSelector} from "modules/dapp-core/redux/controllers";
+import {accountsSelector} from "modules/dapp-core/redux/accounts";
+import {chainsSelector} from "modules/dapp-core/redux/chains";
 
 const ConnectModal = ({activeChains}) => {
 

@@ -5,7 +5,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {Provider} from 'react-redux';
-import makeStore from './store/makeStore'
+import createStore from 'store/createStore'
 import {initDappCore} from "modules/dapp-core";
 import eosCore from "modules/dapp-core/impl/dapp-core.eos";
 import ethCore from "modules/dapp-core/impl/dapp-core.eth";
@@ -20,7 +20,7 @@ import bridge from 'config/bridge.json'
 // import chains from 'config/chains.dev.json'
 // import bridge from 'config/bridge.dev.json'
 
-const store = makeStore()
+const store = createStore()
 
 // ------------------------------------------
 // init dapp-fronts

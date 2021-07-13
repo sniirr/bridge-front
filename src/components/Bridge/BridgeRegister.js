@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React, {useEffect} from 'react'
 import {useSelector} from "react-redux"
-import {accountSelector} from "modules/dapp-core/accounts"
+import {accountSelector} from "modules/dapp-core/redux/accounts"
 import {regFeeSelector, BRIDGE_REGISTRY_ERROR} from "modules/dapp-bridge"
 import {amountToAsset} from "shared/dapp-common/utils/utils"
 import ActionButton from 'shared/dapp-common/components/ActionButton'

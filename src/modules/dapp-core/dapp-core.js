@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import {getHandler, getMethod, showNotification} from 'shared/dapp-common/utils/utils'
-import {setChains, updateChain} from "./chains";
-import {setTokens, tokensSelector} from './tokens'
-import {clearAccount, setBalance, updateAccount} from "modules/dapp-core/accounts";
+import {setChains, updateChain} from "modules/dapp-core/redux/chains";
+import {setTokens, tokensSelector} from 'modules/dapp-core/redux/tokens'
+import {clearAccount, setBalance, updateAccount} from "modules/dapp-core/redux/accounts";
 
 export const initDappCore = (controllers, {chains, tokens}) => (dispatch, getState) => {
 
