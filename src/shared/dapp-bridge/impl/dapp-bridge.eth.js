@@ -42,18 +42,13 @@ export const createController = bridgeConfig => {
     }
 
     const sendToken = async ({contracts}, account, amount, token) => {
-        try {
-            const {bridgeContracts, ethTokenId} = token
+        const {bridgeContracts, ethTokenId} = token
 
-            const contract = _.get(contracts, bridgeContracts.ETH.address)
+        const contract = _.get(contracts, bridgeContracts.ETH.address)
 
-            const bContract = await contract.connect(account.signer)
+        const bContract = await contract.connect(account.signer)
 
-            return await bContract.sendToken(amount, ethTokenId)
-        }
-        catch (e) {
-            console.error('Send token failed:', e)
-        }
+        return await bContract.sendToken(amount, ethTokenId)
     }
 
     const approveAndSendToken = async (bridge, account, sendAmount, token, infiniteApproval) => {
@@ -105,7 +100,7 @@ export const createController = bridgeConfig => {
         switch (token.symbol) {
             case 'USDC':
             case 'DAI':
-                sendAmount = web3.utils.toWei(amount, toWeiUnit)
+                sendAmount = web3.utils.toWei(amount + '', toWeiUnit)
                 break
             default:
                 sendAmount = Math.floor(amount * Math.pow(10, precision))
