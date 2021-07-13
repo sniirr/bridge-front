@@ -191,7 +191,7 @@ export const initBridge = (controllers, config, {chains, tokens}) => (dispatch, 
         }
     }
 
-    const clearTxStatus = () => ({type: 'BRIDGE.CLEAR_TX_STATUS'})
+    const clearTxStatus = () => dispatch({type: 'BRIDGE.CLEAR_TX_STATUS'})
 
     const transfer = async (fromChain, toChain, amount, token, infiniteApproval) => {
         const {handler} = getHandler(controllers, fromChain, 'transfer', getState())

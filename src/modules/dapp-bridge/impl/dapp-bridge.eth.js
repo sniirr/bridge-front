@@ -84,7 +84,12 @@ export const createController = ({bridgeRegistry, bridges}) => {
 
         const tContract = await tokenContract.connect(account.signer)
 
-        tContract.approve(bridgeContracts.ETH.address, approveAmount)
+        await tContract.approve(bridgeContracts.ETH.address, approveAmount)
+        // try {
+        // }
+        // catch (e) {
+        //     alert('caught exception')
+        // }
     };
 
     const transfer = ({account, bridge}) => async (amount, token, infiniteApproval) => {

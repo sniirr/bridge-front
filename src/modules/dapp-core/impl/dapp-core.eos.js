@@ -13,7 +13,7 @@ const initRpc = ({chain}) => () => {
 const connect = ({chain}) => async ({providerIdx}) => {
     const accessContext = initAccessContext({
         appName: 'DeFights',
-        network: chain.chainInfo,
+        network: chain.dspInfo,
         walletProviders: [
             scatter(),
             AnchorLinkProvider(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)),
