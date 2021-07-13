@@ -4,7 +4,7 @@ import {CheckCircleOutlineTwoTone, SwapHoriz} from '@material-ui/icons'
 import './Bridge.scss'
 import {useDispatch, useSelector} from "react-redux"
 import Slider from 'rc-slider'
-import {showModal} from "shared/Modal";
+import {showModal} from "shared/components/Modal";
 import {accountSelector, balanceSelector} from "modules/dapp-core/accounts"
 import useOnLogin from "modules/dapp-core/hooks/useOnLogin";
 import {amountToAsset, poll} from "utils/utils"
@@ -19,6 +19,8 @@ import ActionButton from "components/Common/ActionButton";
 import {ctrlSelector} from "modules/dapp-core/controllers";
 import useOnRpcReady from "modules/dapp-core/hooks/useOnRpcReady";
 import {tokenSelector} from "modules/dapp-core/tokens";
+import AssetInput from "shared/components/AssetInput";
+import {useForm} from "react-hook-form";
 
 const Bridge = ({supportedChains, supportedTokens}) => {
 
@@ -38,7 +40,6 @@ const Bridge = ({supportedChains, supportedTokens}) => {
     const fromConnected = !_.isEmpty(fromAccount?.address)
     const toConnected = !_.isEmpty(toAccount?.address)
     const isConnected = fromConnected && toConnected
-    const [amount, setAmount] = useState('0')
 
     // bridge
     const {txFee, tokens, txStatus, config} = useSelector(bridgeSelector)
@@ -51,7 +52,10 @@ const Bridge = ({supportedChains, supportedTokens}) => {
     const tokenConf = useSelector(tokenSelector(selectedSymbol))
     let token = {
         ...tokenConf,
-        ..._.get(tokens[selectedSymbol], fromChainKey === registerOn ? 'outToken' : 'inToken', {symbol: selectedSymbol, precision: 0})
+        ..._.get(tokens[selectedSymbol], fromChainKey === registerOn ? 'outToken' : 'inToken', {
+            symbol: selectedSymbol,
+            precision: 0
+        })
     }
     // token = {
     //     ...token,
@@ -68,6 +72,22 @@ const Bridge = ({supportedChains, supportedTokens}) => {
 
     const [txFeesTimer, setTxFeesTimer] = useState(-1)
 
+    // amount input
+    const {register, handleSubmit, watch, formState: { errors }, setValue} = useForm({
+        mode: 'onChange',
+        reValidateMode: 'onChange',
+        criteriaMode: 'all',
+        defaultValues: {amount: '0'}
+    })
+
+    console.log('FORM ERRORS', errors)
+
+    const amount = watch('amount')
+
+    const onSubmit = () => {
+        controller.transfer(fromChainKey, toChainKey, amount, token, infiniteApproval)
+    }
+
     useOnRpcReady(registerOn, () => {
         controller.fetchSupportedTokens()
     })
@@ -79,10 +99,6 @@ const Bridge = ({supportedChains, supportedTokens}) => {
     useOnLogin(registerOn, () => {
         controller.fetchRegistry()
     })
-
-    // useOnLogin('ETH', () => {
-    //     controller.init('ETH')
-    // })
 
     useEffect(() => {
         if (!_.isEmpty(tokens)) {
@@ -106,9 +122,8 @@ const Bridge = ({supportedChains, supportedTokens}) => {
         }
     }, [tokens, selectedSymbol])
 
-
     useEffect(() => {
-        setAmount((0).toFixed(token.precision))
+        setValue('amount', 0, {shouldValidate: true})
         if (fromConnected) {
             coreController.fetchBalance(fromChainKey, token)
         }
@@ -118,8 +133,13 @@ const Bridge = ({supportedChains, supportedTokens}) => {
         return null
     }
 
+    const setInputAmount = amount => {
+        setValue('amount', amountToAsset(amount, token, false), {shouldValidate: true})
+    }
+
     const onSliderChange = value => {
-        setAmount((balance * value / 100).toFixed(6))
+        setInputAmount(balance * value / 100)
+        // setValue('amount', balance * value / 100, {shouldValidate: true})
     }
 
     const renderChainBox = (chainKey, direction) => {
@@ -137,7 +157,9 @@ const Bridge = ({supportedChains, supportedTokens}) => {
                             <span className="address" title={address}>{address}</span>
                         </>
                     ) : (
-                        <div className="pointer red-text small-text" onClick={() => dispatch(showModal('connect', {activeChains: [chainKey]}))}>CONNECT WALLET</div>
+                        <div className="pointer red-text small-text"
+                             onClick={() => dispatch(showModal('connect', {activeChains: [chainKey]}))}>CONNECT
+                            WALLET</div>
                     )}
                 </div>
             </div>
@@ -163,7 +185,9 @@ const Bridge = ({supportedChains, supportedTokens}) => {
                                     <Dropdown id="token-select" withCaret={true}
                                               disabled={txStatus.active}
                                               items={_.map(supportedTokens, t => ({name: t}))}
-                                              onItemClick={({name: symbol}) => {setSelectedSymbol(symbol)}}>
+                                              onItemClick={({name: symbol}) => {
+                                                  setSelectedSymbol(symbol)
+                                              }}>
                                         {selectedSymbol}
                                     </Dropdown>
                                 )}
@@ -176,42 +200,45 @@ const Bridge = ({supportedChains, supportedTokens}) => {
                             />
                         </div>
                     </div>
-                    <div className="row input-container">
-                        <div className="item">
-                            <div className="item-title">
-                                <span>Amount</span>
-                                <span>
-                                  Max: <span className="max-balance pointer"
-                                             onClick={() => !disabled && setAmount(balance.toFixed(token.precision))}>
-                                      {amountToAsset(balance, token, false, true)}
-                                  </span>
-                              </span>
-                            </div>
-                            <div className="item-input">
-                                <input disabled={disabled} type="text" className="input" value={amount}
-                                       onChange={e => setAmount(parseFloat(e.target.value).toFixed(token.precision))}/>
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className="row input-container">
+                            <div className="item">
+                                <AssetInput
+                                    token={token}
+                                    name="amount"
+                                    label="Amount"
+                                    disabled={disabled}
+                                    error={amount > 0 ? _.get(errors, "amount") : null}
+                                    maxAmount={balance || 0}
+                                    register={register}
+                                    setValue={setValue}
+                                    onChange={setInputAmount}
+                                    validations={{
+                                        greaterThenFee: v => v > parseFloat(currentTxFee) || "Must be greater then the transaction fee"
+                                    }}/>
                             </div>
                         </div>
-                    </div>
-                    {fromChainKey === 'ETH' && (
-                        <div className="row input-container checkbox-row">
-                            <div className="item">
-                                <div className="item-input">
-                                    <input disabled={disabled} type="checkbox" className="input" checked={infiniteApproval}
-                                           onChange={() => setInfiniteApproval(!infiniteApproval)}/> Infinite Approval
+                        {fromChainKey === 'ETH' && (
+                            <div className="row input-container checkbox-row">
+                                <div className="item">
+                                    <div className="item-input">
+                                        <input disabled={disabled} type="checkbox" className="input"
+                                               checked={infiniteApproval}
+                                               onChange={() => setInfiniteApproval(!infiniteApproval)}/> Infinite
+                                        Approval
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                    <div className="row center-aligned-spaced-row" style={{textAlign: 'right'}}>
+                        )}
+                        <div className="row center-aligned-spaced-row" style={{textAlign: 'right'}}>
                         <span className="info-message">
                             {!_.isEmpty(currentTxFee) && `Transaction Fee ${currentTxFee}`}
                         </span>
-                        <ActionButton disabled={disabled} actionKey="transfer"
-                                onClick={() => controller.transfer(fromChainKey, toChainKey, amount, token, infiniteApproval)}>
-                            Send Tokens
-                        </ActionButton>
-                    </div>
+                            <ActionButton disabled={disabled} actionKey="transfer" onClick={handleSubmit(onSubmit)}>
+                                Send Tokens
+                            </ActionButton>
+                        </div>
+                    </form>
                     <BridgeTxStatus controller={controller}/>
                 </>
             ) : (
@@ -222,10 +249,13 @@ const Bridge = ({supportedChains, supportedTokens}) => {
                     <FontAwesomeIcon icon={faTimes} onClick={() => setShowModify(false)}/>
                 )}
                 {!showModify && isConnected && isRegistered && (
-                    <FontAwesomeIcon icon={faAddressBook} className={classNames({disabled})} title="Change registered Ethereum address"
+                    <FontAwesomeIcon icon={faAddressBook} className={classNames({disabled})}
+                                     title="Change registered Ethereum address"
                                      onClick={() => !disabled && setShowModify(true)}/>
                 )}
-                <FontAwesomeIcon icon={faSync} className={classNames({disabled})} title={`Refresh fees${disabled ? ' (requires login)' : ''}`} onClick={() => !disabled && controller.updatePrices()}/>
+                <FontAwesomeIcon icon={faSync} className={classNames({disabled})}
+                                 title={`Refresh fees${disabled ? ' (requires login)' : ''}`}
+                                 onClick={() => !disabled && controller.updatePrices()}/>
                 <FontAwesomeIcon icon={faInfo} title="DAPP Bridge guide" onClick={() => console.log('guide')}/>
             </div>
         </div>

@@ -4,7 +4,7 @@ import 'css/shared.scss'
 import 'css/main.scss'
 import {useDispatch} from "react-redux";
 import Bridge from "components/Bridge";
-import {Modals, showModal} from "shared/Modal";
+import {Modals, showModal} from "shared/components/Modal";
 import ConnectModal from "components/ConnectModal";
 import Notification from "components/Notification"
 
@@ -43,8 +43,7 @@ function App() {
                         </div>
                     </div>
                     <Bridge supportedChains={['EOS', 'ETH']}
-                            supportedTokens={['DAPP', 'USDC']}
-                            // supportedTokens={['DAPP', 'USDC', 'DAI']}
+                            supportedTokens={['DAPP', 'USDC', 'DAI']}
                     />
                 </div>
             </div>

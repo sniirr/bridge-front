@@ -1,0 +1,39 @@
+.input.asset-input {
+  position: relative;
+
+  input[disabled] {
+    background-color: white;
+    opacity: .7;
+  }
+
+  &.with-error {
+    input[type=text] {
+      border-left: solid 8px var(--error-color);
+    }
+  }
+
+  .error {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: var(--error-color);
+  }
+
+  .label-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    margin-bottom: 3px;
+
+    &.with-symbol {
+      justify-content: space-between;
+    }
+  }
+
+  .max-amount {
+    cursor: pointer;
+    font-size: .875em;
+  }
+}

@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import {useDispatch, useSelector} from "react-redux";
 import './ConnectModal.scss'
 import useOnLogin from "modules/dapp-core/hooks/useOnLogin"
-import Modal, {hideModal} from "shared/Modal";
+import Modal, {hideModal} from "shared/components/Modal";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faChevronRight, faTimes} from '@fortawesome/free-solid-svg-icons'
 import {ctrlSelector} from "modules/dapp-core/controllers";

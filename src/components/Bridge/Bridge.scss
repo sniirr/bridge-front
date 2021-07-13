@@ -69,6 +69,8 @@
     font-size: 1.2em;
     padding: 0 10px;
     width: $panel-width - 80px;
+    border: none;
+    margin-top: 2px;
 
     &:focus {
       outline: none;
@@ -77,6 +79,10 @@
     &[disabled] {
       cursor: not-allowed;
     }
+  }
+
+  form {
+    margin-top: 40px;
   }
 
   .item {
