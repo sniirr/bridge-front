@@ -142,15 +142,15 @@ body {
 
     .modal {
       border: solid 1px white;
-      background-color: #ddd;
+      background-color: black;
       padding: 0;
-      color: black;
+      color: white;
       width: 500px;
       border-radius: 6px;
 
       .modal-header {
-        background-image: linear-gradient(#4c3c8d -50%, #93488e);
-        padding: 16px 24px;
+        background-image: linear-gradient(black -150%, #555);
+        padding: 20px 24px;
         margin: 0;
         font-size: 1.2em;
         border-top-right-radius: 4px;
@@ -159,7 +159,6 @@ body {
 
       .modal-content {
         padding: 0;
-        //background-color: #d5cdd6;
       }
     }
   }

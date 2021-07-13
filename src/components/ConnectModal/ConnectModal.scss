@@ -15,7 +15,7 @@
 
   .chain, .connector {
     @extend .center-aligned-spaced-row;
-    height: 60px;
+    height: 80px;
     font-size: 1.2em;
     padding: 0 20px;
 
@@ -30,7 +30,7 @@
     }
 
     svg path {
-      fill: #555;
+      fill: #aaa;
     }
 
     svg.svg-inline--fa {
@@ -51,11 +51,28 @@
   }
 
   .chain {
-    height: 80px;
-    padding: 15px 20px;
+    height: 100px;
+    padding: 28px 20px;
 
     .name {
       height: 100%;
+    }
+
+    .round-bg {
+      margin-right: 20px;
+      background-color: white;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        margin-right: 0;
+        width: auto;
+        height: 28px;
+      }
     }
 
     .info {

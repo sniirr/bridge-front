@@ -49,7 +49,9 @@ const ConnectModal = ({activeChains}) => {
                     <div key={`connect-chain-${chainKey}`} className={classNames("chain", {'not-connected': !isConnected})}
                          onClick={() => !isConnected && setSelectedChain(chainKey)}>
                         <div className="name">
-                            <img src={`images/${_.toUpper(chainKey)}.svg`} alt={chainKey}/>
+                            <div className="round-bg">
+                                <img src={`images/${_.toUpper(chainKey)}.svg`} alt={chainKey}/>
+                            </div>
                             <div className="info">
                                 <div>{chainKey}</div>
                                 <div className="account-name">
