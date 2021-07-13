@@ -12,9 +12,13 @@ import ethCore from "modules/dapp-core/impl/dapp-core.eth";
 import {initBridge} from "modules/dapp-bridge";
 import {createController as createEosBridge} from "modules/dapp-bridge/impl/dapp-bridge.eos";
 import {createController as createEthBridge} from "modules/dapp-bridge/impl/dapp-bridge.eth";
-import tokens from 'config/tokens.json'
-import chains from 'config/chains.json'
-import bridge from 'config/bridge.json'
+
+// import tokens from 'config/tokens.json'
+// import chains from 'config/chains.json'
+// import bridge from 'config/bridge.json'
+import tokens from 'config/tokens.dev.json'
+import chains from 'config/chains.dev.json'
+import bridge from 'config/bridge.dev.json'
 
 const store = makeStore()
 

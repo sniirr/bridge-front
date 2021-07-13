@@ -8,14 +8,6 @@ import {Modals, showModal} from "shared/Modal";
 import ConnectModal from "components/ConnectModal";
 import Notification from "components/Notification"
 
-// init bridge
-const registerOn = 'EOS'
-// const bridgeController = initBridge({
-//     EOS: eosBridge,
-//     ETH: ethBridge,
-// }, {registerOn: 'EOS'}, coreController)
-
-// init modals
 const modals = {
     'connect': <ConnectModal/>,
 }
@@ -51,8 +43,9 @@ function App() {
                         </div>
                     </div>
                     <Bridge supportedChains={['EOS', 'ETH']}
-                            registerOn={registerOn}
-                            supportedTokens={['DAPP', 'USDC', 'DAI']}/>
+                            supportedTokens={['DAPP', 'USDC']}
+                            // supportedTokens={['DAPP', 'USDC', 'DAI']}
+                    />
                 </div>
             </div>
             <Modals modals={modals}/>

@@ -40,13 +40,18 @@ export const createController = ({bridgeRegistry, bridges}) => {
     }
 
     const sendToken = async ({contracts}, account, amount, token) => {
-        const {bridgeContracts, ethTokenId} = token
+        try {
+            const {bridgeContracts, ethTokenId} = token
 
-        const contract = _.get(contracts, bridgeContracts.EOS.address)
+            const contract = _.get(contracts, bridgeContracts.ETH.address)
 
-        const bContract = await contract.connect(account.signer)
+            const bContract = await contract.connect(account.signer)
 
-        bContract.sendToken(amount, ethTokenId)
+            return await bContract.sendToken(amount, ethTokenId)
+        }
+        catch (e) {
+            console.error('Send token failed:', e)
+        }
     }
 
     const approveAndSendToken = async (bridge, account, sendAmount, token, infiniteApproval) => {
@@ -111,14 +116,14 @@ export const createController = ({bridgeRegistry, bridges}) => {
         const appAmount = parseFloat(ethers.utils.formatUnits(approvedAmount, token.precision))
         console.log("approvedAmount in contract ", appAmount);
 
-        const func = appAmount >= amount ? sendToken(bridge, account, sendAmount, token) : approveAndSendToken(bridge, account, sendAmount, token, infiniteApproval)
-
-        await func
+        return appAmount >= amount
+            ? await sendToken(bridge, account, sendAmount, token)
+            : await approveAndSendToken(bridge, account, sendAmount, token, infiniteApproval)
     }
 
     const awaitDeposit = ({account}) => (token, onComplete) => {
-        const {symbol, bridgeContracts, contracts: tokenContract} = token
-        const contract = tokenContract.ETH
+        const {symbol, bridgeContracts, contracts: tokenContracts} = token
+        const contract = tokenContracts.ETH
 
         if (!contract) {
             return console.error(`Contract not initialized: ${symbol} ERC20`)
@@ -141,8 +146,8 @@ export const createController = ({bridgeRegistry, bridges}) => {
     }
 
     const awaitReceived = ({account}) => (fromAccount, token, onComplete) => {
-        const {symbol, tokenContract} = token
-        const contract = tokenContract.ETH
+        const {symbol, contracts: tokenContracts} = token
+        const contract = tokenContracts.ETH
 
         if (!contract) {
             return console.error(`Contract not initialized: ${symbol} ERC20`)

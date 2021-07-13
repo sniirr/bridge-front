@@ -29,16 +29,18 @@ export const initBridge = (controllers, config, {chains, tokens}) => (dispatch, 
     try {
         const bridgeInitData = _.reduce(chains, (memo, chain, chainKey) => {
             const {handler} = getHandler(controllers, chainKey, 'init', state)
-            const hamin = handler()
             return {
                 ...memo,
-                ...hamin,
+                ...handler(),
             }
         }, {})
 
         dispatch({
             type: 'DAPP.BRIDGE.INIT',
-            payload: bridgeInitData,
+            payload: {
+                ...bridgeInitData,
+                config,
+            },
         })
     }
     catch (e) {
@@ -196,6 +198,7 @@ export const initBridge = (controllers, config, {chains, tokens}) => (dispatch, 
 
         try {
             dispatch(setActionPending('transfer'))
+            awaitDeposit(fromChain, token)
             const response = await handler(amount, token, infiniteApproval)
 
             dispatch({
@@ -203,7 +206,6 @@ export const initBridge = (controllers, config, {chains, tokens}) => (dispatch, 
                 payload: {depositTxId: response?.transaction_id, active: true, fromChainKey: fromChain, toChainKey: toChain}
             })
 
-            awaitDeposit(fromChain, token)
             awaitReceived(fromChain, toChain, token)
         }
         catch (e) {

@@ -20,7 +20,7 @@ import {ctrlSelector} from "modules/dapp-core/controllers";
 import useOnRpcReady from "modules/dapp-core/hooks/useOnRpcReady";
 import {tokenSelector} from "modules/dapp-core/tokens";
 
-const Bridge = ({supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'DAPP'], registerOn = 'EOS'}) => {
+const Bridge = ({supportedChains, supportedTokens}) => {
 
     const dispatch = useDispatch()
 
@@ -41,8 +41,9 @@ const Bridge = ({supportedChains = ['EOS', 'ETH'], supportedTokens = ['USDC', 'D
     const [amount, setAmount] = useState('0')
 
     // bridge
-    const {txFee, tokens, txStatus} = useSelector(bridgeSelector)
+    const {txFee, tokens, txStatus, config} = useSelector(bridgeSelector)
 
+    const registerOn = _.get(config, 'bridgeRegistry.chainKey')
     const disabled = !isConnected || txStatus.active
 
     // tokens
