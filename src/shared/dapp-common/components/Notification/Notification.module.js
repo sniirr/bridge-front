@@ -1,4 +1,4 @@
-import {makeReducer} from "modules/utils"
+import {makeReducer} from "shared/dapp-common/utils/reduxUtils"
 
 const INITIAL_STATE = {
     text: '',

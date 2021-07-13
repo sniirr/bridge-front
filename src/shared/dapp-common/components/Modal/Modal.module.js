@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import {makeReducer} from "utils/reduxUtils";
+import {makeReducer} from "shared/dapp-common/utils/reduxUtils";
 
 export const showModal = (modalType, modalProps) => ({
     type: 'DAPP.MODAL.SHOW',

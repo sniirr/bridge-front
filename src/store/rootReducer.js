@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux'
 import {bridgeReducer} from "modules/dapp-bridge";
-import {notificationReducer} from "components/Notification"
-import {actionStatusReducer} from './actionStatusReducer'
-import {modalReducer} from "shared/components/Modal";
+import {notificationReducer} from "shared/dapp-common/components/Notification"
+import {actionStatusReducer} from 'shared/dapp-common/components/ActionButton'
+import {modalReducer} from "shared/dapp-common/components/Modal";
 import {controllersReducer, chainsReducer, accountsReducer, tokensReducer} from "modules/dapp-core";
 
 export default combineReducers({

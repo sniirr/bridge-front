@@ -1,12 +1,11 @@
 import React from 'react'
 import classNames from "classnames";
-import {useDispatch, useSelector} from "react-redux";
-import {isActionPendingSelector} from "store/actionStatusReducer";
+import {useSelector} from "react-redux";
+import {isActionPendingSelector} from "./ActionButton.module";
 import BeatLoader from 'react-spinners/BeatLoader'
 
 const ActionButton = ({actionKey, className, onClick, disabled, children, ...props}) => {
 
-    // const dispatch = useDispatch()
     const isPending = useSelector(isActionPendingSelector(actionKey))
 
     const clickHandler = () => !isPending && !disabled && onClick()

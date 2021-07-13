@@ -1,7 +1,7 @@
 import _ from "lodash";
-import {fetchOneByPk, fetchOne, fetchTableData, createTransferAction} from 'utils/api/eosApi'
+import {fetchOneByPk, fetchOne, fetchTableData, createTransferAction} from 'shared/dapp-common/utils/eosApi'
 import {BRIDGE_REGISTRY_ERROR} from '../'
-import {amountToAsset, poll} from "utils/utils";
+import {amountToAsset, poll} from "shared/dapp-common/utils/utils";
 
 // actions
 export const createController = ({bridgeRegistry, bridges}) => {

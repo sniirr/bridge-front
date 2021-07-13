@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import {getHandler, getMethod, showNotification} from 'modules/utils'
+import {getHandler, getMethod, showNotification} from 'shared/dapp-common/utils/utils'
 import {setChains, updateChain} from "./chains";
 import {setTokens, tokensSelector} from './tokens'
 import {clearAccount, setBalance, updateAccount} from "modules/dapp-core/accounts";

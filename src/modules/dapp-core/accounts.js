@@ -1,4 +1,4 @@
-import {makeReducer} from "modules/utils";
+import {makeReducer} from "shared/dapp-common/utils/reduxUtils";
 import _ from 'lodash'
 
 export const updateAccount = (chainKey, account) => ({

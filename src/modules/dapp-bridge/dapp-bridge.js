@@ -1,7 +1,7 @@
-import {makeReducer, reduceSetKey, reduceUpdateFull, reduceUpdateKey} from "utils/reduxUtils";
+import {makeReducer, reduceSetKey, reduceUpdateFull, reduceUpdateKey} from "shared/dapp-common/utils/reduxUtils";
 import _ from "lodash";
-import {getHandler as baseGetHandler, getMethod, showNotification} from "modules/utils";
-import {clearActionStatus, setActionPending} from "store/actionStatusReducer";
+import {getHandler as baseGetHandler, getMethod, showNotification} from "shared/dapp-common/utils/utils";
+import {clearActionStatus, setActionPending} from "shared/dapp-common/components/ActionButton";
 import {accountSelector} from "modules/dapp-core/accounts";
 
 export const BRIDGE_REGISTRY_ERROR = {

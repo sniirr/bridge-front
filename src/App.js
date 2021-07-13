@@ -4,9 +4,9 @@ import 'css/shared.scss'
 import 'css/main.scss'
 import {useDispatch} from "react-redux";
 import Bridge from "components/Bridge";
-import {Modals, showModal} from "shared/components/Modal";
+import {Modals, showModal} from "shared/dapp-common/components/Modal";
 import ConnectModal from "components/ConnectModal";
-import Notification from "components/Notification"
+import Notification from "shared/dapp-common/components/Notification"
 
 const modals = {
     'connect': <ConnectModal/>,

@@ -3,10 +3,10 @@ import React, {useEffect} from 'react'
 import {useSelector} from "react-redux"
 import {accountSelector} from "modules/dapp-core/accounts"
 import {regFeeSelector, BRIDGE_REGISTRY_ERROR} from "modules/dapp-bridge"
-import {amountToAsset} from "utils/utils"
-import ActionButton from 'components/Common/ActionButton'
+import {amountToAsset} from "shared/dapp-common/utils/utils"
+import ActionButton from 'shared/dapp-common/components/ActionButton'
 import {useForm} from "react-hook-form";
-import web3 from 'utils/api/ethApi'
+import web3 from 'shared/dapp-common/utils/ethApi'
 
 const BridgeRegister = ({controller, isModify}) => {
 

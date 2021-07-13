@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import './Dropdown.scss'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faCaretDown, faCaretRight} from '@fortawesome/free-solid-svg-icons'
-import useOnClickOutside from "hooks/useClickOutside"
+import useOnClickOutside from "shared/dapp-common/hooks/useClickOutside"
 
 const Dropdown = ({id, className, items, onItemClick, withCaret, disabled, children}) => {
 

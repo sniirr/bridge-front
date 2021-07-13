@@ -1,6 +1,5 @@
-import {makeReducer} from "modules/utils";
+import {makeReducer, reduceSetFull} from "shared/dapp-common/utils/reduxUtils";
 import _ from 'lodash'
-import {reduceSetFull} from "utils/reduxUtils";
 
 export const setChains = chains => ({
     type: 'DAPP.CORE.SET_CHAINS',

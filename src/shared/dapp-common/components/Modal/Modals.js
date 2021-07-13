@@ -1,8 +1,8 @@
 import React from "react"
 import _ from 'lodash'
 import {useSelector} from "react-redux";
-import {modalSelector} from "shared/components/Modal/Modal.module";
-import 'shared/components/Modal/Modal.scss'
+import {modalSelector} from "./Modal.module";
+import './Modal.scss'
 
 export const Modals = ({modals}) => {
 

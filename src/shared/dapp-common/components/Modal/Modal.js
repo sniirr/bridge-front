@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTimes} from '@fortawesome/free-solid-svg-icons'
 import {useDispatch, useSelector} from "react-redux";
-import {hideModal} from "shared/components/Modal/Modal.module";
+import {hideModal} from "./Modal.module";
 
 const Modal = ({className, title, children}) => {
 

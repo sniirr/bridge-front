@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import bridgeAbi from "config/abi/bridgeAbi"
-import web3 from 'utils/api/ethApi'
+import web3 from 'shared/dapp-common/utils/ethApi'
 import {ethers} from "ethers"
 
 export const createController = ({bridgeRegistry, bridges}) => {

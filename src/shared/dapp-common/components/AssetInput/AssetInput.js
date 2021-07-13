@@ -1,7 +1,7 @@
 import React from 'react'
 import _ from 'lodash'
 import classNames from 'classnames'
-import {amountToAsset, removeComma} from "utils/utils";
+import {amountToAsset, removeComma} from "shared/dapp-common/utils/utils";
 import './AssetInput.scss'
 
 

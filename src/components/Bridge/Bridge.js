@@ -4,22 +4,22 @@ import {CheckCircleOutlineTwoTone, SwapHoriz} from '@material-ui/icons'
 import './Bridge.scss'
 import {useDispatch, useSelector} from "react-redux"
 import Slider from 'rc-slider'
-import {showModal} from "shared/components/Modal";
+import {showModal} from "shared/dapp-common/components/Modal";
 import {accountSelector, balanceSelector} from "modules/dapp-core/accounts"
-import useOnLogin from "modules/dapp-core/hooks/useOnLogin";
-import {amountToAsset, poll} from "utils/utils"
-import Dropdown from 'components/Common/Dropdown'
+import useOnLogin from "shared/dapp-common/hooks/useOnLogin";
+import {amountToAsset, poll} from "shared/dapp-common/utils/utils"
+import Dropdown from 'shared/dapp-common/components/Dropdown'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTimes, faAddressBook, faSync, faInfo} from '@fortawesome/free-solid-svg-icons'
 import BridgeRegister from "./BridgeRegister"
 import BridgeTxStatus from './BridgeTxStatus'
 import {bridgeSelector} from "modules/dapp-bridge";
 import classNames from "classnames";
-import ActionButton from "components/Common/ActionButton";
+import ActionButton from "shared/dapp-common/components/ActionButton";
 import {ctrlSelector} from "modules/dapp-core/controllers";
-import useOnRpcReady from "modules/dapp-core/hooks/useOnRpcReady";
+import useOnRpcReady from "shared/dapp-common/hooks/useOnRpcReady";
 import {tokenSelector} from "modules/dapp-core/tokens";
-import AssetInput from "shared/components/AssetInput";
+import AssetInput from "shared/dapp-common/components/AssetInput";
 import {useForm} from "react-hook-form";
 
 const Bridge = ({supportedChains, supportedTokens}) => {

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import './Notification.scss'
 import { useSelector, useDispatch } from 'react-redux'
-import {removeNotification} from 'modules/utils'
+import {removeNotification} from 'shared/dapp-common/utils/utils'
 import classNames from "classnames";
 import _ from "lodash";
 
