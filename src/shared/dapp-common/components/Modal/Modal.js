@@ -21,8 +21,8 @@ const Modal = ({className, title, children}) => {
                     <FontAwesomeIcon icon={faTimes}/>
                 </div>
                 <div className={classNames("modal", className)}>
-                    {!_.isEmpty(title) && <div className="modal-header">{title}</div>}
                     <div className="modal-content">
+                        {!_.isEmpty(title) && <div className="modal-header">{title}</div>}
                         {children}
                     </div>
                 </div>

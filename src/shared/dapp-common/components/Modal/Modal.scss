@@ -31,16 +31,13 @@
   }
 
   .modal {
-    background-color: black;
     position: relative;
     overflow: hidden;
-    width: 450px;
 
     .modal-header {
       color: white;
       font-size: 24px;
       font-weight: 700;
-      margin-bottom: 16px;
     }
 
     .modal-content {

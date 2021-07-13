@@ -42,16 +42,18 @@ const ConnectModal = ({activeChains}) => {
             // multiple chains - render chain selection first
             return _.map(activeChains, chainKey => {
                 const address = _.get(accounts, [chainKey, 'address'])
+                const {name: chainName} = _.get(chains, chainKey)
                 const isConnected = !_.isEmpty(address)
                 return (
                     <div key={`connect-chain-${chainKey}`} className={classNames("chain", {'not-connected': !isConnected})}
                          onClick={() => !isConnected && setSelectedChain(chainKey)}>
                         <div className="name">
                             <div className="round-bg">
-                                <img src={`images/${_.toUpper(chainKey)}.svg`} alt={chainKey}/>
+                                <div className={`wallet-icon ${_.toLower(chainKey)}`}/>
+                                {/*<img src={`images/${_.toUpper(chainKey)}.svg`} alt={chainKey}/>*/}
                             </div>
                             <div className="info">
-                                <div>{chainKey}</div>
+                                <div>{chainName}</div>
                                 <div className="account-name">
                                     {isConnected ? address : "Not Connected"}
                                 </div>
@@ -74,7 +76,7 @@ const ConnectModal = ({activeChains}) => {
                         <div key={`connect-wallet-btn-${i}`} className="connector"
                              onClick={() => controller.connect(selectedChain, {providerIdx: i})}>
                             <div className="name">
-                                <img className={`${_.toLower(text)}-icon`} src={`images/${_.toLower(text)}.svg`} alt={text}/>
+                                <div className={`wallet-icon ${_.toLower(text)}`}/>
                                 <span>{text}</span>
                             </div>
                             <FontAwesomeIcon icon={faChevronRight}/>

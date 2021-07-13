@@ -8,9 +8,39 @@
     font-size: 1.2em;
     padding: 0 20px;
 
-    img {
-      width: 20px;
+    .wallet-icon {
       margin-right: 20px;
+
+      height: 36px;
+      background: no-repeat center center;
+
+      &.eth {
+        background-image: url("./images/eth.svg");
+      }
+
+      &.eos {
+        background-image: url("./images/eos.svg");
+      }
+
+      &.metamask {
+        background-image: url("./images/metamask.svg");
+      }
+
+      &.walletconnect {
+        background-image: url("./images/walletconnect.svg");
+      }
+
+      &.scatter {
+        background-image: url("./images/scatter.svg");
+      }
+
+      &.tokenpocket {
+        background-image: url("./images/tokenpocket.svg");
+      }
+
+      &.anchor {
+        background-image: url("./images/anchor.svg");
+      }
     }
 
     .name {
@@ -24,10 +54,6 @@
 
     svg.svg-inline--fa {
       width: .4em;
-    }
-
-    &:not(:last-child) {
-      border-bottom: solid 1px white;
     }
 
     &:first-child {
@@ -57,9 +83,9 @@
       align-items: center;
       justify-content: center;
 
-      img {
+      .wallet-icon {
         margin-right: 0;
-        width: auto;
+        width: 28px;
         height: 28px;
       }
     }
@@ -100,7 +126,7 @@
   .connector {
     cursor: pointer;
 
-    img {
+    .wallet-icon {
       width: 32px;
     }
   }

@@ -169,4 +169,12 @@ body {
       }
     }
   }
+
+  .connect-modal {
+    .chain, .connector {
+      &:not(:last-child) {
+        border-bottom: solid 1px white;
+      }
+    }
+  }
 }
