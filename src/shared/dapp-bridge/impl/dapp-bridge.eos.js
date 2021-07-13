@@ -4,7 +4,9 @@ import {BRIDGE_REGISTRY_ERROR} from 'shared/dapp-bridge/dapp-bridge'
 import {amountToAsset, poll} from "shared/dapp-common/utils/utils";
 
 // actions
-export const createController = ({bridgeRegistry, bridges}) => {
+export const createController = bridgeConfig => {
+
+    const {bridgeRegistry, bridges} = bridgeConfig
 
     const fetchSupportedTokens = ({chain}) => async () => {
         if (_.isEmpty(chain.rpc)) return

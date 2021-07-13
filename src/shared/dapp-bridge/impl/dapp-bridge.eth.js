@@ -3,7 +3,9 @@ import bridgeAbi from "shared/dapp-bridge/utils/bridgeAbi"
 import web3 from 'shared/dapp-common/utils/ethApi'
 import {ethers} from "ethers"
 
-export const createController = ({bridgeRegistry, bridges}) => {
+export const createController = bridgeConfig => {
+
+    const {bridgeRegistry, bridges} = bridgeConfig
 
     const ethAddresses = _.map(bridges, b => _.get(b, 'contracts.ETH.address'))
 
