@@ -42,19 +42,14 @@ export const createController = bridgeConfig => {
         }
     }
 
-    const sendToken = async ({contracts}, account, amount, token, onError) => {
-        try {
-            const {bridgeContracts, ethTokenId} = token
+    const sendToken = async ({contracts}, account, amount, token) => {
+        const {bridgeContracts, ethTokenId} = token
 
-            const contract = _.get(contracts, bridgeContracts.ETH.address)
+        const contract = _.get(contracts, bridgeContracts.ETH.address)
 
-            const bContract = await contract.connect(account.signer)
+        const bContract = await contract.connect(account.signer)
 
-            return await bContract.sendToken(amount, ethTokenId)
-        }
-        catch (e) {
-            onError(e)
-        }
+        return await bContract.sendToken(amount, ethTokenId)
     }
 
     const approveAndSendToken = async (bridge, account, sendAmount, token, infiniteApproval, onError) => {
@@ -82,7 +77,12 @@ export const createController = bridgeConfig => {
             console.log(`APPROVAL ${spender} to spend ${ ethers.utils.formatEther(amount) } ${symbol} on behalf of ${ owner }.`)
             console.log(`EVENT ${JSON.stringify(event)}`)
             console.log('--------------------------------------')
-            sendToken(bridge, account, sendAmount, token, onError)
+            try {
+                sendToken(bridge, account, sendAmount, token)
+            }
+            catch (e) {
+                onError(e)
+            }
         });
 
         const tContract = await tokenContract.connect(account.signer)
@@ -120,7 +120,7 @@ export const createController = bridgeConfig => {
         console.log("approvedAmount in contract ", appAmount);
 
         return appAmount >= amount
-            ? await sendToken(bridge, account, sendAmount, token, onError)
+            ? await sendToken(bridge, account, sendAmount, token)
             : await approveAndSendToken(bridge, account, sendAmount, token, infiniteApproval, onError)
     }
 
