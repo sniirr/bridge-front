@@ -8,6 +8,7 @@ import Modal, {hideModal} from "shared/dapp-common/components/Modal";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faChevronRight, faTimes} from '@fortawesome/free-solid-svg-icons'
 import {ctrlSelector, accountsSelector, chainsSelector} from "shared/dapp-core";
+import {showNotification} from "shared/dapp-common/utils/utils";
 
 const ConnectModal = ({activeChains}) => {
 
@@ -36,6 +37,11 @@ const ConnectModal = ({activeChains}) => {
             setSelectedChain('')
         }
     })
+
+    if (_.isEmpty(chains)) {
+        dispatch(showNotification({type: 'error', text: 'Metamask not found, please install the extension and refresh to proceed'}))
+        return null
+    }
 
     const renderContent = () => {
         if (!hasSelectedChain) {

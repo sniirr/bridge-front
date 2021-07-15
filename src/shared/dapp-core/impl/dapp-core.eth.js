@@ -3,6 +3,9 @@ import tokenAbi from 'shared/dapp-common/utils/tokenAbi'
 import { ethers } from "ethers"
 
 export const init = ({chains, tokens}) => {
+    if (!window.ethereum) {
+        throw 'Metamask not found, please install the extension and refresh to proceed'
+    }
     const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 
     return {

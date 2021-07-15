@@ -17,6 +17,7 @@ export const initDappCore = (controllers, {chains, tokens}) => (dispatch, getSta
         dispatch(setTokens(data.tokens))
     } catch (e) {
         console.error('Failed to initialize:', e)
+        dispatch(showNotification({type: 'error', text: e}))
     }
 
     // methods
