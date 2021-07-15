@@ -148,6 +148,35 @@ export const initBridge = (controllers, config, {chains, tokens}) => (dispatch, 
         }
     }
 
+    // onLogin
+    // const onLogin = async (chainKey) => {
+    //     try {
+    //         const {handler} = getHandler(controllers, chainKey, 'onLogin', getState())
+    //
+    //         dispatch(handler(getState(), {
+    //             onDeposit: (token, payload) => {
+    //                 dispatch({
+    //                     type: 'BRIDGE.SET_TX_STATUS',
+    //                     payload,
+    //                 })
+    //                 dispatch(clearActionStatus('transfer'))
+    //                 coreController.fetchBalance(chainKey, token)
+    //             },
+    //         }))
+    //
+    //
+    //         // const tokens = await handler()
+    //         // dispatch({
+    //         //     type: 'DAPP.BRIDGE.SET_TOKENS',
+    //         //     payload: tokens,
+    //         // })
+    //     }
+    //     catch (e) {
+    //         console.error(e)
+    //         // dispatch(showNotification({type: 'error', text: 'Failed to fetch supported tokens'}))
+    //     }
+    // }
+
     const awaitDeposit = (chainKey, token) => {
         const {handler} = getHandler(controllers, chainKey, 'awaitDeposit', getState())
 
@@ -196,10 +225,20 @@ export const initBridge = (controllers, config, {chains, tokens}) => (dispatch, 
     const transfer = async (fromChain, toChain, amount, token, infiniteApproval) => {
         const {handler} = getHandler(controllers, fromChain, 'transfer', getState())
 
+        const onError = e => {
+            console.error(e)
+            dispatch(clearTxStatus())
+            dispatch(clearActionStatus('transfer'))
+            dispatch(showNotification({type: 'error', text: e.message}))
+        }
+
         try {
+            const tokenEthContract = _.get(token, 'contracts.ETH')
+            tokenEthContract.removeAllListeners()
+
             dispatch(setActionPending('transfer'))
             awaitDeposit(fromChain, token)
-            const response = await handler(amount, token, infiniteApproval)
+            const response = await handler(amount, token, infiniteApproval, onError)
 
             dispatch({
                 type: 'BRIDGE.SET_TX_STATUS',
@@ -209,10 +248,7 @@ export const initBridge = (controllers, config, {chains, tokens}) => (dispatch, 
             awaitReceived(fromChain, toChain, token)
         }
         catch (e) {
-            console.error(e)
-            dispatch(clearTxStatus())
-            dispatch(clearActionStatus('transfer'))
-            dispatch(showNotification({type: 'error', text: e.message}))
+            onError(e)
         }
     }
 
@@ -230,6 +266,7 @@ export const initBridge = (controllers, config, {chains, tokens}) => (dispatch, 
     }
 
     const ctrl = {
+        // onLogin,
         fetchSupportedTokens,
         fetchRegistry,
         fetchRegFee,
@@ -270,10 +307,13 @@ const INITIAL_STATE = {
         received: false,
         receivedTxId: '',
     },
+    listeningOnDeposit: false,
+    listeningOnReceive: false,
 }
 
 export const bridgeReducer = makeReducer({
     'DAPP.BRIDGE.INIT': reduceUpdateFull,
+    'DAPP.BRIDGE.UPDATE': reduceUpdateFull,
     'DAPP.BRIDGE.SET_TOKENS': reduceSetKey('tokens'),
     'BRIDGE.SET_REGISTRY': reduceSetKey('registry'),
     'BRIDGE.SET_REG_FEE': reduceSetKey('regFee'),

@@ -2,6 +2,7 @@ import _ from 'lodash'
 import bridgeAbi from "shared/dapp-bridge/utils/bridgeAbi"
 import web3 from 'shared/dapp-common/utils/ethApi'
 import {ethers} from "ethers"
+import {tokensSelector} from "shared/dapp-core";
 
 export const createController = bridgeConfig => {
 
@@ -41,17 +42,22 @@ export const createController = bridgeConfig => {
         }
     }
 
-    const sendToken = async ({contracts}, account, amount, token) => {
-        const {bridgeContracts, ethTokenId} = token
+    const sendToken = async ({contracts}, account, amount, token, onError) => {
+        try {
+            const {bridgeContracts, ethTokenId} = token
 
-        const contract = _.get(contracts, bridgeContracts.ETH.address)
+            const contract = _.get(contracts, bridgeContracts.ETH.address)
 
-        const bContract = await contract.connect(account.signer)
+            const bContract = await contract.connect(account.signer)
 
-        return await bContract.sendToken(amount, ethTokenId)
+            return await bContract.sendToken(amount, ethTokenId)
+        }
+        catch (e) {
+            onError(e)
+        }
     }
 
-    const approveAndSendToken = async (bridge, account, sendAmount, token, infiniteApproval) => {
+    const approveAndSendToken = async (bridge, account, sendAmount, token, infiniteApproval, onError) => {
         console.log("inside approve and send token");
 
         const {symbol, bridgeContracts, toWeiUnit, contracts: tokenContracts} = token
@@ -76,7 +82,7 @@ export const createController = bridgeConfig => {
             console.log(`APPROVAL ${spender} to spend ${ ethers.utils.formatEther(amount) } ${symbol} on behalf of ${ owner }.`)
             console.log(`EVENT ${JSON.stringify(event)}`)
             console.log('--------------------------------------')
-            sendToken(bridge, account, sendAmount, token)
+            sendToken(bridge, account, sendAmount, token, onError)
         });
 
         const tContract = await tokenContract.connect(account.signer)
@@ -84,7 +90,7 @@ export const createController = bridgeConfig => {
         await tContract.approve(bridgeContracts.ETH.address, approveAmount)
     };
 
-    const transfer = ({account, bridge}) => async (amount, token, infiniteApproval) => {
+    const transfer = ({account, bridge}) => async (amount, token, infiniteApproval, onError) => {
         const {symbol, precision, contracts: tokenContracts, bridgeContracts, toWeiUnit} = token
 
         const tokenContract = tokenContracts.ETH
@@ -114,11 +120,50 @@ export const createController = bridgeConfig => {
         console.log("approvedAmount in contract ", appAmount);
 
         return appAmount >= amount
-            ? await sendToken(bridge, account, sendAmount, token)
-            : await approveAndSendToken(bridge, account, sendAmount, token, infiniteApproval)
+            ? await sendToken(bridge, account, sendAmount, token, onError)
+            : await approveAndSendToken(bridge, account, sendAmount, token, infiniteApproval, onError)
     }
 
-    const awaitDeposit = ({account}) => (token, onComplete) => {
+    // const onLogin = ({account, bridge}) => (state, callbacks) => {
+    //     // const state = getState()
+    //     const {tokens, bridgeContracts} = tokensSelector(state)
+    //
+    //     _.forEach(tokens, async token => {
+    //         const tokenContract = token.contracts.ETH
+    //         // await token.contracts.ETH.connect(signer)
+    //
+    //         // TODO - this will override ALL events
+    //         await tokenContract.removeAllListeners()
+    //
+    //         // listen on allowance
+    //         const filter1 = tokenContract.filters.Approval(account.address, bridgeContracts.ETH.address)
+    //         tokenContract.on(filter1, (owner, spender, amount, event) => {
+    //             console.log('--------------------------------------')
+    //             console.log(`APPROVAL ${spender} to spend ${ ethers.utils.formatEther(amount) } ${symbol} on behalf of ${ owner }.`)
+    //             console.log(`EVENT ${JSON.stringify(event)}`)
+    //             console.log('--------------------------------------')
+    //             sendToken(bridge, account, sendAmount, token)
+    //         });
+    //
+    //         // listen on deposit
+    //         console.log(`awaitDeposit on ETH from ${account.address} to ${bridgeContracts.ETH.address}`)
+    //         const filter = tokenContract.filters.Transfer(account.address, bridgeContracts.ETH.address)
+    //         tokenContract.on(filter, (from, to, amount, event) => {
+    //             console.log('--------------------------------------')
+    //             console.log(`User sent ${ ethers.utils.formatEther(amount) } to ${ to }.`);
+    //             console.log(`EVENT ${JSON.stringify(event)}`)
+    //             console.log('--------------------------------------')
+    //             callbacks.onDeposit(token, {
+    //                 deposited: true,
+    //                 depositTxId: event.transactionHash
+    //             })
+    //         })
+    //     })
+    // }
+
+    const awaitDeposit = ({account, bridge}) => (token, onComplete) => {
+        // if (bridge.listeningOnDeposit) return
+
         const {symbol, bridgeContracts, contracts: tokenContracts} = token
         const contract = tokenContracts.ETH
 
@@ -142,7 +187,8 @@ export const createController = bridgeConfig => {
         });
     }
 
-    const awaitReceived = ({account}) => (fromAccount, token, onComplete) => {
+    const awaitReceived = ({account, bridge}) => (fromAccount, token, onComplete) => {
+        // if (bridge.listeningOnReceive) return
         const {symbol, contracts: tokenContracts} = token
         const contract = tokenContracts.ETH
 

@@ -96,6 +96,10 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
         controller.fetchRegistry()
     })
 
+    // useOnLogin('ETH', () => {
+    //     controller.onLogin('ETH')
+    // })
+
     useEffect(() => {
         if (!_.isEmpty(tokens)) {
             dispatch({
