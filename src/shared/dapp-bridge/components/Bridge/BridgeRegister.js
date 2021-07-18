@@ -70,7 +70,7 @@ const BridgeRegister = ({controller, isModify}) => {
                             validate: {
                                 ethAddress: v => web3.utils.isAddress(v) || 'Invalid Ethereum address',
                                 sameAddress: v => {
-                                    return (!_.isEmpty(registry?.address) && v !== registry?.address) || 'Must be a different address then current registered address'
+                                    return _.isEmpty(registry?.address) || v !== registry?.ethaddress || 'Must be a different address then current registered address'
                                 }
                             }
                        })}
