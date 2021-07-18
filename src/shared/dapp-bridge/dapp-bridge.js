@@ -148,35 +148,6 @@ export const initBridge = (controllers, config, {chains, tokens}) => (dispatch, 
         }
     }
 
-    // onLogin
-    // const onLogin = async (chainKey) => {
-    //     try {
-    //         const {handler} = getHandler(controllers, chainKey, 'onLogin', getState())
-    //
-    //         dispatch(handler(getState(), {
-    //             onDeposit: (token, payload) => {
-    //                 dispatch({
-    //                     type: 'BRIDGE.SET_TX_STATUS',
-    //                     payload,
-    //                 })
-    //                 dispatch(clearActionStatus('transfer'))
-    //                 coreController.fetchBalance(chainKey, token)
-    //             },
-    //         }))
-    //
-    //
-    //         // const tokens = await handler()
-    //         // dispatch({
-    //         //     type: 'DAPP.BRIDGE.SET_TOKENS',
-    //         //     payload: tokens,
-    //         // })
-    //     }
-    //     catch (e) {
-    //         console.error(e)
-    //         // dispatch(showNotification({type: 'error', text: 'Failed to fetch supported tokens'}))
-    //     }
-    // }
-
     const awaitDeposit = (chainKey, token) => {
         const {handler} = getHandler(controllers, chainKey, 'awaitDeposit', getState())
 
@@ -293,6 +264,7 @@ export const initBridge = (controllers, config, {chains, tokens}) => (dispatch, 
 
 // selectors
 export const bridgeSelector = state => _.get(state, 'bridge')
+export const registrySelector = state => _.get(state, 'bridge.registry')
 export const regFeeSelector = state => _.get(state, 'bridge.regFee')
 
 const INITIAL_STATE = {
@@ -306,9 +278,16 @@ const INITIAL_STATE = {
         depositTxId: '',
         received: false,
         receivedTxId: '',
+        fromChainKey: '',
+        toChainKey: '',
+        // fromChainKey: 'EOS',
+        // toChainKey: 'ETH',
+        // active: true,
+        // deposited: true,
+        // depositTxId: 'skdhfksjhdf',
+        // received: true,
+        // receivedTxId: 'jdflsdjflj',
     },
-    listeningOnDeposit: false,
-    listeningOnReceive: false,
 }
 
 export const bridgeReducer = makeReducer({

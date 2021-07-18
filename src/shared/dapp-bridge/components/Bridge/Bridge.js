@@ -27,8 +27,18 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
     const controller = useSelector(ctrlSelector('bridge'))
     const coreController = useSelector(ctrlSelector('core'))
 
+    // tokens
+    const [selectedSymbol, setSelectedSymbol] = useState(supportedTokens[0])
+    const tokenConf = useSelector(tokenSelector(selectedSymbol))
+
+    const chainsDirectionByToken = token => {
+        const from = _.get(token, 'issuedOn', supportedChains[0])
+        const to = _.find(supportedChains, sym => sym !== from)
+        return [from, to]
+    }
+
     // chain
-    const [chains, setChains] = useState(supportedChains)
+    const [chains, setChains] = useState(chainsDirectionByToken(tokenConf[selectedSymbol]))
     const fromChainKey = chains[0]
     const toChainKey = chains[1]
 
@@ -45,9 +55,7 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
     const registerOn = _.get(config, 'bridgeRegistry.chainKey')
     const disabled = !isConnected || txStatus.active
 
-    // tokens
-    const [selectedSymbol, setSelectedSymbol] = useState(supportedTokens[0])
-    const tokenConf = useSelector(tokenSelector(selectedSymbol))
+    // token
     let token = {
         ...tokenConf,
         ..._.get(tokens[selectedSymbol], fromChainKey === registerOn ? 'outToken' : 'inToken', {
@@ -55,10 +63,6 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
             precision: 0
         })
     }
-    // token = {
-    //     ...token,
-    //     ..._.get(TOKENS, token.symbol, {})
-    // }
 
     const currentTxFee = fromChainKey === token.issuedOn ? txFee.deposit : txFee.withdraw
 
@@ -96,9 +100,9 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
         controller.fetchRegistry()
     })
 
-    // useOnLogin('ETH', () => {
-    //     controller.onLogin('ETH')
-    // })
+    useEffect(() => {
+        setChains(chainsDirectionByToken(token))
+    }, [selectedSymbol])
 
     useEffect(() => {
         if (!_.isEmpty(tokens)) {
@@ -231,7 +235,7 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
                         )}
                         <div className="row center-aligned-spaced-row" style={{textAlign: 'right'}}>
                         <span className="info-message">
-                            {!_.isEmpty(currentTxFee) && `Transaction Fee ${currentTxFee}`}
+                            {!_.isEmpty(currentTxFee) && `Transaction Fee ${currentTxFee}${fromChainKey === 'ETH' ? ' + Ethereum Gas fee' : ''}`}
                         </span>
                             <ActionButton disabled={disabled} actionKey="transfer" onClick={handleSubmit(onSubmit)}>
                                 Send Tokens

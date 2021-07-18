@@ -239,5 +239,12 @@
         margin-left: 5px;
       }
     }
+
+    .small-text {
+      align-self: flex-end;
+      margin-left: 10px;
+      opacity: .7;
+      font-size: .725em;
+    }
   }
 }

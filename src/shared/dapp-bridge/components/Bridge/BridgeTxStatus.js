@@ -1,4 +1,5 @@
 import React from 'react'
+import _ from 'lodash'
 import {useSelector} from "react-redux"
 import {bridgeSelector} from "shared/dapp-bridge/dapp-bridge"
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -31,18 +32,20 @@ const BridgeTxStatus = ({controller}) => {
     const fromChain = useSelector(chainSelector(fromChainKey))
     const toChain = useSelector(chainSelector(toChainKey))
 
-    if (!active) return null
+    if (!active || _.isNil(fromChain) || _.isNil(toChain)) return null
 
-    let s1 = 'loading', s2 = '', s3 = ''
+    let s1 = 'loading', s2 = '', s3 = '', isBridging = false
 
     if (deposited) {
         s1 = 'done'
         s2 = 'loading'
+        isBridging = true
     }
     if (received) {
         s1 = 'done'
         s2 = 'done'
         s3 = 'done'
+        isBridging = false
     }
 
     const hideReceivedTxId = toChainKey === 'EOS'
@@ -62,7 +65,7 @@ const BridgeTxStatus = ({controller}) => {
                 <div className="tx-id">TX: <a target="_blank" rel="noreferrer" href={getExplorerLink(fromChainKey, depositTxId)}>{depositTxId}</a></div>
             )}
             <div className={classNames("center-aligned-row status-row loading")}>
-                <StatusMarker status={s2}/> Bridge to {toChain.name}
+                <StatusMarker status={s2}/> Bridge to {toChain.name} {isBridging && <span className="small-text">This might take a few minutes</span>}
             </div>
             <div className={classNames("center-aligned-row status-row")}>
                 <StatusMarker status={s3}/> Receive on {toChain.name}

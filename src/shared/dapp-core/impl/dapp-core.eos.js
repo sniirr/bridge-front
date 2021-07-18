@@ -1,7 +1,7 @@
 import _ from "lodash";
 import {initAccessContext} from 'eos-transit'
 import scatter from 'eos-transit-scatter-provider'
-import tokenpocket from 'eos-transit-tokenpocket-provider'
+// import tokenpocket from 'eos-transit-tokenpocket-provider'
 import AnchorLinkProvider from 'eos-transit-anchorlink-provider'
 import { JsonRpc } from 'eosjs'
 
@@ -17,7 +17,7 @@ const connect = ({chain}) => async ({providerIdx}) => {
         walletProviders: [
             scatter(),
             AnchorLinkProvider(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)),
-            tokenpocket(),
+            // tokenpocket(),
         ]
     });
 
