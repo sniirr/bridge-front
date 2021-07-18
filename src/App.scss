@@ -34,7 +34,7 @@ body {
     right: 0;
     background: black url("images/rainbow.png") no-repeat center center;
     background-size: 100% 100%;
-    opacity: .3;
+    opacity: .35;
   }
 }
 
@@ -92,9 +92,33 @@ body {
     }
   }
 
+  footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-self: center;
+    height: 60px;
+    justify-content: center;
+    background-color: black;
+    padding-top: 20px;
+
+    a {
+      &:not(:first-child) {
+        margin-left: 24px;
+      }
+
+      svg {
+        width: 1.5em !important;
+        height: 1.5em !important;
+      }
+    }
+  }
+
   .page {
     width: 1200px;
-    padding-top: 100px;
+    padding: 100px 0 60px;
     display: flex;
     justify-content: space-evenly;
     margin: 0 auto;
@@ -122,6 +146,13 @@ body {
         font-style: italic;
         line-height: 1.5em;
         font-size: 1.1em;
+      }
+
+      a {
+        &:hover {
+          //font-weight: bold;
+          text-decoration: underline;
+        }
       }
 
       .list-item {
