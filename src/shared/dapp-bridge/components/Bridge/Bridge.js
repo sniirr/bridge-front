@@ -24,11 +24,15 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
 
     const dispatch = useDispatch()
 
+    let params = new URLSearchParams(window.location.search)
+    const urlSym = _.toUpper(params?.get('symbol'))
+
     const controller = useSelector(ctrlSelector('bridge'))
     const coreController = useSelector(ctrlSelector('core'))
 
     // tokens
-    const [selectedSymbol, setSelectedSymbol] = useState(supportedTokens[0])
+    const initialSym = !_.isEmpty(urlSym) && _.includes(supportedTokens, urlSym) ? urlSym : supportedTokens[0]
+    const [selectedSymbol, setSelectedSymbol] = useState(initialSym)
     const tokenConf = useSelector(tokenSelector(selectedSymbol))
 
     const chainsDirectionByToken = token => {
