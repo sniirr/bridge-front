@@ -263,7 +263,9 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
                 <FontAwesomeIcon icon={faSync} className={classNames({disabled})}
                                  title={`Refresh fees${disabled ? ' (requires login)' : ''}`}
                                  onClick={() => !disabled && controller.updatePrices()}/>
-                <FontAwesomeIcon icon={faInfo} title="DAPP Bridge guide" onClick={() => console.log('guide')}/>
+                <a target="_blank" rel="noreferrer" href="https://medium.com/the-liquidapps-blog/dapp-token-cross-chain-bridging-guide-6c32bc627398">
+                    <FontAwesomeIcon icon={faInfo} title="Bifrost guide" onClick={() => console.log('guide')}/>
+                </a>
             </div>
         </div>
     )
