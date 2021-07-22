@@ -50,12 +50,15 @@ function App() {
                 </div>
             </div>
             <footer>
-                <a href="https://t.me/DAD_Token" target="_blank" rel="noopener noreferrer">
-                    <FontAwesomeIcon icon={faTelegramPlane}/>
-                </a>
-                <a href="https://github.com/DAPP-Account-DAO" target="_blank" rel="noopener noreferrer">
-                    <FontAwesomeIcon icon={faGithub}/>
-                </a>
+                <div className="links">
+                    <a href="https://t.me/DAD_Token" target="_blank" rel="noopener noreferrer">
+                        <FontAwesomeIcon icon={faTelegramPlane}/>
+                    </a>
+                    <a href="https://github.com/DAPP-Account-DAO" target="_blank" rel="noopener noreferrer">
+                        <FontAwesomeIcon icon={faGithub}/>
+                    </a>
+                </div>
+                <a className="powered-by" target="_blank" rel="noreferrer" href="https://liquidapps.io/"/>
             </footer>
             <Modals modals={modals}/>
             <Notification/>
