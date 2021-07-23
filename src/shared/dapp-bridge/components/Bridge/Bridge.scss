@@ -196,6 +196,28 @@
     }
   }
 
+  .info-message {
+    .small-text {
+      margin-left: 5px;
+    }
+
+    .note-text {
+      font-size: .8em;
+      position: relative;
+      margin: 8px 0 0 10px;
+
+      &:before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: -10px;
+        width: 2px;
+        height: 2px;
+        background-color: white;
+      }
+    }
+  }
+
   .tx-status {
     margin-top: 40px;
     position: relative;

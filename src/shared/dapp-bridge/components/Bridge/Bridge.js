@@ -68,8 +68,6 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
         })
     }
 
-    const currentTxFee = fromChainKey === token.issuedOn ? txFee.deposit : txFee.withdraw
-
     const {isRegistered} = useSelector(controller.isRegisteredSelector)
     const balance = useSelector(balanceSelector(fromChainKey, token.symbol))
 
@@ -87,6 +85,36 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
     })
 
     const amount = watch('amount')
+
+    let currentTxFee
+
+    const renderFeeText = () => {
+        const _amount = parseFloat(amount || '0')
+        const minFee = fromChainKey === token.issuedOn ? txFee.minDeposit : txFee.minWithdraw
+        const feePct = fromChainKey === token.issuedOn ? txFee.depositPct : txFee.withdrawPct
+        currentTxFee = _amount * feePct / 100
+
+        console.log({amount, currentTxFee, minFee})
+        currentTxFee = currentTxFee > minFee ? currentTxFee : minFee
+
+        if (_.isNil(currentTxFee)) return null
+
+        return (
+            <>
+                {_amount > 0 ? (
+                    `Transaction Fee ${amountToAsset(currentTxFee, token, true, true)}`
+                ) : (
+                    <>
+                        Transaction Fee {feePct}%
+                        <span className="small-text">
+                        (min. {amountToAsset(minFee, token, true, true)}){fromChainKey === 'ETH' ? ' + gas fee' : ''}
+                    </span>
+                    </>
+                )}
+                <div className="note-text">Fee will be deducted from the sent amount</div>
+            </>
+        )
+    }
 
     const onSubmit = () => {
         controller.transfer(fromChainKey, toChainKey, amount, token, infiniteApproval)
@@ -221,7 +249,7 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
                                     setValue={setValue}
                                     onChange={setInputAmount}
                                     validations={{
-                                        greaterThenFee: v => v > parseFloat(currentTxFee) || "Must be greater then the transaction fee"
+                                        greaterThenFee: v => v > currentTxFee || "Must be greater then the transaction fee"
                                     }}/>
                             </div>
                         </div>
@@ -237,9 +265,9 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
                                 </div>
                             </div>
                         )}
-                        <div className="row center-aligned-spaced-row" style={{textAlign: 'right'}}>
+                        <div className="row center-aligned-spaced-row">
                         <span className="info-message">
-                            {!_.isEmpty(currentTxFee) && `Transaction Fee ${currentTxFee}${fromChainKey === 'ETH' ? ' + Ethereum Gas fee' : ''}`}
+                            {renderFeeText()}
                         </span>
                             <ActionButton disabled={disabled} actionKey="transfer" onClick={handleSubmit(onSubmit)}>
                                 Send Tokens

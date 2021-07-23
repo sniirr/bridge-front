@@ -43,6 +43,12 @@ export const removeNotification = () => ({
     type: 'NOTIFICATION.REMOVE'
 })
 
+export const toFloat = (input, decimal = 6) => {
+    let output = input.toString();
+    output = output.slice(0, (output.indexOf(".")) + decimal + 1);
+    return Number(output);
+}
+
 const precisions = _.uniq([2, 4, 6, 18])
 
 const generateFormat = p => {

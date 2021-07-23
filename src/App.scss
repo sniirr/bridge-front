@@ -100,12 +100,13 @@ body {
     display: flex;
     align-items: center;
     align-self: center;
-    height: 60px;
+    height: 72px;
     justify-content: space-between;
     background-color: black;
     padding-top: 20px;
     width: 1200px;
     margin: 0 auto;
+
     .powered-by {
       background: url("/images/powered-by.png") no-repeat center center;
       background-size: 100%;
@@ -159,10 +160,6 @@ body {
 
       a {
         text-decoration: underline;
-        //&:hover {
-        //  //font-weight: bold;
-        //  text-decoration: underline;
-        //}
       }
 
       .list-item {
