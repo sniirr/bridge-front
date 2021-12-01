@@ -107,7 +107,7 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
                     <>
                         Transaction Fee {feePct}%
                         <span className="small-text">
-                        (min. {amountToAsset(minFee, token, true, true)}){fromChainKey === 'ETH' ? ' + gas fee' : ''}
+                        (min. {amountToAsset(minFee, token, true, true, token.precision > 6 ? 6 : token.precision)}){fromChainKey === 'ETH' ? ' + gas fee' : ''}
                     </span>
                     </>
                 )}
@@ -217,7 +217,8 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
                             <div className="item-title">Token</div>
                             <div className="item-text">
                                 {_.size(supportedTokens) === 1 ? selectedSymbol : (
-                                    <Dropdown id="token-select" withCaret={true}
+                                    <Dropdown id="token-select" withCaret={true} showSelected={false}
+                                              selectedItem={{name: token.symbol}}
                                               disabled={txStatus.active}
                                               items={_.map(supportedTokens, t => ({name: t}))}
                                               onItemClick={({name: symbol}) => {

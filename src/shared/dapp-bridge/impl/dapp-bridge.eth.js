@@ -105,6 +105,7 @@ export const createController = bridgeConfig => {
         switch (token.symbol) {
             case 'USDC':
             case 'DAI':
+            case 'EMT':
                 sendAmount = web3.utils.toWei(amount + '', toWeiUnit)
                 break
             default:

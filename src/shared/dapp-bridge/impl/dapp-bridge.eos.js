@@ -28,7 +28,7 @@ export const createController = bridgeConfig => {
 
                     return {
                         symbol: inSymbol,
-                        inToken: {symbol: inSymbol, precision: outSymbol === 'DAI' ? 18 : parseInt(inPrecision), bridgeContracts: contracts},
+                        inToken: {symbol: inSymbol, precision: outSymbol === 'DAI' || outSymbol === 'EMT' ? 18 : parseInt(inPrecision), bridgeContracts: contracts},
                         outToken: {symbol: outSymbol, precision: parseInt(outPrecision), bridgeContracts: contracts},
                     }
                 })

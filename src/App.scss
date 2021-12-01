@@ -63,6 +63,11 @@ body {
   }
 }
 
+.dropdown {
+  border-bottom: solid 1px white;
+  padding-bottom: 2px;
+}
+
 .App {
   --error-color: #e64c22;
   --success-color: #61ad4f;
