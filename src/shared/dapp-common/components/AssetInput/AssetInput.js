@@ -41,14 +41,9 @@ export const AssetInput = ({token, name = "amount", label, apiKey, maxAmount, re
                    {...register(name, {
                        setValueAs: processValue,
                        validate: {
-                           // positive: v => {
-                           //     const fv = parseFloat(v)
-                           //     console.log('VALIDATING positive', (canBeZero ? fv >= 0 : fv > 0) || "Must be greater then 0")
-                           //     return (canBeZero ? fv >= 0 : fv > 0) || "Must be greater then 0"
+                           // maxExceeded: v => {
+                           //     return !withMax || parseFloat(removeComma(v)) <= maxAmount || "Max amount exceeded"
                            // },
-                           maxExceeded: v => {
-                               return !withMax || parseFloat(removeComma(v)) <= maxAmount || "Max amount exceeded"
-                           },
                            ...validations,
                        }
                    })}

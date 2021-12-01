@@ -45,7 +45,7 @@ function App() {
                         </div>
                     </div>
                     <Bridge supportedChains={['EOS', 'ETH']}
-                            supportedTokens={['DAPP', 'USDC', 'DAI', 'EMT']}
+                            supportedTokens={['DAPP', 'USDC', 'DAI', 'EMT', 'BNT', 'ETHBNT']}
                     />
                 </div>
             </div>

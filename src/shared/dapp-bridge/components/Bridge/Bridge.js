@@ -36,8 +36,10 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
     const tokenConf = useSelector(tokenSelector(selectedSymbol))
 
     const chainsDirectionByToken = token => {
-        const from = _.get(token, 'issuedOn', supportedChains[0])
+        const uniDirFrom = _.get(token, 'uniDirFrom')
+        let from = _.isEmpty(uniDirFrom) ? _.get(token, 'issuedOn', supportedChains[0]) : uniDirFrom
         const to = _.find(supportedChains, sym => sym !== from)
+
         return [from, to]
     }
 
@@ -77,7 +79,7 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
     const [txFeesTimer, setTxFeesTimer] = useState(-1)
 
     // amount input
-    const {register, handleSubmit, watch, formState: { errors }, setValue} = useForm({
+    const {register, handleSubmit, watch, formState: {errors}, setValue} = useForm({
         mode: 'onChange',
         reValidateMode: 'onChange',
         criteriaMode: 'all',
@@ -205,8 +207,10 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
         <div className="dapp-bridge">
             <div className="row chains-row">
                 {renderChainBox(fromChainKey, 'From')}
-                <div className="arrow" onClick={() => setChains([toChainKey, fromChainKey])}>
-                    <SwapHoriz/>
+                <div className="arrow">
+                    {_.isEmpty(_.get(token, 'uniDirFrom')) && (
+                        <SwapHoriz onClick={() => setChains([toChainKey, fromChainKey])}/>
+                    )}
                 </div>
                 {renderChainBox(toChainKey, 'To')}
             </div>
@@ -250,7 +254,7 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
                                     setValue={setValue}
                                     onChange={setInputAmount}
                                     validations={{
-                                        greaterThenFee: v => v > currentTxFee || "Must be greater then the transaction fee"
+                                        // greaterThenFee: v => v > currentTxFee || "Must be greater then the transaction fee"
                                     }}/>
                             </div>
                         </div>
@@ -292,7 +296,8 @@ export const Bridge = ({supportedChains, supportedTokens}) => {
                 <FontAwesomeIcon icon={faSync} className={classNames({disabled})}
                                  title={`Refresh fees${disabled ? ' (requires login)' : ''}`}
                                  onClick={() => !disabled && controller.updatePrices()}/>
-                <a target="_blank" rel="noreferrer" href="https://medium.com/the-liquidapps-blog/dapp-token-cross-chain-bridging-guide-6c32bc627398">
+                <a target="_blank" rel="noreferrer"
+                   href="https://medium.com/the-liquidapps-blog/dapp-token-cross-chain-bridging-guide-6c32bc627398">
                     <FontAwesomeIcon icon={faInfo} title="Bifrost guide" onClick={() => console.log('guide')}/>
                 </a>
             </div>
